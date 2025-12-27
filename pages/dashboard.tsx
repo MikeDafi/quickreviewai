@@ -8,6 +8,7 @@ import { Store } from '@/lib/types';
 import StoreCard from '@/components/StoreCard';
 import AddStoreModal from '@/components/AddStoreModal';
 import QRCodeModal from '@/components/QRCodeModal';
+import GuidanceModal from '@/components/GuidanceModal';
 import { SubscriptionTier, PLAN_LIMITS, getPlanLimits } from '@/lib/constants';
 
 // Toast notification component
@@ -38,6 +39,7 @@ export default function Dashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
+  const [guidanceStore, setGuidanceStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, blockedRegenerations: 0, storeCount: 0, tier: SubscriptionTier.FREE as string, storeLimit: 1 as number | null });
   
@@ -200,6 +202,38 @@ export default function Dashboard() {
     }
   }
 
+  async function handleSaveGuidance(guidance: string) {
+    if (!guidanceStore || savingStore) return;
+    setSavingStore(true);
+    
+    try {
+      const updatedStore = {
+        ...guidanceStore,
+        reviewExpectations: guidance ? [guidance] : [],
+      };
+      
+      const res = await fetch(`/api/stores?id=${guidanceStore.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedStore),
+      });
+      
+      if (res.ok) {
+        setGuidanceStore(null);
+        showToast('Guidance saved!', 'success');
+        fetchStores();
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Failed to save guidance', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to save guidance:', error);
+      showToast('Failed to save guidance. Please try again.', 'error');
+    } finally {
+      setSavingStore(false);
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -329,6 +363,18 @@ export default function Dashboard() {
               <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied}</div>
               <p className="text-sm text-gray-500 mt-1">This month</p>
             </div>
+
+            {/* Blocked Regenerations - only show if > 0 and on free plan */}
+            {stats.tier === SubscriptionTier.FREE && stats.blockedRegenerations > 0 && (
+              <div className="bg-red-50 rounded-xl p-6 border-2 border-red-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-red-700 font-medium">Missed Reviews</span>
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                </div>
+                <div className="text-3xl font-bold text-red-600">{stats.blockedRegenerations}</div>
+                <p className="text-sm text-red-600 mt-1">Customers wanted different options</p>
+              </div>
+            )}
           </div>
 
           {/* Pro Features Callout - Only for free users */}
@@ -446,6 +492,7 @@ export default function Dashboard() {
                   onDelete={handleDeleteStore}
                   onShowQR={setQrCodeStore}
                   onShowAnalytics={(s) => router.push(`/analytics/${s.id}`)}
+                  onShowGuidance={setGuidanceStore}
                 />
               ))}
             </div>
@@ -474,6 +521,15 @@ export default function Dashboard() {
           <QRCodeModal
             store={qrCodeStore}
             onClose={() => setQrCodeStore(null)}
+          />
+        )}
+
+        {guidanceStore && (
+          <GuidanceModal
+            store={guidanceStore}
+            onClose={() => setGuidanceStore(null)}
+            onSave={handleSaveGuidance}
+            saving={savingStore}
           />
         )}
 
