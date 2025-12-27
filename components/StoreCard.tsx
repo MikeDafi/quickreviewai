@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy } from 'lucide-react';
+import Link from 'next/link';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface StoreCardProps {
   store: Store;
+  tier: 'free' | 'pro';
   onEdit: (store: Store) => void;
   onDelete: (id: string) => void;
   onShowQR: (store: Store) => void;
+  onShowAnalytics?: (store: Store) => void;
 }
 
 const MAX_VISIBLE_KEYWORDS = 3;
 
-export default function StoreCard({ store, onEdit, onDelete, onShowQR }: StoreCardProps) {
+export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onShowAnalytics }: StoreCardProps) {
   const [showAllKeywords, setShowAllKeywords] = useState(false);
   
   const visibleKeywords = showAllKeywords 
@@ -142,6 +145,27 @@ export default function StoreCard({ store, onEdit, onDelete, onShowQR }: StoreCa
           <QrCode className="w-4 h-4" />
           QR Code
         </button>
+        {tier === 'pro' ? (
+          <button
+            onClick={() => onShowAnalytics?.(store)}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </button>
+        ) : (
+          <Link
+            href="/upgrade"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-500 rounded-lg hover:bg-gray-300 transition-colors text-sm group relative"
+          >
+            <Lock className="w-4 h-4" />
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Upgrade to Pro
+            </span>
+          </Link>
+        )}
         <button
           onClick={() => onDelete(store.id)}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm ml-auto"

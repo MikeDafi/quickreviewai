@@ -363,6 +363,7 @@ export default function Dashboard() {
                 <StoreCard
                   key={store.id}
                   store={store}
+                  tier={stats.tier as 'free' | 'pro'}
                   onEdit={setEditingStore}
                   onDelete={handleDeleteStore}
                   onShowQR={setQrCodeStore}
