@@ -612,9 +612,40 @@ const keywordSuggestions: Record<string, string[]> = {
 
 const MAX_BUSINESS_TYPES = 3;
 
+// Helper to parse existing address into parts
+function parseAddress(address: string): { street: string; city: string; state: string; zip: string } {
+  if (!address) return { street: '', city: '', state: '', zip: '' };
+  
+  // Try to parse "123 Main St, City, State 12345" format
+  const parts = address.split(',').map(p => p.trim());
+  if (parts.length >= 2) {
+    const street = parts[0] || '';
+    const city = parts[1] || '';
+    // Last part might be "State 12345" or just "State"
+    const lastPart = parts[2] || '';
+    const stateZipMatch = lastPart.match(/^([A-Za-z\s]+)\s*(\d{5}(?:-\d{4})?)?$/);
+    if (stateZipMatch) {
+      return { street, city, state: stateZipMatch[1]?.trim() || '', zip: stateZipMatch[2] || '' };
+    }
+    return { street, city, state: lastPart, zip: '' };
+  }
+  
+  return { street: address, city: '', state: '', zip: '' };
+}
+
 export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalProps) {
   const [name, setName] = useState(store?.name || '');
-  const [address, setAddress] = useState(store?.address || '');
+  
+  // Parse existing address into parts
+  const initialAddress = parseAddress(store?.address || '');
+  const [street, setStreet] = useState(initialAddress.street);
+  const [city, setCity] = useState(initialAddress.city);
+  const [state, setState] = useState(initialAddress.state);
+  const [zip, setZip] = useState(initialAddress.zip);
+  
+  // Combine address parts into full address
+  const address = [street, city, [state, zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  
   // Parse existing business types from comma-separated string
   const initialBusinessTypes = store?.businessType 
     ? store.businessType.split(',').map(t => t.trim()).filter(Boolean)
@@ -643,8 +674,8 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
       return;
     }
     
-    // Need both name and address to auto-lookup
-    if (!name.trim() || !address.trim()) {
+    // Need name and at least city to auto-lookup
+    if (!name.trim() || !city.trim()) {
       return;
     }
 
@@ -657,7 +688,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     }, 3000); // 3 seconds after stopping typing
 
     return () => clearTimeout(timer);
-  }, [name, address, googleUrl, yelpUrl, hasAutoLookedUp, store]);
+  }, [name, street, city, state, zip, googleUrl, yelpUrl, hasAutoLookedUp, store]);
 
   // Auto-lookup function (silent, no error messages)
   const lookupBusinessUrlsAuto = async () => {
@@ -956,16 +987,49 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Store Address
             </label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="e.g. 123 Main St, City, State 12345"
-              maxLength={300}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Optional. Helps customers find your location.
+            <div className="space-y-3">
+              {/* Street Address */}
+              <input
+                type="text"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+                placeholder="Street Address (e.g. 123 Main St)"
+                maxLength={150}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              />
+              
+              {/* City */}
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="City"
+                maxLength={100}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              />
+              
+              {/* State and Zip in a row */}
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="State"
+                  maxLength={50}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                />
+                <input
+                  type="text"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                  placeholder="ZIP Code"
+                  maxLength={10}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Optional. Helps customers find your location and auto-fill review URLs.
             </p>
           </div>
 
