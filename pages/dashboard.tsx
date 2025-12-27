@@ -386,7 +386,7 @@ export default function Dashboard() {
               <div className={`rounded-xl p-6 border-2 ${stats.blockedRegenerations > 0 ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-200'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className={stats.blockedRegenerations > 0 ? 'text-amber-700 font-medium' : 'text-gray-600'}>
-                    Denied Generations
+                    Number of Times Customers Wanted Different Reviews but Hit the Free Limit
                   </span>
                   <AlertCircle className={`w-5 h-5 ${stats.blockedRegenerations > 0 ? 'text-amber-500' : 'text-gray-400'}`} />
                 </div>
