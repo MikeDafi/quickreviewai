@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Link from 'next/link';
 import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare } from 'lucide-react';
 import { Store } from '@/lib/types';
 
@@ -174,17 +173,17 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
             Analytics
           </button>
         ) : (
-          <Link
-            href="/upgrade"
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-500 rounded-lg hover:bg-gray-300 transition-colors text-sm group relative"
+          <div
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed text-sm group relative select-none"
+            title="Pro feature"
           >
             <Lock className="w-4 h-4" />
             <BarChart3 className="w-4 h-4" />
             Analytics
-            <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Upgrade to Pro
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Pro feature
             </span>
-          </Link>
+          </div>
         )}
         <button
           onClick={() => onDelete(store.id)}

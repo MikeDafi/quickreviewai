@@ -343,10 +343,10 @@ export default function Home() {
                   'Unlimited store locations',
                   'Unlimited AI reviews',
                   'Unlimited QR scans',
-                  'Google, Yelp, TripAdvisor, Facebook, OpenTable & more',
-                  'Priority support',
+                  'Custom review focus (guide what customers mention)',
                   'Analytics dashboard',
-                  '3-day refund guarantee'
+                  'All platforms supported',
+                  'Priority support'
                 ]}
                 buttonText="Get Pro"
                 buttonVariant="primary"

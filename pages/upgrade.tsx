@@ -82,9 +82,10 @@ export default function Upgrade() {
     'Unlimited store locations',
     'Unlimited AI reviews',
     'Unlimited QR scans',
-    'All review platforms',
-    'Priority support',
+    'Custom review focus (guide what customers mention)',
     'Analytics dashboard',
+    'All platforms supported',
+    'Priority support',
   ];
 
   return (

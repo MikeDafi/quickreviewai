@@ -374,6 +374,7 @@ export default function Dashboard() {
                   onEdit={setEditingStore}
                   onDelete={handleDeleteStore}
                   onShowQR={setQrCodeStore}
+                  onShowAnalytics={(s) => router.push(`/analytics/${s.id}`)}
                 />
               ))}
             </div>
