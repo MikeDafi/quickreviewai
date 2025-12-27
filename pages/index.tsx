@@ -122,7 +122,7 @@ export default function Home() {
                 <div className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium mb-4">Step 3</div>
                 <h3 className="text-2xl font-semibold mb-3 text-gray-900">Collect Reviews</h3>
                 <p className="text-gray-600">
-                  Customers copy the suggested review and post directly to Google or Yelp. Watch your ratings soar.
+                  Customers copy the suggested review and post to Google, Yelp, TripAdvisor, Facebook, or any platform. Watch your ratings soar.
                 </p>
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function Home() {
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <Shield className="w-10 h-10 text-emerald-600 mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-900">Multi-Platform</h3>
-                <p className="text-gray-600">Works with Google, Yelp, and other review sites</p>
+                <p className="text-gray-600">Google, Yelp, TripAdvisor, Facebook, Trustpilot & more</p>
               </div>
               
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -343,7 +343,7 @@ export default function Home() {
                   'Unlimited store locations',
                   'Unlimited AI reviews',
                   'Unlimited QR scans',
-                  'All platforms (Google, Yelp, TripAdvisor, etc.)',
+                  'Google, Yelp, TripAdvisor, Facebook, Trustpilot & more',
                   'Priority support',
                   'Analytics dashboard',
                   '3-day refund guarantee'
