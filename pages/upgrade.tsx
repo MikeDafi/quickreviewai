@@ -157,7 +157,7 @@ export default function Upgrade() {
             )}
 
             <button
-              onClick={() => handleUpgrade('pro')}
+              onClick={() => handleUpgrade(SubscriptionTier.PRO)}
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
             >

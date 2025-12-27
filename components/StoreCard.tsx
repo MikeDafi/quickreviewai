@@ -165,7 +165,7 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
           <QrCode className="w-4 h-4" />
           QR Code
         </button>
-        {tier === 'pro' ? (
+        {tier === SubscriptionTier.PRO ? (
           <button
             onClick={() => onShowAnalytics?.(store)}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"

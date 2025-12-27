@@ -98,31 +98,15 @@ export async function getUserByEmail(email: string) {
 // Helper to create or update user (for NextAuth)
 // Also restores soft-deleted accounts when user signs in again
 export async function upsertUser(user: { id: string; email: string; name?: string }) {
-  // First try with deleted_at reset (for accounts being reactivated)
-  // If that fails (column doesn't exist), fall back to simple upsert
-  try {
-    const { rows } = await sql`
-      INSERT INTO users (id, email, name)
-      VALUES (${user.id}, ${user.email}, ${user.name || null})
-      ON CONFLICT (id) DO UPDATE SET
-        email = EXCLUDED.email,
-        name = EXCLUDED.name,
-        deleted_at = NULL
-      RETURNING *
-    `
-    return rows[0]
-  } catch (error) {
-    // Fallback if deleted_at column doesn't exist
-    const { rows } = await sql`
-      INSERT INTO users (id, email, name)
-      VALUES (${user.id}, ${user.email}, ${user.name || null})
-      ON CONFLICT (id) DO UPDATE SET
-        email = EXCLUDED.email,
-        name = EXCLUDED.name
-      RETURNING *
-    `
-    return rows[0]
-  }
+  const { rows } = await sql`
+    INSERT INTO users (id, email, name)
+    VALUES (${user.id}, ${user.email}, ${user.name || null})
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      name = EXCLUDED.name
+    RETURNING *
+  `
+  return rows[0]
 }
 
 // Get stores for a user with analytics (optimized with JOINs instead of subqueries)
