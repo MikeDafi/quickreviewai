@@ -260,129 +260,143 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Billing Section */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-gray-500" />
-                  Billing
-                </h2>
-              </div>
-              <div className="p-6">
-                {subscription?.tier === SubscriptionTier.FREE ? (
-                  <div className="text-center py-4">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Crown className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      You&apos;re on the Free Plan
-                    </h3>
-                    <p className="text-gray-600 mb-4 max-w-md mx-auto">
-                      Upgrade to Pro for unlimited stores, unlimited scans, and priority support.
-                    </p>
-                    <Link
-                      href="/upgrade"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
-                    >
-                      <Crown className="w-5 h-5" />
-                      Upgrade to Pro
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Subscription Status */}
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-gray-900 font-medium">
-                          Pro Plan
-                        </p>
-                        {subscription?.cancelAtPeriodEnd ? (
-                          <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
-                            <AlertTriangle className="w-4 h-4" />
-                            Cancels on {subscription?.currentPeriodEnd && formatDate(subscription.currentPeriodEnd)}
+            {/* Billing Section - Only show if user has or had a subscription */}
+            {(subscription?.hasSubscription || subscription?.wasEverSubscribed) && (
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-gray-500" />
+                    Billing
+                  </h2>
+                </div>
+                <div className="p-6">
+                  {subscription?.tier === SubscriptionTier.FREE ? (
+                    // User was subscribed before but now on free tier
+                    <div className="space-y-4">
+                      {subscription?.cancelAtPeriodEnd && subscription?.currentPeriodEnd ? (
+                        // Subscription cancelled but still active until period end
+                        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-amber-800">Pro access until {formatDate(subscription.currentPeriodEnd)}</p>
+                            <p className="text-sm text-amber-700 mt-1">
+                              Your subscription has been cancelled and will expire on this date.
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        // Subscription fully expired
+                        <div className="text-center py-4">
+                          <p className="text-gray-600 mb-4">
+                            Your Pro subscription has ended. Resubscribe to regain unlimited access.
                           </p>
-                        ) : (
-                          <p className="text-sm text-gray-600">Billed monthly</p>
-                        )}
-                      </div>
-                      {!subscription?.cancelAtPeriodEnd && (
-                        <div className="flex items-center gap-2 text-emerald-600">
-                          <CheckCircle className="w-5 h-5" />
-                          <span className="text-sm font-medium">Active</span>
+                          <Link
+                            href="/upgrade"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+                          >
+                            <Crown className="w-5 h-5" />
+                            Resubscribe to Pro
+                          </Link>
                         </div>
                       )}
                     </div>
-
-                    {/* Member Since */}
-                    {subscription?.subscriptionStartedAt && (
-                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                        <Calendar className="w-5 h-5 text-gray-500" />
+                  ) : (
+                    // Active Pro subscription
+                    <div className="space-y-6">
+                      {/* Subscription Status */}
+                      <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-sm text-gray-600">Member since</p>
-                          <p className="font-medium text-gray-900">
-                            {formatDate(subscription.subscriptionStartedAt)}
-                            {subscription.memberSinceDays !== undefined && (
-                              <span className="text-gray-500 font-normal ml-2">
-                                ({subscription.memberSinceDays} days)
-                              </span>
-                            )}
+                          <p className="text-gray-900 font-medium">
+                            Pro Plan
                           </p>
+                          {subscription?.cancelAtPeriodEnd ? (
+                            <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
+                              <AlertTriangle className="w-4 h-4" />
+                              Cancels on {subscription?.currentPeriodEnd && formatDate(subscription.currentPeriodEnd)}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-600">Billed monthly</p>
+                          )}
                         </div>
-                      </div>
-                    )}
-
-                    {/* Next Billing Date */}
-                    {subscription?.currentPeriodEnd && !subscription?.cancelAtPeriodEnd && (
-                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                        <Clock className="w-5 h-5 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-600">Next billing date</p>
-                          <p className="font-medium text-gray-900">
-                            {formatDate(subscription.currentPeriodEnd)}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Refund Eligibility Notice */}
-                    {subscription?.eligibleForRefund && (
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm text-blue-800">
-                          <strong>3-day refund available!</strong> As a first-time subscriber, you can get a full refund until{' '}
-                          {subscription.refundDeadline && formatDate(subscription.refundDeadline)}.
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-3 pt-2">
-                      <button
-                        onClick={handleManageBilling}
-                        disabled={billingLoading}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
-                      >
-                        {billingLoading ? (
-                          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <ExternalLink className="w-4 h-4" />
+                        {!subscription?.cancelAtPeriodEnd && (
+                          <div className="flex items-center gap-2 text-emerald-600">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="text-sm font-medium">Active</span>
+                          </div>
                         )}
-                        Manage Payment Method
-                      </button>
-                      
-                      {!subscription?.cancelAtPeriodEnd && (
+                      </div>
+
+                      {/* Member Since */}
+                      {subscription?.subscriptionStartedAt && (
+                        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                          <Calendar className="w-5 h-5 text-gray-500" />
+                          <div>
+                            <p className="text-sm text-gray-600">Member since</p>
+                            <p className="font-medium text-gray-900">
+                              {formatDate(subscription.subscriptionStartedAt)}
+                              {subscription.memberSinceDays !== undefined && (
+                                <span className="text-gray-500 font-normal ml-2">
+                                  ({subscription.memberSinceDays} days)
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Next Billing Date */}
+                      {subscription?.currentPeriodEnd && !subscription?.cancelAtPeriodEnd && (
+                        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                          <Clock className="w-5 h-5 text-gray-500" />
+                          <div>
+                            <p className="text-sm text-gray-600">Next billing date</p>
+                            <p className="font-medium text-gray-900">
+                              {formatDate(subscription.currentPeriodEnd)}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Refund Eligibility Notice */}
+                      {subscription?.eligibleForRefund && (
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-sm text-blue-800">
+                            <strong>3-day refund available!</strong> As a first-time subscriber, you can get a full refund until{' '}
+                            {subscription.refundDeadline && formatDate(subscription.refundDeadline)}.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex flex-wrap gap-3 pt-2">
                         <button
-                          onClick={() => setShowCancelModal(true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          onClick={handleManageBilling}
+                          disabled={billingLoading}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
                         >
-                          <XCircle className="w-4 h-4" />
-                          Cancel Subscription
+                          {billingLoading ? (
+                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <ExternalLink className="w-4 h-4" />
+                          )}
+                          Manage Payment Method
                         </button>
-                      )}
+                        
+                        {!subscription?.cancelAtPeriodEnd && (
+                          <button
+                            onClick={() => setShowCancelModal(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Cancel Subscription
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Account Actions */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">

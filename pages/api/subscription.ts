@@ -47,12 +47,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const tier = user.subscription_tier || SubscriptionTier.FREE
     
-    // Base response for free users
-    if (tier === SubscriptionTier.FREE || !user.stripe_subscription_id) {
+    // For free users, check if they have a cancelled subscription that's still active
+    if (tier === SubscriptionTier.FREE) {
+      // If they have a stripe_subscription_id, check if it's in cancelled-but-active state
+      if (user.stripe_subscription_id) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripe_subscription_id)
+          // If subscription exists and is cancelled at period end, show when it expires
+          if (subscription.status === 'active' && subscription.cancel_at_period_end) {
+            return res.status(200).json({
+              tier: SubscriptionTier.FREE,
+              hasSubscription: false,
+              wasEverSubscribed: true,
+              cancelAtPeriodEnd: true,
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+              accountCreatedAt: user.created_at,
+            })
+          }
+        } catch (error) {
+          // Subscription might not exist anymore, continue with normal free response
+          console.error('Failed to fetch cancelled subscription:', error)
+        }
+      }
+      
+      // Standard free user response
       return res.status(200).json({
         tier: SubscriptionTier.FREE,
         hasSubscription: false,
-        // Check if they were ever a subscriber (affects refund eligibility)
         wasEverSubscribed: !!user.first_subscribed_at,
         accountCreatedAt: user.created_at,
       })
