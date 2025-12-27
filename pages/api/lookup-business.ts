@@ -1,9 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { kv } from '@vercel/kv'
 
 const YELP_API_KEY = process.env.YELP_API_KEY
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY
+
+// Daily limit for Google Places API calls (~$200/month = 390/day)
+const GOOGLE_PLACES_DAILY_LIMIT = 390
 
 interface YelpBusiness {
   id: string
@@ -90,36 +94,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // Google Places API lookup
+  // Google Places API lookup (with daily budget cap)
   if (GOOGLE_PLACES_API_KEY) {
     try {
-      const searchQuery = address ? `${name} ${address}` : name
-      const searchParams = new URLSearchParams({
-        input: searchQuery,
-        inputtype: 'textquery',
-        fields: 'place_id,name,formatted_address',
-        key: GOOGLE_PLACES_API_KEY,
-      })
+      // Check daily usage limit to stay under $200/month budget
+      const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+      const usageKey = `places_api_usage:${today}`
+      const currentUsage = await kv.get<number>(usageKey) || 0
+      
+      if (currentUsage >= GOOGLE_PLACES_DAILY_LIMIT) {
+        console.warn(`Google Places API daily limit reached: ${currentUsage}/${GOOGLE_PLACES_DAILY_LIMIT}`)
+        // Skip Google lookup but continue with Yelp results
+      } else {
+        // Increment usage counter (expires after 48 hours)
+        await kv.incr(usageKey)
+        await kv.expire(usageKey, 172800) // 48 hours TTL
+        
+        const searchQuery = address ? `${name} ${address}` : name
+        const searchParams = new URLSearchParams({
+          input: searchQuery,
+          inputtype: 'textquery',
+          fields: 'place_id,name,formatted_address',
+          key: GOOGLE_PLACES_API_KEY,
+        })
 
-      const googleRes = await fetch(
-        `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${searchParams}`
-      )
+        const googleRes = await fetch(
+          `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${searchParams}`
+        )
 
-      if (googleRes.ok) {
-        const data: GoogleFindPlaceResponse = await googleRes.json()
-        if (data.status === 'OK' && data.candidates && data.candidates.length > 0) {
-          const place = data.candidates[0]
-          // Construct the Google review URL using place_id
-          results.googleUrl = `https://search.google.com/local/writereview?placeid=${place.place_id}`
-        } else if (data.status === 'OVER_QUERY_LIMIT') {
+        if (googleRes.ok) {
+          const data: GoogleFindPlaceResponse = await googleRes.json()
+          if (data.status === 'OK' && data.candidates && data.candidates.length > 0) {
+            const place = data.candidates[0]
+            // Construct the Google review URL using place_id
+            results.googleUrl = `https://search.google.com/local/writereview?placeid=${place.place_id}`
+          } else if (data.status === 'OVER_QUERY_LIMIT') {
+            rateLimited = true
+            console.error('Google Places API rate limited')
+          }
+        } else if (googleRes.status === 429) {
           rateLimited = true
           console.error('Google Places API rate limited')
+        } else {
+          console.error('Google Places API error:', await googleRes.text())
         }
-      } else if (googleRes.status === 429) {
-        rateLimited = true
-        console.error('Google Places API rate limited')
-      } else {
-        console.error('Google Places API error:', await googleRes.text())
       }
     } catch (error) {
       console.error('Google Places lookup error:', error)
