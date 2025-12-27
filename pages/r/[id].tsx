@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Copy, RefreshCw, ExternalLink, Check } from 'lucide-react';
+import { Copy, RefreshCw, ExternalLink, Check, Clipboard } from 'lucide-react';
 
 interface LandingData {
   id: string;
@@ -34,14 +34,37 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [autoCopied, setAutoCopied] = useState(false);
   const [error, setError] = useState('');
   const [rateLimitError, setRateLimitError] = useState('');
   const [isFreePlanLimit, setIsFreePlanLimit] = useState(false);
   const [isDemoLimit, setIsDemoLimit] = useState(false);
   const [demoReviewIndex, setDemoReviewIndex] = useState(0);
   const [demoRegenerateCount, setDemoRegenerateCount] = useState(0);
+  const hasAutoCopied = useRef(false);
 
   const isDemo = id === 'demo';
+
+  // Auto-copy function that shows a notification
+  const autoCopyToClipboard = useCallback(async (text: string, trackCopy: boolean = true) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setAutoCopied(true);
+      
+      // Track copy for analytics (skip for demo)
+      if (trackCopy && !isDemo && id) {
+        fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
+      }
+      
+      // Hide notification after 3 seconds
+      setTimeout(() => setAutoCopied(false), 3000);
+      return true;
+    } catch (err) {
+      // Auto-copy may fail if page isn't focused or clipboard API isn't available
+      console.log('Auto-copy not available, user can copy manually');
+      return false;
+    }
+  }, [id, isDemo]);
 
   useEffect(() => {
     if (id) {
@@ -50,11 +73,16 @@ export default function LandingPage() {
         setData(DEMO_DATA);
         setReview(DEMO_REVIEWS[0]);
         setLoading(false);
+        // Auto-copy demo review
+        if (!hasAutoCopied.current) {
+          hasAutoCopied.current = true;
+          setTimeout(() => autoCopyToClipboard(DEMO_REVIEWS[0], false), 500);
+        }
       } else {
-      fetchLandingPage();
+        fetchLandingPage();
       }
     }
-  }, [id, isDemo]);
+  }, [id, isDemo, autoCopyToClipboard]);
 
   async function fetchLandingPage() {
     try {
@@ -67,6 +95,13 @@ export default function LandingPage() {
       const result = await res.json();
       setData(result.landing);
       setReview(result.review);
+      
+      // Auto-copy the review to clipboard
+      if (result.review && !hasAutoCopied.current) {
+        hasAutoCopied.current = true;
+        // Small delay to ensure DOM is ready
+        setTimeout(() => autoCopyToClipboard(result.review), 500);
+      }
     } catch (err) {
       setError('Failed to load landing page');
     } finally {

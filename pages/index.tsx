@@ -343,7 +343,7 @@ export default function Home() {
                   'Unlimited store locations',
                   'Unlimited AI reviews',
                   'Unlimited QR scans',
-                  'All platforms',
+                  'All platforms (Google, Yelp, TripAdvisor, etc.)',
                   'Priority support',
                   'Analytics dashboard',
                   '3-day refund guarantee'

@@ -3,7 +3,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+// Validate required environment variables
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
+if (!STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY environment variable is required')
+}
+
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2025-02-24.acacia',
 })
 
@@ -30,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     : process.env.STRIPE_BUSINESS_PRICE_ID)?.trim()
 
   if (!priceId) {
-    return res.status(500).json({ error: 'Price ID not configured' })
+    console.error('STRIPE price ID not configured for plan:', plan)
+    return res.status(500).json({ error: 'Unable to process request' })
   }
 
   try {
@@ -55,8 +62,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ url: checkoutSession.url })
   } catch (error: unknown) {
     console.error('Stripe checkout error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to create checkout session'
-    return res.status(500).json({ error: message })
+    // Don't leak internal error details to client
+    return res.status(500).json({ error: 'Unable to process request' })
   }
 }
 

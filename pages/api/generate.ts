@@ -4,7 +4,13 @@ import { kv } from '@vercel/kv'
 import { getLandingPage, incrementCopyCount, sql } from '@/lib/db'
 import crypto from 'crypto'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
+// Validate required environment variables at module load
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY environment variable is required')
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
 
 // Rate limiting config
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 // 1 hour
@@ -412,7 +418,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const landing = await getLandingPage(id)
     
     if (!landing) {
-      return res.status(404).json({ error: 'Landing page not found' })
+      // Generic error - don't confirm whether ID format is valid
+      return res.status(404).json({ error: 'Not found' })
     }
 
     // Get visitor's IP address (using trusted headers only)
@@ -512,6 +519,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   } catch (error) {
     console.error('Generate API error:', error)
-    return res.status(500).json({ error: 'Internal server error' })
+    // Generic error - don't leak internal details
+    return res.status(500).json({ error: 'Something went wrong' })
   }
 }
