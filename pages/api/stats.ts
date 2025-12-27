@@ -18,49 +18,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = session.user.id
 
   try {
-    // Get user info including billing period data
-    const { rows: userRows } = await sql`
-      SELECT created_at, period_start, period_scans, period_copies
-      FROM users WHERE id = ${userId}
-    `
-    
-    const user = userRows[0]
-    
-    // Check if we need to reset the billing period (monthly from account creation)
-    if (user && isNewBillingPeriod(new Date(user.created_at), user.period_start ? new Date(user.period_start) : null)) {
-      await resetBillingPeriod(userId)
-      // Reset the local values after DB update
-      user.period_scans = 0
-      user.period_copies = 0
-    }
-    
-    // Get aggregated stats for the user (current stores + period stats from deleted stores)
+    // Combined query: get user info + store stats in one query
     const { rows } = await sql`
       SELECT 
+        u.created_at,
+        u.period_start,
+        COALESCE(u.period_scans, 0)::int as period_scans,
+        COALESCE(u.period_copies, 0)::int as period_copies,
+        u.subscription_tier,
         COALESCE(SUM(lp.view_count), 0)::int as current_scans,
         COALESCE(SUM(lp.copy_count), 0)::int as current_copies,
         COUNT(DISTINCT s.id)::int as store_count
-      FROM stores s
+      FROM users u
+      LEFT JOIN stores s ON s.user_id = u.id
       LEFT JOIN landing_pages lp ON lp.store_id = s.id
-      WHERE s.user_id = ${userId}
+      WHERE u.id = ${userId}
+      GROUP BY u.id, u.created_at, u.period_start, u.period_scans, u.period_copies, u.subscription_tier
     `
-
-    const stats = rows[0] || { current_scans: 0, current_copies: 0, store_count: 0 }
-    const periodScans = user?.period_scans || 0
-    const periodCopies = user?.period_copies || 0
+    
+    const data = rows[0]
+    
+    if (!data) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+    
+    let periodScans = data.period_scans
+    let periodCopies = data.period_copies
+    
+    // Check if we need to reset the billing period (monthly from account creation)
+    if (isNewBillingPeriod(new Date(data.created_at), data.period_start ? new Date(data.period_start) : null)) {
+      await resetBillingPeriod(userId)
+      // Reset the local values after DB update
+      periodScans = 0
+      periodCopies = 0
+    }
 
     // Total for this billing period = current (from active stores) + period (from deleted stores)
-    const totalScans = stats.current_scans + periodScans
-    const reviewsCopied = stats.current_copies + periodCopies
+    const totalScans = data.current_scans + periodScans
+    const reviewsCopied = data.current_copies + periodCopies
 
-    // TODO: Get actual subscription tier from user table
-    const tier = 'free'
+    const tier = data.subscription_tier || 'free'
     const scanLimit = tier === 'free' ? 15 : -1  // 15 scans/month for free, unlimited for pro
 
     return res.status(200).json({
       totalScans,
       reviewsCopied,
-      storeCount: stats.store_count,
+      storeCount: data.store_count,
       tier,
       scanLimit,
     })

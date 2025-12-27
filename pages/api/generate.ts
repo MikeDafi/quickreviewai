@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { kv } from '@vercel/kv'
-import { getLandingPage, incrementViewCount, incrementCopyCount, sql } from '@/lib/db'
+import { getLandingPage, incrementCopyCount, sql } from '@/lib/db'
 import crypto from 'crypto'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
@@ -13,6 +13,21 @@ const CACHE_TTL_SECONDS = 24 * 60 * 60 // 24 hours for cached reviews
 // Hash IP for privacy
 function hashIP(ip: string): string {
   return crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16)
+}
+
+// Get real client IP - use Vercel's trusted headers (cannot be spoofed)
+function getClientIP(req: NextApiRequest): string {
+  // x-real-ip is set by Vercel's edge network and is trustworthy
+  const realIp = req.headers['x-real-ip'] as string
+  if (realIp) return realIp
+  
+  // x-vercel-forwarded-for is also set by Vercel and trustworthy
+  const vercelForwardedFor = req.headers['x-vercel-forwarded-for'] as string
+  if (vercelForwardedFor) return vercelForwardedFor.split(',')[0].trim()
+  
+  // In development or non-Vercel environments, use socket address
+  // Do NOT trust x-forwarded-for as it can be spoofed by clients
+  return req.socket.remoteAddress || 'unknown'
 }
 
 // Rate limits per tier
@@ -400,14 +415,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'Landing page not found' })
     }
 
-    // Get visitor's IP address
-    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
-               req.socket.remoteAddress || 
-               'unknown'
+    // Get visitor's IP address (using trusted headers only)
+    const ip = getClientIP(req)
     const ipHash = hashIP(ip)
     
-    // Increment view count
-    await incrementViewCount(id)
+    // Increment view count in KV (batched, syncs to DB every 10 min)
+    try {
+      await kv.incr(`views:${id}`)
+    } catch (error) {
+      console.error('View count increment error:', error)
+    }
 
     // Check for IP-specific cached review in Vercel KV
     const cacheKey = `review_cache:${id}:${ipHash}`

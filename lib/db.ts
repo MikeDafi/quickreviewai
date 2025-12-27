@@ -131,10 +131,12 @@ export async function getStore(storeId: string, userId: string) {
   return rows[0] || null
 }
 
-// Helper to convert array to PostgreSQL array literal
-function toPostgresArray(arr: string[] | undefined): string | null {
+// Helper to convert array to JSON string for PostgreSQL
+// Using JSON instead of manual PostgreSQL array literal to prevent injection
+function toJsonArray(arr: string[] | undefined): string | null {
   if (!arr || arr.length === 0) return null
-  return `{${arr.map(s => `"${s.replace(/"/g, '\\"')}"`).join(',')}}`
+  // JSON.stringify properly escapes all special characters
+  return JSON.stringify(arr)
 }
 
 // Create a store
@@ -157,9 +159,11 @@ export async function createStore(data: {
   const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
   const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
   
-  const keywordsArray = toPostgresArray(safeKeywords)
-  const expectationsArray = toPostgresArray(safeExpectations)
+  const keywordsJson = toJsonArray(safeKeywords)
+  const expectationsJson = toJsonArray(safeExpectations)
   
+  // Use PostgreSQL's array() function with json_array_elements_text for safe conversion
+  // This avoids manual string interpolation that could lead to SQL injection
   const { rows } = await sql`
     INSERT INTO stores (user_id, name, address, business_type, keywords, review_expectations, google_url, yelp_url)
     VALUES (
@@ -167,8 +171,10 @@ export async function createStore(data: {
       ${safeName},
       ${safeAddress},
       ${safeBusinessType},
-      ${keywordsArray}::text[],
-      ${expectationsArray}::text[],
+      CASE WHEN ${keywordsJson}::text IS NULL THEN NULL 
+           ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
+      CASE WHEN ${expectationsJson}::text IS NULL THEN NULL 
+           ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
       ${safeGoogleUrl},
       ${safeYelpUrl}
     )
@@ -196,16 +202,25 @@ export async function updateStore(storeId: string, userId: string, data: {
   const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
   const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
   
-  const keywordsArray = toPostgresArray(safeKeywords)
-  const expectationsArray = toPostgresArray(safeExpectations)
+  const keywordsJson = toJsonArray(safeKeywords)
+  const expectationsJson = toJsonArray(safeExpectations)
   
+  // Use PostgreSQL's array() function with json_array_elements_text for safe conversion
   const { rows } = await sql`
     UPDATE stores SET
       name = COALESCE(${safeName}, name),
       address = COALESCE(${safeAddress}, address),
       business_type = COALESCE(${safeBusinessType}, business_type),
-      keywords = COALESCE(${keywordsArray}::text[], keywords),
-      review_expectations = COALESCE(${expectationsArray}::text[], review_expectations),
+      keywords = COALESCE(
+        CASE WHEN ${keywordsJson}::text IS NULL THEN NULL 
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
+        keywords
+      ),
+      review_expectations = COALESCE(
+        CASE WHEN ${expectationsJson}::text IS NULL THEN NULL 
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
+        review_expectations
+      ),
       google_url = COALESCE(${safeGoogleUrl}, google_url),
       yelp_url = COALESCE(${safeYelpUrl}, yelp_url)
     WHERE id = ${storeId} AND user_id = ${userId}
