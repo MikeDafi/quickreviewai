@@ -1,12 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { kv } from '@vercel/kv'
-import { getLandingPage, updateLandingPageCache, incrementViewCount, incrementCopyCount, sql } from '@/lib/db'
+import { getLandingPage, incrementViewCount, incrementCopyCount, sql } from '@/lib/db'
+import crypto from 'crypto'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 // Rate limiting config
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 // 1 hour
+const CACHE_TTL_SECONDS = 24 * 60 * 60 // 24 hours for cached reviews
+
+// Hash IP for privacy
+function hashIP(ip: string): string {
+  return crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16)
+}
 
 // Rate limits per tier
 const RATE_LIMITS = {
@@ -393,24 +400,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'Landing page not found' })
     }
 
+    // Get visitor's IP address
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
+               req.socket.remoteAddress || 
+               'unknown'
+    const ipHash = hashIP(ip)
+    
     // Increment view count
     await incrementViewCount(id)
 
-    // Check if we have a cached review and it's less than 24 hours old
-    const cacheValid = landing.cached_review && landing.cached_at && 
-      (Date.now() - new Date(landing.cached_at).getTime()) < 24 * 60 * 60 * 1000
+    // Check for IP-specific cached review in Vercel KV
+    const cacheKey = `review_cache:${id}:${ipHash}`
+    let cachedReview: string | null = null
+    
+    try {
+      cachedReview = await kv.get<string>(cacheKey)
+    } catch (error) {
+      console.error('Cache read error:', error)
+    }
 
     let review: string
 
-    if (cacheValid && !regenerate) {
-      review = landing.cached_review
+    if (cachedReview && !regenerate) {
+      // Use the cached review for this IP
+      review = cachedReview
     } else {
       // Rate limit regenerations (using Vercel KV)
       if (regenerate) {
-        const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
-                   req.socket.remoteAddress || 
-                   'unknown'
-        
         // Demo page has special handling
         const isDemo = id === 'demo'
         
@@ -459,8 +475,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Generate new review
       review = await generateReview(landing as LandingWithStore)
       
-      // Cache the review
-      await updateLandingPageCache(id, review)
+      // Cache the review for this specific IP (24 hour TTL)
+      try {
+        await kv.set(cacheKey, review, { ex: CACHE_TTL_SECONDS })
+      } catch (error) {
+        console.error('Cache write error:', error)
+      }
     }
 
     return res.status(200).json({
