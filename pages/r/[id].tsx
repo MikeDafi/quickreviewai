@@ -71,10 +71,6 @@ export default function LandingPage() {
   
   const showToast = useCallback((message: string) => {
     setToast(message);
-    // Also use native alert as fallback for visibility
-    if (typeof window !== 'undefined') {
-      window.alert(message);
-    }
   }, []);
 
   useEffect(() => {
@@ -204,14 +200,26 @@ export default function LandingPage() {
     setTimeout(() => setCopied(false), 30000);
   }
 
-  async function trackClick(platform: string) {
+  function trackClick(platform: string) {
     // Skip tracking for demo - include reviewEventId for analytics
-    if (!isDemo) {
-      fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewEventId })
-      }).catch(() => {});
+    if (!isDemo && reviewEventId) {
+      // Use sendBeacon for reliable tracking even when navigating away
+      const url = `/api/generate?id=${id}&action=click&platform=${platform}`
+      const data = JSON.stringify({ reviewEventId })
+      
+      // Try sendBeacon first (most reliable for navigation tracking)
+      if (navigator.sendBeacon) {
+        const blob = new Blob([data], { type: 'application/json' })
+        navigator.sendBeacon(url, blob)
+      } else {
+        // Fallback to fetch with keepalive
+        fetch(url, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: data,
+          keepalive: true
+        }).catch(() => {})
+      }
     }
   }
 
@@ -338,41 +346,24 @@ export default function LandingPage() {
                 )}
               </button>
 
-              {!isDemoLimit && (
-                isFreePlanLimit ? (
-                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
-                    <p className="text-sm text-amber-800 font-medium mb-2">
-                      Want a different review?
+              {!isDemoLimit && !isFreePlanLimit && (
+                <>
+                  <button
+                    onClick={regenerateReview}
+                    disabled={generating || !!rateLimitError}
+                    className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                      rateLimitError ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                    Generate Another
+                  </button>
+                  {rateLimitError && (
+                    <p className="text-center text-sm text-amber-600 mt-2">
+                      {rateLimitError}
                     </p>
-                    <p className="text-xs text-amber-600 mb-3">
-                      Free plan includes 1 AI review per page. Pro users get unlimited regenerations!
-                    </p>
-                    <a 
-                      href={`/upgrade?returnUrl=${encodeURIComponent(`/r/${id}`)}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-colors font-medium"
-                    >
-                      Upgrade to Pro →
-                    </a>
-                  </div>
-                ) : (
-                  <>
-                    <button
-                      onClick={regenerateReview}
-                      disabled={generating || !!rateLimitError}
-                      className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
-                        rateLimitError ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                      Generate Another
-                    </button>
-                    {rateLimitError && (
-                      <p className="text-center text-sm text-amber-600 mt-2">
-                        {rateLimitError}
-                      </p>
-                    )}
-                  </>
-                )
+                  )}
+                </>
               )}
               
               {isDemoLimit && (
@@ -400,7 +391,7 @@ export default function LandingPage() {
                     ✨ Want more review options?
                   </p>
                   <p className="text-xs text-amber-600">
-                    This store is on the Free plan. Pro users get unlimited regenerations!
+                    Let the owner know they can upgrade for unlimited regenerations!
                   </p>
                 </div>
               )}
@@ -490,7 +481,7 @@ export default function LandingPage() {
           {/* Footer */}
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              Powered by <span className="text-emerald-600 font-medium">QuickReviewAI</span>
+              Powered by <a href="https://quickreviewai.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-medium hover:text-emerald-700 hover:underline">QuickReviewAI</a>
             </p>
           </div>
         </div>

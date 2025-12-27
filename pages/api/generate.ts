@@ -655,20 +655,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           WHERE id = ${id}
         `
         // Mark the review event as pasted to Google or Yelp (for analytics)
-        if (reviewEventId) {
-          if (platform === 'google') {
-            await sql`
-              UPDATE review_events 
-              SET was_pasted_google = true 
-              WHERE id = ${reviewEventId}
-            `.catch(() => {}) // Silently fail if table doesn't exist yet
-          } else if (platform === 'yelp') {
-            await sql`
-              UPDATE review_events 
-              SET was_pasted_yelp = true 
-              WHERE id = ${reviewEventId}
-            `.catch(() => {}) // Silently fail if table doesn't exist yet
+        if (reviewEventId && typeof reviewEventId === 'string') {
+          try {
+            if (platform === 'google') {
+              const result = await sql`
+                UPDATE review_events 
+                SET was_pasted_google = true 
+                WHERE id = ${reviewEventId}
+                RETURNING id
+              `
+              console.log('Updated was_pasted_google for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount)
+            } else if (platform === 'yelp') {
+              const result = await sql`
+                UPDATE review_events 
+                SET was_pasted_yelp = true 
+                WHERE id = ${reviewEventId}
+                RETURNING id
+              `
+              console.log('Updated was_pasted_yelp for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount)
+            }
+          } catch (error) {
+            console.error('Failed to update review_events paste tracking:', error)
           }
+        } else {
+          console.log('Click tracking: no reviewEventId provided. Body:', JSON.stringify(req.body))
         }
         return res.status(200).json({ success: true })
       }

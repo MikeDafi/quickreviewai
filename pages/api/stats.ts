@@ -99,6 +99,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const storeLimit = limits.stores === Infinity ? null : limits.stores
 
+    // Calculate billing period start - use period_start if available, otherwise use account creation
+    const periodStart = data.period_start 
+      ? new Date(data.period_start).toISOString()
+      : new Date(data.created_at).toISOString()
+
     return res.status(200).json({
       totalScans,
       reviewsCopied,
@@ -107,6 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       tier,
       scanLimit,
       storeLimit,
+      periodStart,
     })
   } catch (error) {
     console.error('Stats API error:', error)

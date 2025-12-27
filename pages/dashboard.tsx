@@ -41,7 +41,22 @@ export default function Dashboard() {
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [guidanceStore, setGuidanceStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, blockedRegenerations: 0, storeCount: 0, tier: SubscriptionTier.FREE as string, storeLimit: 1 as number | null });
+  const [stats, setStats] = useState({ 
+    totalScans: 0, 
+    reviewsCopied: 0, 
+    blockedRegenerations: 0, 
+    storeCount: 0, 
+    tier: SubscriptionTier.FREE as string, 
+    storeLimit: 1 as number | null,
+    periodStart: null as string | null,
+  });
+  
+  // Format date for billing period display
+  const formatPeriodDate = (dateStr: string | null) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
   
   // Loading states for mutations
   const [savingStore, setSavingStore] = useState(false);
@@ -340,7 +355,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 py-8">
           {/* Stats Cards */}
-          <div className="grid sm:grid-cols-2 gap-6 mb-8">
+          <div className={`grid gap-6 mb-8 ${stats.tier === SubscriptionTier.FREE ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-600">QR Code Scans</span>
@@ -351,7 +366,9 @@ export default function Dashboard() {
                 {stats.tier === SubscriptionTier.FREE && <span className="text-lg text-gray-400">/{getPlanLimits(SubscriptionTier.FREE).scansPerMonth}</span>}
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                {stats.tier === SubscriptionTier.FREE ? 'This month' : 'Total views'}
+                {stats.tier === SubscriptionTier.FREE 
+                  ? `This billing period${stats.periodStart ? ` (since ${formatPeriodDate(stats.periodStart)})` : ''}`
+                  : 'Total views'}
               </p>
             </div>
 
@@ -361,18 +378,26 @@ export default function Dashboard() {
                 <Copy className="w-5 h-5 text-blue-500" />
               </div>
               <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied}</div>
-              <p className="text-sm text-gray-500 mt-1">This month</p>
+              <p className="text-sm text-gray-500 mt-1">
+                This billing period{stats.periodStart ? ` (since ${formatPeriodDate(stats.periodStart)})` : ''}
+              </p>
             </div>
 
-            {/* Blocked Regenerations - only show if > 0 and on free plan */}
-            {stats.tier === SubscriptionTier.FREE && stats.blockedRegenerations > 0 && (
-              <div className="bg-red-50 rounded-xl p-6 border-2 border-red-200">
+            {/* Blocked Regenerations - always show for free users */}
+            {stats.tier === SubscriptionTier.FREE && (
+              <div className={`rounded-xl p-6 border-2 ${stats.blockedRegenerations > 0 ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-200'}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-red-700 font-medium">Missed Reviews</span>
-                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <span className={stats.blockedRegenerations > 0 ? 'text-amber-700 font-medium' : 'text-gray-600'}>
+                    Denied Generations
+                  </span>
+                  <AlertCircle className={`w-5 h-5 ${stats.blockedRegenerations > 0 ? 'text-amber-500' : 'text-gray-400'}`} />
                 </div>
-                <div className="text-3xl font-bold text-red-600">{stats.blockedRegenerations}</div>
-                <p className="text-sm text-red-600 mt-1">Customers wanted different options</p>
+                <div className={`text-3xl font-bold ${stats.blockedRegenerations > 0 ? 'text-amber-600' : 'text-gray-400'}`}>
+                  {stats.blockedRegenerations}
+                </div>
+                <p className={`text-sm mt-1 ${stats.blockedRegenerations > 0 ? 'text-amber-600' : 'text-gray-500'}`}>
+                  {stats.blockedRegenerations > 0 ? 'Customers wanted different options' : 'None yet'}
+                </p>
               </div>
             )}
           </div>
