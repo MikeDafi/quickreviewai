@@ -935,6 +935,146 @@ const keywordSuggestions: Record<string, string[]> = {
     'estimate', 'free estimate', 'quote', 'flat rate', 'hourly', 'licensed', 'insured', 'bonded', 'warranty', 'guarantee',
     'residential', 'commercial', 'new construction', 'remodel', 'bathroom', 'kitchen', 'laundry', 'basement', 'outdoor', 'sprinkler'
   ],
+  'HVAC': [
+    'HVAC', 'heating', 'cooling', 'air conditioning', 'AC', 'furnace', 'heat pump', 'boiler', 'ductless', 'mini split',
+    'repair', 'service', 'installation', 'replacement', 'maintenance', 'tune up', 'inspection', 'diagnostic', 'emergency', '24 hour',
+    'not cooling', 'not heating', 'no air', 'weak airflow', 'strange noise', 'smell', 'leak', 'frozen', 'thermostat', 'filter',
+    'Carrier', 'Trane', 'Lennox', 'Rheem', 'Goodman', 'American Standard', 'Bryant', 'Daikin', 'efficiency', 'SEER',
+    'estimate', 'free estimate', 'financing', 'rebate', 'licensed', 'insured', 'certified', 'NATE', 'EPA', 'warranty'
+  ],
+  'Landscaping': [
+    'landscaping', 'landscape', 'lawn', 'yard', 'garden', 'plants', 'trees', 'shrubs', 'flowers', 'mulch',
+    'design', 'installation', 'hardscape', 'patio', 'walkway', 'retaining wall', 'fire pit', 'outdoor living', 'water feature', 'lighting',
+    'lawn care', 'mowing', 'edging', 'trimming', 'pruning', 'fertilizing', 'weed control', 'aeration', 'seeding', 'sod',
+    'irrigation', 'sprinkler', 'drip', 'drainage', 'grading', 'excavation', 'tree removal', 'stump grinding', 'clearing', 'cleanup',
+    'residential', 'commercial', 'maintenance', 'weekly', 'bi-weekly', 'one time', 'seasonal', 'spring cleanup', 'fall cleanup', 'estimate'
+  ],
+  'Cleaning Service': [
+    'cleaning', 'house cleaning', 'maid service', 'housekeeping', 'clean', 'cleaner', 'home', 'residential', 'commercial', 'office',
+    'deep cleaning', 'standard cleaning', 'move in', 'move out', 'post construction', 'one time', 'recurring', 'weekly', 'bi-weekly', 'monthly',
+    'kitchen', 'bathroom', 'bedroom', 'living room', 'floors', 'vacuum', 'mop', 'dust', 'wipe', 'sanitize',
+    'windows', 'blinds', 'baseboards', 'cabinets', 'appliances', 'oven', 'refrigerator', 'laundry', 'dishes', 'organization',
+    'supplies included', 'eco friendly', 'green', 'pet friendly', 'insured', 'bonded', 'background check', 'estimate', 'quote', 'book online'
+  ],
+  'Pest Control': [
+    'pest control', 'exterminator', 'pest', 'bug', 'insect', 'rodent', 'mouse', 'rat', 'ant', 'roach',
+    'cockroach', 'spider', 'bed bug', 'termite', 'flea', 'tick', 'mosquito', 'wasp', 'bee', 'hornet',
+    'inspection', 'treatment', 'spray', 'bait', 'trap', 'removal', 'prevention', 'barrier', 'fumigation', 'tent',
+    'residential', 'commercial', 'one time', 'monthly', 'quarterly', 'annual', 'contract', 'warranty', 'guarantee', 'retreatment',
+    'estimate', 'free inspection', 'same day', 'emergency', 'licensed', 'certified', 'eco friendly', 'pet safe', 'child safe', 'organic'
+  ],
+  'Roofing': [
+    'roofing', 'roof', 'roofer', 'shingles', 'tile', 'metal', 'flat roof', 'TPO', 'EPDM', 'slate',
+    'repair', 'replacement', 'installation', 'new roof', 'reroof', 'tear off', 'overlay', 'patch', 'leak', 'damage',
+    'storm damage', 'hail damage', 'wind damage', 'insurance claim', 'inspection', 'assessment', 'estimate', 'quote', 'free estimate', 'financing',
+    'gutter', 'downspout', 'flashing', 'vent', 'skylight', 'chimney', 'soffit', 'fascia', 'ridge', 'valley',
+    'licensed', 'insured', 'bonded', 'warranty', 'manufacturer warranty', 'workmanship', 'GAF', 'Owens Corning', 'CertainTeed', 'certified'
+  ],
+  'Painting': [
+    'painting', 'painter', 'paint', 'interior', 'exterior', 'house painting', 'residential', 'commercial', 'walls', 'ceiling',
+    'trim', 'doors', 'cabinets', 'deck', 'fence', 'stain', 'primer', 'prep', 'sand', 'caulk',
+    'Sherwin Williams', 'Benjamin Moore', 'Behr', 'PPG', 'Dunn Edwards', 'color', 'color consultation', 'samples', 'match', 'custom',
+    'estimate', 'free estimate', 'quote', 'per room', 'per square foot', 'hourly', 'licensed', 'insured', 'warranty', 'guarantee',
+    'wallpaper', 'wallpaper removal', 'texture', 'drywall repair', 'popcorn ceiling', 'removal', 'epoxy', 'garage floor', 'pressure wash', 'power wash'
+  ],
+  'Handyman': [
+    'handyman', 'handy man', 'repairs', 'maintenance', 'fix', 'install', 'assemble', 'home repair', 'honey do', 'odd jobs',
+    'drywall', 'patch', 'hole', 'texture', 'paint', 'caulk', 'grout', 'tile', 'trim', 'molding',
+    'door', 'window', 'screen', 'lock', 'handle', 'hinge', 'weatherstrip', 'threshold', 'frame', 'hardware',
+    'faucet', 'toilet', 'sink', 'garbage disposal', 'outlet', 'switch', 'light fixture', 'ceiling fan', 'smoke detector', 'TV mount',
+    'furniture assembly', 'IKEA', 'shelf', 'curtain rod', 'picture hanging', 'hourly', 'flat rate', 'estimate', 'licensed', 'insured'
+  ],
+  'Carpet Cleaning': [
+    'carpet cleaning', 'carpet cleaner', 'carpets', 'rugs', 'upholstery', 'furniture', 'sofa', 'couch', 'mattress', 'auto',
+    'steam cleaning', 'hot water extraction', 'deep clean', 'shampoo', 'dry cleaning', 'encapsulation', 'bonnet', 'truck mount', 'portable', 'eco friendly',
+    'stain', 'stain removal', 'spot', 'pet stain', 'pet odor', 'urine', 'deodorizer', 'sanitize', 'disinfect', 'allergen',
+    'per room', 'per square foot', 'whole house', 'special', 'deal', 'coupon', 'estimate', 'free estimate', 'same day', 'next day',
+    'residential', 'commercial', 'office', 'move out', 'move in', 'rental', 'Airbnb', 'warranty', 'guarantee', 'satisfaction'
+  ],
+  'Window Cleaning': [
+    'window cleaning', 'window washer', 'windows', 'glass', 'screens', 'tracks', 'sills', 'frames', 'mirrors', 'skylights',
+    'interior', 'exterior', 'inside', 'outside', 'residential', 'commercial', 'storefront', 'office', 'high rise', 'ladder',
+    'streak free', 'spot free', 'squeegee', 'pure water', 'water fed pole', 'pressure wash', 'soft wash', 'detail', 'hand wash', 'professional',
+    'per window', 'per pane', 'whole house', 'estimate', 'free estimate', 'quote', 'package', 'special', 'recurring', 'one time',
+    'seasonal', 'spring', 'fall', 'holiday', 'move in', 'move out', 'insured', 'bonded', 'satisfaction', 'guarantee'
+  ],
+  'Pressure Washing': [
+    'pressure washing', 'power washing', 'soft wash', 'exterior cleaning', 'driveway', 'sidewalk', 'patio', 'deck', 'fence', 'siding',
+    'house wash', 'roof wash', 'gutter cleaning', 'concrete', 'brick', 'stucco', 'vinyl', 'wood', 'composite', 'stone',
+    'mold', 'mildew', 'algae', 'moss', 'dirt', 'grime', 'stains', 'oil', 'rust', 'graffiti',
+    'residential', 'commercial', 'fleet', 'parking lot', 'building', 'awning', 'signage', 'dumpster pad', 'drive thru', 'restaurant',
+    'estimate', 'free estimate', 'per square foot', 'flat rate', 'package', 'before after', 'insured', 'licensed', 'eco friendly', 'same day'
+  ],
+  'Pool Service': [
+    'pool service', 'pool cleaning', 'pool maintenance', 'swimming pool', 'spa', 'hot tub', 'jacuzzi', 'pool care', 'pool guy', 'pool company',
+    'weekly service', 'chemical balance', 'chlorine', 'pH', 'alkalinity', 'algae', 'green pool', 'cloudy', 'filter', 'pump',
+    'skimming', 'brushing', 'vacuuming', 'tile cleaning', 'drain', 'refill', 'acid wash', 'plaster', 'equipment', 'repair',
+    'heater', 'heat pump', 'salt cell', 'automation', 'lights', 'cover', 'safety', 'inspection', 'leak detection', 'renovation',
+    'opening', 'closing', 'winterize', 'seasonal', 'monthly', 'one time', 'estimate', 'residential', 'commercial', 'HOA'
+  ],
+  'Garage Door': [
+    'garage door', 'garage door repair', 'overhead door', 'opener', 'spring', 'cable', 'roller', 'track', 'panel', 'section',
+    'broken spring', 'broken cable', 'off track', 'wont open', 'wont close', 'noisy', 'slow', 'stuck', 'dent', 'damage',
+    'replacement', 'installation', 'new door', 'new opener', 'insulated', 'steel', 'wood', 'aluminum', 'fiberglass', 'glass',
+    'LiftMaster', 'Chamberlain', 'Genie', 'Craftsman', 'Amarr', 'Clopay', 'Wayne Dalton', 'CHI', 'smart', 'WiFi',
+    'emergency', '24 hour', 'same day', 'estimate', 'free estimate', 'warranty', 'licensed', 'insured', 'residential', 'commercial'
+  ],
+  'Fence Company': [
+    'fence', 'fencing', 'fence company', 'fence installation', 'fence repair', 'privacy fence', 'wood fence', 'vinyl fence', 'chain link', 'aluminum',
+    'iron', 'wrought iron', 'ornamental', 'picket', 'split rail', 'farm fence', 'horse fence', 'pool fence', 'dog fence', 'security fence',
+    'gate', 'driveway gate', 'automatic gate', 'sliding gate', 'swing gate', 'pedestrian gate', 'lock', 'latch', 'hardware', 'post',
+    'repair', 'replace', 'stain', 'paint', 'leaning', 'rotted', 'damaged', 'storm damage', 'fallen', 'blown down',
+    'estimate', 'free estimate', 'per foot', 'linear foot', 'permit', 'survey', 'property line', 'HOA', 'licensed', 'insured'
+  ],
+  'Tree Service': [
+    'tree service', 'tree removal', 'tree trimming', 'tree pruning', 'tree cutting', 'arborist', 'tree care', 'tree company', 'trees', 'branches',
+    'stump', 'stump grinding', 'stump removal', 'root', 'root removal', 'land clearing', 'lot clearing', 'brush', 'debris', 'hauling',
+    'dead tree', 'dying tree', 'diseased', 'hazardous', 'leaning', 'storm damage', 'emergency', 'fallen tree', 'crane', 'bucket truck',
+    'trimming', 'shaping', 'canopy', 'crown', 'thinning', 'raising', 'reduction', 'cabling', 'bracing', 'lightning protection',
+    'estimate', 'free estimate', 'licensed', 'insured', 'bonded', 'certified', 'ISA', 'residential', 'commercial', 'firewood'
+  ],
+  'Lawn Care': [
+    'lawn care', 'lawn service', 'lawn mowing', 'grass cutting', 'yard work', 'lawn maintenance', 'turf', 'grass', 'yard', 'property',
+    'mowing', 'edging', 'trimming', 'blowing', 'weed eating', 'string trim', 'clean up', 'bagging', 'mulching', 'disposal',
+    'fertilizing', 'weed control', 'pre-emergent', 'post-emergent', 'herbicide', 'pesticide', 'grub control', 'fungicide', 'treatment', 'application',
+    'aeration', 'overseeding', 'seeding', 'sod', 'sodding', 'dethatching', 'top dressing', 'soil', 'pH', 'test',
+    'weekly', 'bi-weekly', 'monthly', 'one time', 'seasonal', 'contract', 'estimate', 'free estimate', 'residential', 'commercial'
+  ],
+  'Sprinkler Service': [
+    'sprinkler', 'irrigation', 'sprinkler system', 'sprinkler repair', 'sprinkler installation', 'lawn sprinkler', 'drip irrigation', 'watering', 'water', 'landscape',
+    'head', 'sprinkler head', 'nozzle', 'rotor', 'spray', 'pop up', 'drip', 'emitter', 'valve', 'solenoid',
+    'controller', 'timer', 'smart controller', 'WiFi', 'rain sensor', 'zone', 'coverage', 'pressure', 'pipe', 'line',
+    'leak', 'broken', 'clogged', 'not working', 'adjustment', 'tune up', 'maintenance', 'audit', 'efficiency', 'water saving',
+    'winterization', 'blowout', 'spring startup', 'activation', 'estimate', 'free estimate', 'licensed', 'insured', 'residential', 'commercial'
+  ],
+  'Flooring': [
+    'flooring', 'floors', 'floor installation', 'hardwood', 'laminate', 'vinyl', 'LVP', 'LVT', 'tile', 'carpet',
+    'engineered hardwood', 'solid hardwood', 'bamboo', 'cork', 'linoleum', 'porcelain', 'ceramic', 'natural stone', 'marble', 'travertine',
+    'installation', 'replacement', 'refinishing', 'sanding', 'staining', 'repair', 'patch', 'subfloor', 'underlayment', 'moisture barrier',
+    'removal', 'demo', 'disposal', 'prep', 'leveling', 'transition', 'trim', 'baseboard', 'quarter round', 'stairs',
+    'estimate', 'free estimate', 'per square foot', 'material', 'labor', 'showroom', 'samples', 'warranty', 'licensed', 'insured'
+  ],
+  'Countertops': [
+    'countertops', 'counters', 'kitchen counters', 'bathroom counters', 'granite', 'quartz', 'marble', 'quartzite', 'soapstone', 'concrete',
+    'solid surface', 'Corian', 'laminate', 'Formica', 'butcher block', 'stainless steel', 'recycled glass', 'porcelain', 'Silestone', 'Caesarstone',
+    'fabrication', 'installation', 'template', 'measure', 'cut', 'polish', 'edge', 'ogee', 'bullnose', 'waterfall',
+    'sink', 'undermount', 'drop in', 'farmhouse', 'cutout', 'faucet hole', 'backsplash', 'seam', 'support', 'bracket',
+    'estimate', 'free estimate', 'per square foot', 'slab', 'remnant', 'showroom', 'selection', 'turnaround', 'warranty', 'sealing'
+  ],
+  'Cabinet Maker': [
+    'cabinets', 'cabinet maker', 'cabinetry', 'custom cabinets', 'kitchen cabinets', 'bathroom cabinets', 'built-ins', 'closet', 'pantry', 'mudroom',
+    'wood', 'hardwood', 'maple', 'oak', 'cherry', 'walnut', 'birch', 'painted', 'stained', 'glazed',
+    'shaker', 'raised panel', 'flat panel', 'slab', 'glass', 'inset', 'overlay', 'frameless', 'face frame', 'traditional',
+    'design', 'custom design', 'measure', 'consultation', 'showroom', 'samples', 'finishes', 'hardware', 'soft close', 'accessories',
+    'installation', 'refacing', 'refinishing', 'painting', 'estimate', 'quote', 'lead time', 'turnaround', 'warranty', 'quality'
+  ],
+  'General Contractor': [
+    'general contractor', 'contractor', 'GC', 'builder', 'construction', 'remodel', 'renovation', 'addition', 'new construction', 'custom home',
+    'kitchen remodel', 'bathroom remodel', 'basement', 'attic', 'room addition', 'ADU', 'garage conversion', 'second story', 'whole house', 'gut rehab',
+    'design build', 'plans', 'permits', 'inspection', 'code', 'timeline', 'schedule', 'budget', 'change order', 'progress',
+    'subcontractor', 'trades', 'plumber', 'electrician', 'HVAC', 'framing', 'drywall', 'painting', 'flooring', 'finish',
+    'estimate', 'free estimate', 'consultation', 'bid', 'licensed', 'insured', 'bonded', 'references', 'portfolio', 'warranty'
+  ],
   'Electrician': [
     'electrician', 'electrical', 'wiring', 'outlet', 'switch', 'circuit', 'breaker', 'panel', 'fuse', 'junction box',
     'lighting', 'ceiling fan', 'chandelier', 'recessed lighting', 'LED', 'dimmer', 'motion sensor', 'outdoor lighting', 'landscape lighting', 'security lighting',
@@ -1034,6 +1174,111 @@ const keywordSuggestions: Record<string, string[]> = {
     'fitting', 'consultation', 'rush', 'same day', 'next day', 'turnaround', 'pricing', 'quality', 'experienced', 'skilled'
   ],
   // Professional Services
+  'Law Firm': [
+    'lawyer', 'attorney', 'law firm', 'legal', 'consultation', 'representation', 'case', 'lawsuit', 'litigation', 'settlement',
+    'personal injury', 'car accident', 'slip and fall', 'workers comp', 'wrongful death', 'medical malpractice', 'product liability', 'premises liability', 'dog bite', 'negligence',
+    'family law', 'divorce', 'custody', 'child support', 'alimony', 'adoption', 'prenup', 'separation', 'domestic', 'modification',
+    'criminal defense', 'DUI', 'DWI', 'drug charges', 'assault', 'theft', 'felony', 'misdemeanor', 'bail', 'expungement',
+    'free consultation', 'contingency', 'no fee unless we win', 'payment plan', 'retainer', 'hourly', 'flat fee', 'experience', 'results', 'reviews'
+  ],
+  'Accounting Firm': [
+    'accountant', 'CPA', 'accounting', 'bookkeeping', 'taxes', 'tax preparation', 'tax return', 'filing', 'audit', 'financial',
+    'individual', 'personal', 'business', 'corporate', 'small business', 'LLC', 'S-corp', 'C-corp', 'partnership', 'sole proprietor',
+    'tax planning', 'tax strategy', 'deductions', 'credits', 'refund', 'estimated taxes', 'quarterly', 'extension', 'amendment', 'IRS',
+    'payroll', 'accounts payable', 'accounts receivable', 'invoicing', 'financial statements', 'profit loss', 'balance sheet', 'cash flow', 'budgeting', 'forecasting',
+    'QuickBooks', 'Xero', 'consultation', 'year round', 'tax season', 'deadline', 'appointment', 'virtual', 'in person', 'pricing'
+  ],
+  'Insurance Agency': [
+    'insurance', 'insurance agent', 'coverage', 'policy', 'quote', 'premium', 'deductible', 'claim', 'filing', 'protection',
+    'auto insurance', 'car insurance', 'home insurance', 'homeowners', 'renters', 'condo', 'flood', 'umbrella', 'liability', 'property',
+    'life insurance', 'term life', 'whole life', 'universal', 'health insurance', 'dental', 'vision', 'disability', 'long term care', 'Medicare',
+    'business insurance', 'commercial', 'general liability', 'professional liability', 'workers comp', 'bond', 'E&O', 'D&O', 'cyber', 'fleet',
+    'State Farm', 'Allstate', 'Farmers', 'Progressive', 'Geico', 'independent agent', 'bundle', 'discount', 'savings', 'review'
+  ],
+  'Real Estate Agency': [
+    'real estate', 'realtor', 'agent', 'broker', 'buy', 'sell', 'rent', 'lease', 'property', 'home',
+    'house', 'condo', 'townhouse', 'apartment', 'land', 'lot', 'commercial', 'investment', 'rental property', 'vacation home',
+    'listing', 'MLS', 'showing', 'open house', 'offer', 'contract', 'closing', 'escrow', 'title', 'inspection',
+    'buyer agent', 'seller agent', 'dual agency', 'commission', 'negotiation', 'market analysis', 'CMA', 'pricing', 'staging', 'photography',
+    'first time buyer', 'relocation', 'downsizing', 'upsizing', 'pre-approval', 'mortgage', 'financing', 'local', 'area expert', 'neighborhood'
+  ],
+  'Marketing Agency': [
+    'marketing', 'advertising', 'digital marketing', 'social media', 'SEO', 'PPC', 'Google Ads', 'Facebook Ads', 'content', 'strategy',
+    'branding', 'logo', 'brand identity', 'design', 'graphic design', 'website', 'web design', 'development', 'email marketing', 'automation',
+    'analytics', 'reporting', 'ROI', 'leads', 'conversions', 'traffic', 'engagement', 'followers', 'reach', 'impressions',
+    'video', 'photography', 'copywriting', 'blog', 'PR', 'public relations', 'influencer', 'campaign', 'launch', 'rebrand',
+    'small business', 'startup', 'enterprise', 'B2B', 'B2C', 'ecommerce', 'local', 'national', 'consultation', 'proposal'
+  ],
+  'Photography Studio': [
+    'photography', 'photographer', 'photos', 'pictures', 'portraits', 'headshots', 'studio', 'session', 'shoot', 'booking',
+    'wedding', 'engagement', 'bridal', 'elopement', 'family', 'newborn', 'maternity', 'baby', 'kids', 'senior',
+    'corporate', 'business', 'product', 'commercial', 'event', 'party', 'graduation', 'prom', 'quinceañera', 'pet',
+    'prints', 'digital', 'gallery', 'album', 'retouching', 'editing', 'turnaround', 'delivery', 'rights', 'usage',
+    'packages', 'pricing', 'deposit', 'booking', 'availability', 'location', 'on site', 'outdoor', 'props', 'backdrop'
+  ],
+  'Consulting Firm': [
+    'consulting', 'consultant', 'advisor', 'advisory', 'strategy', 'management', 'business', 'operations', 'process', 'improvement',
+    'planning', 'analysis', 'assessment', 'audit', 'recommendation', 'implementation', 'change management', 'transformation', 'optimization', 'efficiency',
+    'IT consulting', 'technology', 'HR', 'human resources', 'finance', 'marketing', 'sales', 'operations', 'supply chain', 'logistics',
+    'startup', 'small business', 'enterprise', 'nonprofit', 'government', 'healthcare', 'retail', 'manufacturing', 'industry', 'specialized',
+    'engagement', 'project', 'retainer', 'hourly', 'fixed fee', 'proposal', 'scope', 'deliverables', 'timeline', 'results'
+  ],
+  'Tax Preparer': [
+    'tax preparer', 'tax preparation', 'taxes', 'tax return', 'filing', 'refund', 'tax season', 'IRS', 'federal', 'state',
+    '1040', 'W-2', '1099', 'schedule C', 'self employed', 'freelancer', 'gig worker', 'contractor', 'business', 'personal',
+    'deductions', 'credits', 'child tax credit', 'EITC', 'education credit', 'itemized', 'standard', 'exemptions', 'withholding', 'estimated',
+    'H&R Block', 'Jackson Hewitt', 'Liberty Tax', 'TurboTax', 'CPA', 'enrolled agent', 'licensed', 'experienced', 'accurate', 'guaranteed',
+    'walk in', 'appointment', 'drop off', 'virtual', 'online', 'price', 'fee', 'advance', 'RAL', 'bank product'
+  ],
+  'Financial Advisor': [
+    'financial advisor', 'financial planner', 'wealth management', 'investment', 'retirement', 'portfolio', 'assets', 'planning', 'strategy', 'goals',
+    '401k', 'IRA', 'Roth', 'pension', 'rollover', 'annuity', 'stocks', 'bonds', 'mutual funds', 'ETF',
+    'estate planning', 'trust', 'will', 'beneficiary', 'inheritance', 'tax planning', 'college savings', '529', 'insurance', 'protection',
+    'fiduciary', 'fee only', 'commission', 'AUM', 'CFP', 'certified', 'registered', 'SEC', 'FINRA', 'series 65',
+    'consultation', 'review', 'analysis', 'plan', 'comprehensive', 'ongoing', 'minimum', 'assets', 'relationship', 'trust'
+  ],
+  'Mortgage Broker': [
+    'mortgage', 'home loan', 'refinance', 'refi', 'purchase', 'lender', 'broker', 'rate', 'interest rate', 'APR',
+    'conventional', 'FHA', 'VA', 'USDA', 'jumbo', 'fixed rate', 'ARM', 'adjustable', '30 year', '15 year',
+    'pre-approval', 'pre-qualification', 'application', 'documents', 'verification', 'underwriting', 'closing', 'closing costs', 'points', 'fees',
+    'down payment', 'PMI', 'escrow', 'credit score', 'DTI', 'debt to income', 'income', 'employment', 'assets', 'reserves',
+    'first time buyer', 'investment property', 'second home', 'cash out', 'HELOC', 'home equity', 'quotes', 'compare', 'lock', 'float'
+  ],
+  'Travel Agency': [
+    'travel', 'travel agent', 'vacation', 'trip', 'booking', 'reservation', 'itinerary', 'planning', 'package', 'deal',
+    'flights', 'airfare', 'airline', 'hotels', 'resort', 'all inclusive', 'cruise', 'tour', 'excursion', 'rental car',
+    'honeymoon', 'destination wedding', 'anniversary', 'family vacation', 'group travel', 'corporate travel', 'business travel', 'solo travel', 'adventure', 'luxury',
+    'domestic', 'international', 'Europe', 'Caribbean', 'Mexico', 'Hawaii', 'Disney', 'theme park', 'beach', 'ski',
+    'travel insurance', 'passport', 'visa', 'documents', 'cancellation', 'rebooking', 'support', 'consultation', 'quote', 'custom'
+  ],
+  'Staffing Agency': [
+    'staffing', 'staffing agency', 'temp agency', 'employment', 'jobs', 'hiring', 'recruiting', 'placement', 'temp', 'temporary',
+    'temp to perm', 'direct hire', 'contract', 'full time', 'part time', 'seasonal', 'on demand', 'day labor', 'gig', 'flexible',
+    'warehouse', 'manufacturing', 'administrative', 'clerical', 'customer service', 'call center', 'medical', 'healthcare', 'IT', 'engineering',
+    'resume', 'application', 'interview', 'background check', 'drug test', 'onboarding', 'orientation', 'assignment', 'placement', 'start date',
+    'pay', 'hourly', 'weekly pay', 'direct deposit', 'benefits', 'insurance', 'holiday pay', 'overtime', 'open positions', 'apply'
+  ],
+  'Web Design Agency': [
+    'web design', 'website', 'web development', 'design', 'developer', 'agency', 'studio', 'digital', 'online', 'internet',
+    'custom website', 'WordPress', 'Shopify', 'Squarespace', 'Wix', 'ecommerce', 'landing page', 'responsive', 'mobile', 'SEO',
+    'redesign', 'refresh', 'update', 'maintenance', 'hosting', 'domain', 'SSL', 'security', 'speed', 'performance',
+    'UX', 'UI', 'user experience', 'wireframe', 'mockup', 'prototype', 'branding', 'logo', 'graphics', 'content',
+    'portfolio', 'quote', 'proposal', 'timeline', 'project', 'retainer', 'hourly', 'fixed price', 'support', 'training'
+  ],
+  'IT Services': [
+    'IT', 'IT services', 'IT support', 'tech support', 'computer', 'network', 'server', 'cloud', 'infrastructure', 'technology',
+    'managed services', 'MSP', 'help desk', 'remote support', 'on site', 'break fix', 'maintenance', 'monitoring', '24/7', 'response time',
+    'network setup', 'WiFi', 'router', 'switch', 'firewall', 'VPN', 'backup', 'disaster recovery', 'data', 'security',
+    'Microsoft 365', 'Google Workspace', 'email', 'collaboration', 'phone system', 'VoIP', 'hardware', 'software', 'licensing', 'procurement',
+    'small business', 'enterprise', 'consultation', 'assessment', 'audit', 'project', 'migration', 'upgrade', 'contract', 'SLA'
+  ],
+  'Security Company': [
+    'security', 'security company', 'security guard', 'guard', 'officer', 'patrol', 'monitoring', 'surveillance', 'protection', 'safety',
+    'armed', 'unarmed', 'uniformed', 'plainclothes', 'mobile patrol', 'standing guard', 'access control', 'gate', 'reception', 'concierge',
+    'event security', 'concert', 'festival', 'wedding', 'corporate', 'executive protection', 'bodyguard', 'VIP', 'celebrity', 'dignitary',
+    'residential', 'commercial', 'industrial', 'retail', 'construction', 'HOA', 'apartment', 'office', 'warehouse', 'parking',
+    'camera', 'alarm', 'CCTV', 'monitoring', 'response', 'licensed', 'bonded', 'insured', 'background check', 'trained'
+  ],
   'Dental Office': [
     'dentist', 'dental', 'teeth', 'cleaning', 'checkup', 'exam', 'xray', 'filling', 'cavity', 'crown',
     'root canal', 'extraction', 'wisdom teeth', 'implant', 'bridge', 'dentures', 'veneer', 'bonding', 'whitening', 'bleaching',
@@ -1047,6 +1292,104 @@ const keywordSuggestions: Record<string, string[]> = {
     'sick visit', 'emergency', 'urgent care', '24 hour', 'after hours', 'weekend', 'surgery', 'dental', 'xray', 'ultrasound',
     'prescription', 'medication', 'flea', 'tick', 'heartworm', 'deworming', 'allergy', 'skin', 'ear infection', 'senior pet',
     'boarding', 'grooming', 'nail trim', 'appointment', 'walk in', 'new patient', 'insurance', 'payment plan', 'wellness plan', 'estimate'
+  ],
+  'Chiropractor': [
+    'chiropractor', 'chiropractic', 'adjustment', 'spinal adjustment', 'manipulation', 'alignment', 'spine', 'back', 'neck', 'joints',
+    'back pain', 'neck pain', 'headache', 'migraine', 'sciatica', 'herniated disc', 'bulging disc', 'pinched nerve', 'posture', 'scoliosis',
+    'xray', 'exam', 'consultation', 'evaluation', 'treatment plan', 'maintenance', 'wellness', 'preventive', 'corrective', 'relief',
+    'massage', 'therapy', 'muscle', 'soft tissue', 'stretching', 'exercises', 'rehabilitation', 'decompression', 'traction', 'ultrasound',
+    'appointment', 'walk in', 'new patient', 'insurance', 'cash pay', 'affordable', 'package', 'membership', 'family', 'pediatric'
+  ],
+  'Optometrist': [
+    'optometrist', 'eye doctor', 'eye exam', 'vision', 'glasses', 'contacts', 'contact lenses', 'frames', 'lenses', 'prescription',
+    'comprehensive exam', 'dilation', 'refraction', 'eye health', 'glaucoma', 'cataracts', 'macular degeneration', 'diabetic eye', 'dry eye', 'red eye',
+    'progressive', 'bifocal', 'single vision', 'transitions', 'anti-reflective', 'blue light', 'polarized', 'sunglasses', 'prescription sunglasses', 'safety glasses',
+    'daily contacts', 'weekly', 'monthly', 'extended wear', 'toric', 'multifocal', 'colored contacts', 'fitting', 'trial', 'supply',
+    'insurance', 'VSP', 'EyeMed', 'Medicare', 'Medicaid', 'FSA', 'HSA', 'same day glasses', 'frame selection', 'designer frames'
+  ],
+  'Physical Therapy': [
+    'physical therapy', 'PT', 'rehab', 'rehabilitation', 'therapy', 'therapist', 'exercise', 'stretching', 'strengthening', 'mobility',
+    'pain', 'injury', 'surgery', 'post-op', 'pre-op', 'sports injury', 'work injury', 'car accident', 'slip and fall', 'chronic pain',
+    'back', 'neck', 'shoulder', 'knee', 'hip', 'ankle', 'wrist', 'elbow', 'hand', 'foot',
+    'manual therapy', 'massage', 'dry needling', 'cupping', 'ultrasound', 'electrical stimulation', 'TENS', 'heat', 'ice', 'taping',
+    'evaluation', 'treatment plan', 'appointment', 'insurance', 'workers comp', 'auto accident', 'referral', 'direct access', 'copay', 'deductible'
+  ],
+  'Urgent Care': [
+    'urgent care', 'walk in clinic', 'immediate care', 'same day', 'no appointment', 'walk in', 'after hours', 'weekend', 'holiday', 'extended hours',
+    'cold', 'flu', 'fever', 'cough', 'sore throat', 'ear infection', 'sinus', 'allergies', 'rash', 'infection',
+    'injury', 'sprain', 'strain', 'fracture', 'cut', 'laceration', 'stitches', 'burn', 'bite', 'sting',
+    'xray', 'lab', 'blood work', 'drug test', 'physical', 'sports physical', 'DOT physical', 'flu shot', 'vaccine', 'COVID test',
+    'insurance', 'copay', 'self pay', 'cash', 'affordable', 'cost', 'wait time', 'online check in', 'fast', 'convenient'
+  ],
+  'Pharmacy': [
+    'pharmacy', 'prescription', 'Rx', 'medication', 'medicine', 'drugs', 'refill', 'transfer', 'generic', 'brand',
+    'pick up', 'drive thru', 'delivery', 'mail order', 'auto refill', 'reminder', 'sync', 'consultation', 'pharmacist', 'counseling',
+    'OTC', 'over the counter', 'vitamins', 'supplements', 'first aid', 'cold medicine', 'allergy', 'pain relief', 'diabetic supplies', 'medical equipment',
+    'insurance', 'copay', 'GoodRx', 'discount', 'generic', 'formulary', 'prior auth', 'Medicare', 'Medicaid', 'Part D',
+    'vaccine', 'flu shot', 'COVID', 'shingles', 'pneumonia', 'immunization', 'compounding', 'specialty', 'hours', 'wait time'
+  ],
+  'Medical Clinic': [
+    'clinic', 'doctor', 'physician', 'primary care', 'family medicine', 'internal medicine', 'general practice', 'healthcare', 'medical', 'office',
+    'appointment', 'new patient', 'established patient', 'same day', 'walk in', 'sick visit', 'well visit', 'annual', 'physical', 'checkup',
+    'blood pressure', 'cholesterol', 'diabetes', 'thyroid', 'asthma', 'COPD', 'chronic disease', 'management', 'prevention', 'screening',
+    'lab', 'blood work', 'EKG', 'xray', 'referral', 'specialist', 'prescription', 'refill', 'vaccine', 'immunization',
+    'insurance', 'Medicare', 'Medicaid', 'cash pay', 'sliding scale', 'affordable', 'telehealth', 'virtual visit', 'portal', 'records'
+  ],
+  'Mental Health': [
+    'mental health', 'therapy', 'counseling', 'therapist', 'counselor', 'psychologist', 'psychiatrist', 'LCSW', 'LPC', 'LMFT',
+    'depression', 'anxiety', 'stress', 'trauma', 'PTSD', 'grief', 'loss', 'relationship', 'couples', 'family',
+    'individual', 'group therapy', 'support group', 'CBT', 'DBT', 'EMDR', 'mindfulness', 'medication management', 'evaluation', 'assessment',
+    'appointment', 'intake', 'consultation', 'telehealth', 'virtual', 'in person', 'sliding scale', 'affordable', 'insurance', 'out of pocket',
+    'confidential', 'safe space', 'non-judgmental', 'supportive', 'compassionate', 'experienced', 'specialized', 'adolescent', 'adult', 'child'
+  ],
+  'Dermatologist': [
+    'dermatologist', 'dermatology', 'skin', 'skin doctor', 'skincare', 'acne', 'eczema', 'psoriasis', 'rosacea', 'rash',
+    'mole', 'mole check', 'skin cancer', 'melanoma', 'biopsy', 'removal', 'excision', 'Mohs', 'screening', 'full body',
+    'warts', 'skin tags', 'cysts', 'lipoma', 'keloid', 'scar', 'birthmark', 'age spots', 'sun damage', 'precancer',
+    'cosmetic', 'Botox', 'filler', 'laser', 'chemical peel', 'microneedling', 'IPL', 'phototherapy', 'anti-aging', 'wrinkles',
+    'appointment', 'new patient', 'referral', 'insurance', 'copay', 'self pay', 'telehealth', 'urgent', 'same day', 'wait time'
+  ],
+  'Pediatrician': [
+    'pediatrician', 'pediatrics', 'kids doctor', 'childrens doctor', 'baby', 'infant', 'toddler', 'child', 'adolescent', 'teen',
+    'well child', 'checkup', 'wellness', 'growth', 'development', 'milestones', 'vaccines', 'immunizations', 'school physical', 'sports physical',
+    'sick visit', 'fever', 'cold', 'flu', 'ear infection', 'strep', 'rash', 'asthma', 'allergies', 'ADHD',
+    'newborn', 'breastfeeding', 'formula', 'feeding', 'sleep', 'behavior', 'potty training', 'nutrition', 'weight', 'height',
+    'appointment', 'same day', 'urgent', 'after hours', 'nurse line', 'portal', 'insurance', 'Medicaid', 'CHIP', 'accepting patients'
+  ],
+  'OB-GYN': [
+    'OB-GYN', 'OBGYN', 'gynecologist', 'obstetrician', 'womens health', 'womens doctor', 'female doctor', 'pregnancy', 'prenatal', 'obstetrics',
+    'annual exam', 'well woman', 'pap smear', 'breast exam', 'mammogram', 'pelvic exam', 'birth control', 'contraception', 'IUD', 'implant',
+    'pregnancy test', 'ultrasound', 'prenatal care', 'high risk', 'delivery', 'C-section', 'VBAC', 'postpartum', 'breastfeeding', 'newborn',
+    'menopause', 'hormone', 'HRT', 'irregular periods', 'heavy bleeding', 'fibroids', 'endometriosis', 'PCOS', 'infertility', 'fertility',
+    'appointment', 'new patient', 'accepting patients', 'insurance', 'Medicaid', 'payment plan', 'telehealth', 'same day', 'urgent', 'after hours'
+  ],
+  'Orthopedic': [
+    'orthopedic', 'orthopedist', 'bone doctor', 'joint', 'spine', 'sports medicine', 'surgery', 'surgeon', 'specialist', 'musculoskeletal',
+    'knee', 'hip', 'shoulder', 'back', 'neck', 'ankle', 'foot', 'hand', 'wrist', 'elbow',
+    'arthritis', 'joint pain', 'fracture', 'broken bone', 'torn ligament', 'ACL', 'meniscus', 'rotator cuff', 'carpal tunnel', 'herniated disc',
+    'xray', 'MRI', 'CT scan', 'injection', 'cortisone', 'PRP', 'stem cell', 'physical therapy', 'rehab', 'conservative',
+    'surgery', 'arthroscopy', 'joint replacement', 'total knee', 'total hip', 'spine surgery', 'minimally invasive', 'recovery', 'appointment', 'referral'
+  ],
+  'Hearing Aid': [
+    'hearing aid', 'hearing aids', 'hearing', 'hearing loss', 'audiologist', 'audiology', 'hearing test', 'audiogram', 'screening', 'evaluation',
+    'behind the ear', 'BTE', 'in the ear', 'ITE', 'in the canal', 'ITC', 'CIC', 'RIC', 'invisible', 'rechargeable',
+    'Phonak', 'Widex', 'Oticon', 'ReSound', 'Starkey', 'Signia', 'digital', 'Bluetooth', 'streaming', 'app',
+    'fitting', 'programming', 'adjustment', 'repair', 'cleaning', 'maintenance', 'warranty', 'trial period', 'return policy', 'financing',
+    'insurance', 'Medicare', 'Medicaid', 'VA', 'discount', 'affordable', 'free hearing test', 'consultation', 'appointment', 'walk in'
+  ],
+  'Home Health Care': [
+    'home health', 'home care', 'in home care', 'caregiving', 'caregiver', 'aide', 'CNA', 'HHA', 'nurse', 'RN',
+    'skilled nursing', 'wound care', 'IV', 'medication', 'injections', 'physical therapy', 'occupational therapy', 'speech therapy', 'rehab', 'recovery',
+    'personal care', 'bathing', 'dressing', 'grooming', 'toileting', 'feeding', 'mobility', 'transfers', 'companion', 'companionship',
+    'meal prep', 'light housekeeping', 'laundry', 'errands', 'transportation', 'appointments', 'shopping', 'medication reminder', 'supervision', '24 hour',
+    'hourly', 'daily', 'overnight', 'live in', 'respite', 'hospice', 'palliative', 'Medicare', 'Medicaid', 'private pay'
+  ],
+  'Senior Care': [
+    'senior care', 'elderly care', 'aging', 'seniors', 'assisted living', 'memory care', 'Alzheimer\'s', 'dementia', 'nursing home', 'skilled nursing',
+    'independent living', 'retirement community', 'continuing care', 'CCRC', 'adult day care', 'respite', 'short term', 'long term', 'permanent', 'temporary',
+    'activities', 'dining', 'meals', 'housekeeping', 'laundry', 'transportation', 'medication management', 'personal care', 'assistance', 'supervision',
+    'private room', 'shared room', 'apartment', 'studio', 'amenities', 'safety', 'security', '24 hour staff', 'nurse', 'on site',
+    'tour', 'visit', 'assessment', 'cost', 'pricing', 'Medicare', 'Medicaid', 'long term care insurance', 'VA', 'private pay'
   ],
   // Hospitality
   'Hotel': [
@@ -1547,7 +1890,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
           {/* Store Address */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Store Address
+              Store Address *
             </label>
             <div className="space-y-3">
               {/* Street Address */}
@@ -1557,6 +1900,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 onChange={(e) => setStreet(e.target.value)}
                 placeholder="Street Address (e.g. 123 Main St)"
                 maxLength={150}
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
               />
               
@@ -1567,6 +1911,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="City"
                 maxLength={100}
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
               />
               
@@ -1937,7 +2282,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </button>
             <button
               type="submit"
-              disabled={!name || businessTypes.length === 0 || !!googleUrlError || !!yelpUrlError}
+              disabled={!name || !street || !city || businessTypes.length === 0 || !!googleUrlError || !!yelpUrlError}
               className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {store ? 'Save Changes' : 'Add Store'}

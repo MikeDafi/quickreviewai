@@ -32,10 +32,15 @@ export default function StoreCard({ store, onEdit, onDelete, onShowQR }: StoreCa
           </div>
         </div>
         
-        {/* Platform badges */}
+        {/* Platform badges - clickable */}
         <div className="flex gap-2 flex-shrink-0">
           {store.googleUrl && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm">
+            <a 
+              href={store.googleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm hover:bg-blue-100 transition-colors"
+            >
               <svg className="w-3 h-3" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
@@ -43,15 +48,20 @@ export default function StoreCard({ store, onEdit, onDelete, onShowQR }: StoreCa
                 />
               </svg>
               Google
-            </div>
+            </a>
           )}
           {store.yelpUrl && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded text-sm">
+            <a 
+              href={store.yelpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded text-sm hover:bg-red-100 transition-colors"
+            >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12.271 17.018c-.106.04-.219.048-.33.023l-4.047-.903c-.427-.095-.705-.51-.625-.936l.815-4.306c.03-.158.106-.304.22-.42l8.364-8.517c.188-.191.5-.196.695-.01l2.688 2.565c.196.187.203.498.016.694l-7.376 11.42c-.088.136-.232.236-.42.29z" />
               </svg>
               Yelp
-            </div>
+            </a>
           )}
         </div>
       </div>

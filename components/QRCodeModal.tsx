@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Copy, Check } from 'lucide-react';
+import { X, Copy, Check, ExternalLink } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Store } from '@/lib/types';
 
@@ -10,6 +10,12 @@ interface QRCodeModalProps {
 
 export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
   const [copied, setCopied] = useState(false);
+  
+  // Debug: log if landing_page_id is missing
+  if (!store.landing_page_id) {
+    console.warn('QRCodeModal: landing_page_id is missing for store:', store.id, store.name);
+  }
+  
   const landingUrl = `${window.location.origin}/r/${store.landing_page_id}`;
 
   const handleCopyLink = async () => {
@@ -49,22 +55,33 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
             <p className="text-sm text-gray-600 mb-2">Landing Page URL</p>
             <p className="text-sm text-gray-900 break-all mb-3">{landingUrl}</p>
-            <button
-              onClick={handleCopyLink}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  <span className="text-emerald-600">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  Copy Link
-                </>
-              )}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCopyLink}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-600" />
+                    <span className="text-emerald-600">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copy Link
+                  </>
+                )}
+              </button>
+              <a
+                href={landingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open Link
+              </a>
+            </div>
           </div>
 
           <p className="text-xs text-gray-500">
