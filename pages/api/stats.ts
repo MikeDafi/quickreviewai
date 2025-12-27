@@ -92,8 +92,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const totalScans = data.current_scans + periodScans
     const reviewsCopied = data.current_copies + periodCopies
 
-    const tier = data.subscription_tier || 'free'
-    const scanLimit = tier === 'free' ? 15 : -1  // 15 scans/month for free, unlimited for pro
+    const tier = (data.subscription_tier || SubscriptionTier.FREE) as SubscriptionTier
+    const limits = getPlanLimits(tier)
+    const scanLimit = limits.scansPerMonth === Infinity ? DEFAULTS.SCAN_LIMIT_DISPLAY : limits.scansPerMonth
 
     return res.status(200).json({
       totalScans,

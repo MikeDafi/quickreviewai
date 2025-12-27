@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Stripe from 'stripe'
 import { sql } from '@/lib/db'
+import { SubscriptionTier, BILLING } from '@/lib/constants'
 
 // Validate required environment variables
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -44,12 +45,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'User not found' })
     }
 
-    const tier = user.subscription_tier || 'free'
+    const tier = user.subscription_tier || SubscriptionTier.FREE
     
     // Base response for free users
-    if (tier === 'free' || !user.stripe_subscription_id) {
+    if (tier === SubscriptionTier.FREE || !user.stripe_subscription_id) {
       return res.status(200).json({
-        tier: 'free',
+        tier: SubscriptionTier.FREE,
         hasSubscription: false,
         // Check if they were ever a subscriber (affects refund eligibility)
         wasEverSubscribed: !!user.first_subscribed_at,
@@ -87,8 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const subscriptionAge = user.subscription_started_at 
       ? Date.now() - new Date(user.subscription_started_at).getTime()
       : Infinity
-    const threeDaysMs = 3 * 24 * 60 * 60 * 1000
-    const eligibleForRefund = isFirstTimeSubscriber && subscriptionAge < threeDaysMs
+    const eligibleForRefund = isFirstTimeSubscriber && subscriptionAge < BILLING.REFUND_WINDOW_MS
 
     // Calculate days as subscriber
     const memberSinceDays = user.subscription_started_at
@@ -104,7 +104,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       wasEverSubscribed: true,
       eligibleForRefund,
       refundDeadline: eligibleForRefund && user.subscription_started_at
-        ? new Date(new Date(user.subscription_started_at).getTime() + threeDaysMs).toISOString()
+        ? new Date(new Date(user.subscription_started_at).getTime() + BILLING.REFUND_WINDOW_MS).toISOString()
         : null,
       cancelAtPeriodEnd,
       currentPeriodEnd: currentPeriodEnd?.toISOString() || null,

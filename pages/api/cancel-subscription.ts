@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Stripe from 'stripe'
 import { sql } from '@/lib/db'
+import { SubscriptionTier, BILLING } from '@/lib/constants'
 
 // Validate required environment variables
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -51,8 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const subscriptionAge = user.subscription_started_at 
       ? Date.now() - new Date(user.subscription_started_at).getTime()
       : Infinity
-    const threeDaysMs = 3 * 24 * 60 * 60 * 1000
-    const eligibleForRefund = isFirstTimeSubscriber && subscriptionAge < threeDaysMs
+    const eligibleForRefund = isFirstTimeSubscriber && subscriptionAge < BILLING.REFUND_WINDOW_MS
 
     if (requestRefund && !eligibleForRefund) {
       return res.status(400).json({ 
@@ -69,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Update user to free tier immediately
       await sql`
         UPDATE users 
-        SET subscription_tier = 'free', stripe_subscription_id = NULL
+        SET subscription_tier = ${SubscriptionTier.FREE}, stripe_subscription_id = NULL
         WHERE email = ${session.user.email}
       `
 

@@ -70,9 +70,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const priceId = subscription.items.data[0]?.price.id
         
         // Map price IDs to tiers
-        let tier = 'pro'
+        let tier: SubscriptionTier = SubscriptionTier.PRO
         if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) {
-          tier = 'business'
+          tier = SubscriptionTier.BUSINESS
         }
 
         // Update user subscription with tracking fields
@@ -96,9 +96,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         
         if (subscription.status === 'active') {
           const priceId = subscription.items.data[0]?.price.id
-          let tier = 'pro'
+          let tier: SubscriptionTier = SubscriptionTier.PRO
           if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) {
-            tier = 'business'
+            tier = SubscriptionTier.BUSINESS
           }
           
           await sql`
@@ -117,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await sql`
           UPDATE users 
           SET 
-            subscription_tier = 'free',
+            subscription_tier = ${SubscriptionTier.FREE},
             stripe_subscription_id = NULL,
             subscription_started_at = NULL
           WHERE stripe_customer_id = ${customerId}
