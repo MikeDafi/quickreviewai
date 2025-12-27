@@ -11,18 +11,24 @@ const DEMO_REVIEWS = [
   "Absolutely delicious! The pizza here is authentic and flavorful. Loved the family-friendly atmosphere and attentive service. Can't wait to try more items on the menu!"
 ];
 
+const MAX_DEMO_REGENERATIONS = 3;
+
 export default function DemoLandingPage() {
   const [review, setReview] = useState(DEMO_REVIEWS[0]);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
+  const [regenerationCount, setRegenerationCount] = useState(0);
 
   function regenerateReview() {
+    if (regenerationCount >= MAX_DEMO_REGENERATIONS) return;
+    
     setGenerating(true);
     setTimeout(() => {
       const nextIndex = (reviewIndex + 1) % DEMO_REVIEWS.length;
       setReviewIndex(nextIndex);
       setReview(DEMO_REVIEWS[nextIndex]);
+      setRegenerationCount(prev => prev + 1);
       setGenerating(false);
     }, 800);
   }

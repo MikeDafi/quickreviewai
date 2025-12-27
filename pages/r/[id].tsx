@@ -51,7 +51,7 @@ export default function LandingPage() {
         setReview(DEMO_REVIEWS[0]);
         setLoading(false);
       } else {
-        fetchLandingPage();
+      fetchLandingPage();
       }
     }
   }, [id, isDemo]);
@@ -126,7 +126,7 @@ export default function LandingPage() {
     setCopied(true);
     // Track copy (skip for demo)
     if (!isDemo) {
-      fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
+    fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
     }
     setTimeout(() => setCopied(false), 2000);
   }
@@ -134,7 +134,7 @@ export default function LandingPage() {
   async function trackClick(platform: string) {
     // Skip tracking for demo
     if (!isDemo) {
-      fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
+    fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
     }
   }
 
@@ -210,8 +210,8 @@ export default function LandingPage() {
                   </div>
                 )}
                 <p className={`text-gray-800 leading-relaxed ${generating ? 'opacity-30' : ''}`}>
-                  {review}
-                </p>
+                {review}
+              </p>
               </div>
             </div>
 
@@ -233,16 +233,16 @@ export default function LandingPage() {
             </button>
 
             {!isFreePlanLimit && !isDemoLimit && (
-              <button
-                onClick={regenerateReview}
-                disabled={generating || !!rateLimitError}
-                className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
-                  rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                Generate Another
-              </button>
+            <button
+              onClick={regenerateReview}
+              disabled={generating || !!rateLimitError}
+              className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+              Generate Another
+            </button>
             )}
             
             {rateLimitError && !isFreePlanLimit && (

@@ -6,6 +6,9 @@ CREATE TABLE users (
   name TEXT,
   stripe_customer_id TEXT,
   subscription_tier TEXT DEFAULT 'free',
+  period_scans INT DEFAULT 0,
+  period_copies INT DEFAULT 0,
+  period_start TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -37,3 +40,9 @@ CREATE TABLE landing_pages (
 -- Indexes for performance
 CREATE INDEX idx_stores_user_id ON stores(user_id);
 CREATE INDEX idx_landing_pages_store_id ON landing_pages(store_id);
+
+-- Migration: Add billing period tracking to users table
+-- Run this if upgrading from an existing database:
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS period_scans INT DEFAULT 0;
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS period_copies INT DEFAULT 0;
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS period_start TIMESTAMP;

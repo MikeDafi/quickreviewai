@@ -214,9 +214,78 @@ export async function updateStore(storeId: string, userId: string, data: {
   return rows[0]
 }
 
-// Delete a store
+// Delete a store (preserves scan/copy counts in user's current billing period)
 export async function deleteStore(storeId: string, userId: string) {
+  // First, get the scan/copy counts from landing pages for this store
+  const { rows: statsRows } = await sql`
+    SELECT 
+      COALESCE(SUM(view_count), 0)::int as scans,
+      COALESCE(SUM(copy_count), 0)::int as copies
+    FROM landing_pages 
+    WHERE store_id = ${storeId}
+  `
+  
+  const scans = statsRows[0]?.scans || 0
+  const copies = statsRows[0]?.copies || 0
+  
+  // Add these counts to the user's current period totals before deleting
+  // This ensures deleted store scans still count toward monthly limit
+  if (scans > 0 || copies > 0) {
+    await sql`
+      UPDATE users 
+      SET 
+        period_scans = COALESCE(period_scans, 0) + ${scans},
+        period_copies = COALESCE(period_copies, 0) + ${copies}
+      WHERE id = ${userId}
+    `
+  }
+  
+  // Delete the landing pages first (they reference the store)
+  await sql`DELETE FROM landing_pages WHERE store_id = ${storeId}`
+  
+  // Then delete the store
   await sql`DELETE FROM stores WHERE id = ${storeId} AND user_id = ${userId}`
+}
+
+// Helper to calculate if we're in a new billing period (monthly from account creation)
+export function isNewBillingPeriod(accountCreatedAt: Date, periodStart: Date | null): boolean {
+  const now = new Date()
+  
+  // If no period start recorded, we need to initialize it
+  if (!periodStart) return true
+  
+  // Get the day of month when account was created (billing anchor)
+  const billingDay = accountCreatedAt.getDate()
+  
+  // Calculate the start of the current billing period
+  let currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), billingDay)
+  
+  // If we haven't reached the billing day this month yet, go back a month
+  if (now < currentPeriodStart) {
+    currentPeriodStart = new Date(now.getFullYear(), now.getMonth() - 1, billingDay)
+  }
+  
+  // Handle edge case: if billing day doesn't exist in a month (e.g., 31st in February)
+  // The Date constructor handles this by rolling to the next month, so we cap it
+  const lastDayOfMonth = new Date(currentPeriodStart.getFullYear(), currentPeriodStart.getMonth() + 1, 0).getDate()
+  if (billingDay > lastDayOfMonth) {
+    currentPeriodStart = new Date(currentPeriodStart.getFullYear(), currentPeriodStart.getMonth(), lastDayOfMonth)
+  }
+  
+  // If the recorded period start is before the current period start, it's a new period
+  return periodStart < currentPeriodStart
+}
+
+// Reset user's billing period stats
+export async function resetBillingPeriod(userId: string) {
+  await sql`
+    UPDATE users 
+    SET 
+      period_scans = 0,
+      period_copies = 0,
+      period_start = NOW()
+    WHERE id = ${userId}
+  `
 }
 
 // Get landing page by ID (public)
