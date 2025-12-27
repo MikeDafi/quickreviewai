@@ -348,7 +348,7 @@ export default function LandingPage() {
                       Free plan includes 1 AI review per page. Pro users get unlimited regenerations!
                     </p>
                     <a 
-                      href="/upgrade" 
+                      href={`/upgrade?returnUrl=${encodeURIComponent(`/r/${id}`)}`}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-colors font-medium"
                     >
                       Upgrade to Pro →

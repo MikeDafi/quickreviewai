@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { QrCode, Copy, Zap, Plus, User, LogOut, Sparkles, Store as StoreIcon, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { QrCode, Copy, Zap, Plus, User, LogOut, Sparkles, Store as StoreIcon, X, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
 import { Store } from '@/lib/types';
 import StoreCard from '@/components/StoreCard';
 import AddStoreModal from '@/components/AddStoreModal';
@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: SubscriptionTier.FREE as string });
+  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: SubscriptionTier.FREE as string, storeLimit: 1 as number | null });
   
   // Loading states for mutations
   const [savingStore, setSavingStore] = useState(false);
@@ -227,24 +227,44 @@ export default function Dashboard() {
               <span className="text-xl font-bold text-gray-900">QuickReviewAI</span>
             </Link>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:ring-2 hover:ring-emerald-200 transition-all overflow-hidden"
-              >
-                {session.user?.image ? (
-                  <img 
-                    src={session.user.image} 
-                    alt={session.user.name || 'Profile'} 
-                    className="w-10 h-10 rounded-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-emerald-700" />
-                  </div>
-                )}
-              </button>
+            <div className="flex items-center gap-3">
+              {/* Pricing button for free users */}
+              {stats.tier === SubscriptionTier.FREE && (
+                <Link
+                  href="/upgrade?returnUrl=/dashboard"
+                  className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  Pricing
+                </Link>
+              )}
+              
+              {/* Tier badge */}
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                stats.tier === SubscriptionTier.PRO 
+                  ? 'bg-amber-400 text-amber-900' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {stats.tier === SubscriptionTier.PRO ? 'Pro' : 'Free'}
+              </span>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:ring-2 hover:ring-emerald-200 transition-all overflow-hidden"
+                >
+                  {session.user?.image ? (
+                    <img 
+                      src={session.user.image} 
+                      alt={session.user.name || 'Profile'} 
+                      className="w-10 h-10 rounded-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-emerald-700" />
+                    </div>
+                  )}
+                </button>
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
@@ -278,6 +298,7 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </nav>
@@ -285,7 +306,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 py-8">
           {/* Stats Cards */}
-          <div className="grid sm:grid-cols-3 gap-6 mb-8">
+          <div className="grid sm:grid-cols-2 gap-6 mb-8">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-600">QR Code Scans</span>
@@ -308,30 +329,6 @@ export default function Dashboard() {
               <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied}</div>
               <p className="text-sm text-gray-500 mt-1">This month</p>
             </div>
-
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600">Current Plan</span>
-                <Zap className="w-5 h-5 text-amber-500" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900 capitalize">{stats.tier}</div>
-              {stats.tier === SubscriptionTier.FREE && (
-                <div className="mt-3">
-                  <p className="text-xs text-gray-500 mb-2">
-                    {stores.length}/{getPlanLimits(SubscriptionTier.FREE).stores} store • {getPlanLimits(SubscriptionTier.FREE).scansPerMonth} QR scans/mo
-                  </p>
-                  <Link 
-                    href="/upgrade" 
-                    className="inline-block px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors font-medium"
-                  >
-                    Upgrade to Pro →
-                  </Link>
-                </div>
-              )}
-              {stats.tier === SubscriptionTier.PRO && (
-                <p className="text-sm text-gray-500 mt-1">Unlimited stores, reviews & scans</p>
-              )}
-            </div>
           </div>
 
           {/* Pro Features Callout - Only for free users */}
@@ -343,26 +340,37 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Unlock the Full Power of QuickReviewAI</h3>
-                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Zap className="w-4 h-4 text-purple-600" />
+                      <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-4 h-4 text-violet-600" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 text-sm">Review Guidance</p>
                         <p className="text-xs text-gray-600">
-                          Tell the AI exactly what to highlight in every review.
+                          Tell the AI exactly what to highlight.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <BarChart3 className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">Analytics</p>
+                        <p className="text-xs text-gray-600">
+                          Track which keywords drive conversions.
                         </p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <QrCode className="w-4 h-4 text-emerald-600" />
+                        <StoreIcon className="w-4 h-4 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900 text-sm">Unlimited Scans</p>
+                        <p className="font-medium text-gray-900 text-sm">Unlimited Stores</p>
                         <p className="text-xs text-gray-600">
-                          No monthly scan limits for your customers.
+                          Add all your locations.
                         </p>
                       </div>
                     </div>
@@ -373,7 +381,7 @@ export default function Dashboard() {
                       <div>
                         <p className="font-medium text-gray-900 text-sm">Unlimited Regenerations</p>
                         <p className="text-xs text-gray-600">
-                          Not limited to 1 review per user. Generate fresh reviews anytime.
+                          Fresh reviews anytime.
                         </p>
                       </div>
                     </div>
@@ -392,7 +400,18 @@ export default function Dashboard() {
 
           {/* Stores Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Your Stores</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">Your Stores</h2>
+              <span className={`px-2.5 py-1 rounded-full text-sm font-medium ${
+                stats.storeLimit === null 
+                  ? 'bg-emerald-100 text-emerald-700' 
+                  : stats.storeCount >= (stats.storeLimit || 1)
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-gray-100 text-gray-600'
+              }`}>
+                {stats.storeCount}/{stats.storeLimit === null ? '∞' : stats.storeLimit}
+              </span>
+            </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"

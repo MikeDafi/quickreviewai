@@ -1995,7 +1995,7 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
                     </li>
                   </ul>
                   <Link
-                    href="/upgrade"
+                    href="/upgrade?returnUrl=/dashboard"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
                   >
                     Upgrade to Pro
@@ -2090,16 +2090,16 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
                     className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-100 text-emerald-800 text-sm rounded-full"
                   >
                     {type}
-                    <button
-                      type="button"
+                <button
+                  type="button"
                       onClick={() => removeBusinessType(type)}
                       className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-200"
                     >
                       <X className="w-3 h-3" />
-                    </button>
+                </button>
                   </span>
-                ))}
-          </div>
+              ))}
+            </div>
             )}
             
             {/* Input for adding more */}

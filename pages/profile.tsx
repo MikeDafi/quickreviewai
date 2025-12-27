@@ -197,12 +197,33 @@ export default function Profile() {
               <span>Back to Dashboard</span>
             </Link>
             
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">QuickReviewAI</span>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold text-gray-900">QuickReviewAI</span>
+              </Link>
+              
+              {/* Pricing button for free users */}
+              {subscription?.tier === SubscriptionTier.FREE && (
+                <Link
+                  href="/upgrade"
+                  className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  Pricing
+                </Link>
+              )}
+              
+              {/* Tier badge */}
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                subscription?.tier === SubscriptionTier.PRO 
+                  ? 'bg-amber-400 text-amber-900' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {subscription?.tier === SubscriptionTier.PRO ? 'Pro' : 'Free'}
+              </span>
+            </div>
           </div>
         </nav>
 

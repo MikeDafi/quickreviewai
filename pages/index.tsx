@@ -344,7 +344,7 @@ export default function Home() {
                   'Unlimited keyword-rich reviews',
                   'Unlimited QR scans',
                   'Target specific keywords you want to rank for',
-                  'Review Guidance (control what customers mention)',
+                  'Tell the AI exactly what to highlight in every review',
                   'Google, Yelp, TripAdvisor, Facebook, OpenTable',
                   'Analytics dashboard',
                   'Priority support'

@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  const { plan } = req.body
+  const { plan, returnUrl } = req.body
 
   // Only Pro plan is supported
   if (plan !== SubscriptionTier.PRO) {
@@ -40,6 +40,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Unable to process request' })
   }
 
+  // Sanitize and validate returnUrl (must be relative path starting with /)
+  let safeReturnUrl = '/dashboard'
+  if (returnUrl && typeof returnUrl === 'string' && returnUrl.startsWith('/')) {
+    // Only allow relative paths, no external URLs
+    safeReturnUrl = returnUrl
+  }
+
   try {
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -51,8 +58,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard?upgraded=true`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/upgrade?cancelled=true`,
+      // On success, go to the original page with upgraded flag
+      success_url: `${process.env.NEXTAUTH_URL}${safeReturnUrl}${safeReturnUrl.includes('?') ? '&' : '?'}upgraded=true`,
+      // On cancel, go back to upgrade page with returnUrl preserved
+      cancel_url: `${process.env.NEXTAUTH_URL}/upgrade?cancelled=true&returnUrl=${encodeURIComponent(safeReturnUrl)}`,
       metadata: {
         userId: session.user.id || '',
         plan,

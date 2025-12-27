@@ -96,12 +96,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const limits = getPlanLimits(tier)
     const scanLimit = limits.scansPerMonth === Infinity ? DEFAULTS.SCAN_LIMIT_DISPLAY : limits.scansPerMonth
 
+    const storeLimit = limits.stores === Infinity ? null : limits.stores
+
     return res.status(200).json({
       totalScans,
       reviewsCopied,
       storeCount: data.store_count,
       tier,
       scanLimit,
+      storeLimit,
     })
   } catch (error) {
     console.error('Stats API error:', error)

@@ -112,7 +112,7 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
         <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
           <p className="text-sm text-amber-800">
             <strong>{store.blockedRegenerations} customer{(store.blockedRegenerations || 0) > 1 ? 's' : ''}</strong> wanted a different review but hit the free limit.{' '}
-            <Link href="/upgrade" className="text-amber-700 underline hover:text-amber-900 font-medium">
+            <Link href="/upgrade?returnUrl=/dashboard" className="text-amber-700 underline hover:text-amber-900 font-medium">
               Upgrade to Pro
             </Link>{' '}
             for unlimited regenerations!
@@ -195,7 +195,7 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
           </button>
         ) : (
           <Link
-            href="/upgrade"
+            href="/upgrade?returnUrl=/dashboard"
             className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-100 text-violet-400 rounded-lg hover:bg-violet-200 transition-colors text-sm group relative"
           >
             <Lock className="w-3 h-3" />
@@ -218,7 +218,7 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
           </button>
         ) : (
           <Link
-            href="/upgrade"
+            href="/upgrade?returnUrl=/dashboard"
             className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-400 rounded-lg hover:bg-indigo-200 transition-colors text-sm group relative"
           >
             <Lock className="w-3 h-3" />

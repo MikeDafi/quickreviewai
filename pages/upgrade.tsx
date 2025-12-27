@@ -13,12 +13,16 @@ export default function Upgrade() {
   const [error, setError] = useState('');
   const cancelled = router.query.cancelled === 'true';
   const hasTriggeredCheckout = useRef(false);
+  
+  // Get the return URL from query param, fallback to dashboard
+  const returnUrl = (router.query.returnUrl as string) || '/dashboard';
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login?plan=pro');
+      // Preserve returnUrl when redirecting to login
+      router.push(`/login?plan=pro&returnUrl=${encodeURIComponent(returnUrl)}`);
     }
-  }, [status, router]);
+  }, [status, router, returnUrl]);
 
   // Auto-redirect to Stripe checkout when logged in (unless cancelled)
   useEffect(() => {
@@ -36,7 +40,7 @@ export default function Upgrade() {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, returnUrl }),
       });
 
       const data = await res.json();
@@ -75,7 +79,7 @@ export default function Upgrade() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Redirecting to checkout...</h2>
           <p className="text-gray-600 mb-6">You&apos;ll be redirected to Stripe to complete your payment.</p>
           <Link 
-            href="/dashboard"
+            href={returnUrl}
             className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -184,11 +188,11 @@ export default function Upgrade() {
 
           <div className="text-center mt-6 space-y-2">
             <Link 
-              href="/dashboard"
+              href={returnUrl}
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
+              Go back
             </Link>
             <p className="text-xs text-gray-500">
               Questions? Contact us at quickreviewsai@gmail.com

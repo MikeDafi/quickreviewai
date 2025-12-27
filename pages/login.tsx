@@ -10,17 +10,18 @@ export default function Login() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const plan = router.query.plan as string | undefined;
+  const returnUrl = (router.query.returnUrl as string) || '/dashboard';
 
   useEffect(() => {
     if (session) {
       // Redirect to upgrade page if user came from Pro pricing, otherwise dashboard
       if (plan === SubscriptionTier.PRO) {
-        router.push('/upgrade');
+        router.push(`/upgrade?returnUrl=${encodeURIComponent(returnUrl)}`);
       } else {
-        router.push('/dashboard');
+        router.push(returnUrl);
       }
     }
-  }, [session, router, plan]);
+  }, [session, router, plan, returnUrl]);
 
   if (status === 'loading') {
     return (
