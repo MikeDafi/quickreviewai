@@ -6,16 +6,19 @@ import { Copy, RefreshCw, ExternalLink, Check, ArrowDown, X, AlertCircle } from 
 // Toast component
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
+    const timer = setTimeout(onClose, 5000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-amber-600 text-white rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
-      <AlertCircle className="w-5 h-5 flex-shrink-0" />
-      <span className="text-sm font-medium">{message}</span>
-      <button onClick={onClose} className="ml-2 hover:opacity-80">
-        <X className="w-4 h-4" />
+    <div 
+      className="fixed top-4 left-1/2 z-[9999] flex items-center gap-3 px-5 py-4 bg-amber-500 text-white rounded-xl shadow-2xl border border-amber-400 max-w-sm"
+      style={{ transform: 'translateX(-50%)' }}
+    >
+      <AlertCircle className="w-6 h-6 flex-shrink-0" />
+      <span className="text-sm font-semibold">{message}</span>
+      <button onClick={onClose} className="ml-2 p-1 hover:bg-amber-600 rounded transition-colors">
+        <X className="w-5 h-5" />
       </button>
     </div>
   );
@@ -148,12 +151,14 @@ export default function LandingPage() {
         showToast("Free plan allows 1 review per visit. Upgrade for unlimited!");
         setIsFreePlanLimit(true);
         setRateLimitError(result.message || 'Upgrade to Pro for unlimited regenerations!');
+        setGenerating(false);
         return;
       }
       
       if (res.status === 429) {
         showToast(result.message || "Rate limit reached. Try again later.");
         setRateLimitError(result.message || 'Too many regenerations. Please try again later.');
+        setGenerating(false);
         return;
       }
       
