@@ -20,6 +20,7 @@ import {
   Clock,
   AlertTriangle
 } from 'lucide-react';
+import { SubscriptionTier } from '@/lib/constants';
 
 interface SubscriptionInfo {
   tier: string;
@@ -269,7 +270,7 @@ export default function Profile() {
                 </h2>
               </div>
               <div className="p-6">
-                {subscription?.tier === 'free' ? (
+                {subscription?.tier === SubscriptionTier.FREE ? (
                   <div className="text-center py-4">
                     <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Crown className="w-6 h-6 text-emerald-600" />
@@ -294,7 +295,7 @@ export default function Profile() {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-gray-900 font-medium">
-                          {subscription?.tier === 'pro' ? 'Pro' : 'Business'} Plan
+                          {subscription?.tier === SubscriptionTier.PRO ? 'Pro' : 'Business'} Plan
                         </p>
                         {subscription?.cancelAtPeriodEnd ? (
                           <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">

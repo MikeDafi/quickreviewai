@@ -28,11 +28,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { plan } = req.body
 
-  if (!plan || !['pro', 'business'].includes(plan)) {
+  const validPlans = [SubscriptionTier.PRO, SubscriptionTier.BUSINESS]
+  if (!plan || !validPlans.includes(plan)) {
     return res.status(400).json({ error: 'Invalid plan' })
   }
 
-  const priceId = (plan === 'pro' 
+  const priceId = (plan === SubscriptionTier.PRO 
     ? process.env.STRIPE_PRO_PRICE_ID 
     : process.env.STRIPE_BUSINESS_PRICE_ID)?.trim()
 

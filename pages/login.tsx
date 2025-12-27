@@ -77,17 +77,6 @@ export default function Login() {
               <span>Continue with Google</span>
             </button>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Don&apos;t have an account?{' '}
-                <button 
-                  onClick={() => signIn('google', { callbackUrl: plan === 'pro' ? '/upgrade' : '/dashboard' })}
-                  className="text-emerald-600 hover:text-emerald-700 font-medium"
-                >
-                  Sign up
-                </button>
-              </p>
-            </div>
           </div>
 
           <div className="text-center mt-6">

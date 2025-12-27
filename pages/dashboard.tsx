@@ -8,12 +8,7 @@ import { Store } from '@/lib/types';
 import StoreCard from '@/components/StoreCard';
 import AddStoreModal from '@/components/AddStoreModal';
 import QRCodeModal from '@/components/QRCodeModal';
-
-// Plan limits (should match backend)
-const PLAN_LIMITS = {
-  free: { stores: 1, scansPerMonth: 15 },
-  pro: { stores: Infinity, scansPerMonth: Infinity },
-};
+import { SubscriptionTier, PLAN_LIMITS, getPlanLimits } from '@/lib/constants';
 
 // Toast notification component
 function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
@@ -44,7 +39,7 @@ export default function Dashboard() {
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: 'free' });
+  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: SubscriptionTier.FREE as string });
   
   // Loading states for mutations
   const [savingStore, setSavingStore] = useState(false);
@@ -297,10 +292,10 @@ export default function Dashboard() {
               </div>
               <div className="text-3xl font-bold text-gray-900">
                 {stats.totalScans}
-                {stats.tier === 'free' && <span className="text-lg text-gray-400">/{PLAN_LIMITS.free.scansPerMonth}</span>}
+                {stats.tier === SubscriptionTier.FREE && <span className="text-lg text-gray-400">/{getPlanLimits(SubscriptionTier.FREE).scansPerMonth}</span>}
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                {stats.tier === 'free' ? 'This month' : 'Total views'}
+                {stats.tier === SubscriptionTier.FREE ? 'This month' : 'Total views'}
               </p>
             </div>
 
@@ -319,10 +314,10 @@ export default function Dashboard() {
                 <Zap className="w-5 h-5 text-amber-500" />
               </div>
               <div className="text-2xl font-bold text-gray-900 capitalize">{stats.tier}</div>
-              {stats.tier === 'free' && (
+              {stats.tier === SubscriptionTier.FREE && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 mb-2">
-                    {stores.length}/{PLAN_LIMITS.free.stores} store • {PLAN_LIMITS.free.scansPerMonth} QR scans/mo
+                    {stores.length}/{getPlanLimits(SubscriptionTier.FREE).stores} store • {getPlanLimits(SubscriptionTier.FREE).scansPerMonth} QR scans/mo
                   </p>
                   <Link 
                     href="/upgrade" 
@@ -332,7 +327,7 @@ export default function Dashboard() {
                   </Link>
                 </div>
               )}
-              {stats.tier === 'pro' && (
+              {stats.tier === SubscriptionTier.PRO && (
                 <p className="text-sm text-gray-500 mt-1">Unlimited stores, reviews & scans</p>
               )}
             </div>
@@ -370,7 +365,7 @@ export default function Dashboard() {
                 <StoreCard
                   key={store.id}
                   store={store}
-                  tier={stats.tier as 'free' | 'pro'}
+                  tier={stats.tier as SubscriptionTier}
                   onEdit={setEditingStore}
                   onDelete={handleDeleteStore}
                   onShowQR={setQrCodeStore}
@@ -384,7 +379,7 @@ export default function Dashboard() {
         {/* Modals */}
         {isAddModalOpen && (
           <AddStoreModal
-            tier={stats.tier as 'free' | 'pro'}
+            tier={stats.tier as SubscriptionTier}
             onClose={() => setIsAddModalOpen(false)}
             onSave={handleAddStore}
           />
@@ -393,7 +388,7 @@ export default function Dashboard() {
         {editingStore && (
           <AddStoreModal
             store={editingStore}
-            tier={stats.tier as 'free' | 'pro'}
+            tier={stats.tier as SubscriptionTier}
             onClose={() => setEditingStore(null)}
             onSave={(store) => handleEditStore(store as Store)}
           />
