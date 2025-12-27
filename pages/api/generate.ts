@@ -2,6 +2,15 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { kv } from '@vercel/kv'
 import { getLandingPage, incrementCopyCount, sql } from '@/lib/db'
+import { 
+  SubscriptionTier, 
+  PLAN_LIMITS, 
+  DEMO_REGENERATIONS_PER_HOUR,
+  RATE_LIMIT,
+  GenerateAction,
+  Platform,
+  VALID_PLATFORMS,
+} from '@/lib/constants'
 import crypto from 'crypto'
 
 // Validate required environment variables at module load
@@ -11,10 +20,6 @@ if (!GEMINI_API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-
-// Rate limiting config
-const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 // 1 hour
-const CACHE_TTL_SECONDS = 24 * 60 * 60 // 24 hours for cached reviews
 
 // Hash IP for privacy
 function hashIP(ip: string): string {
@@ -36,18 +41,15 @@ function getClientIP(req: NextApiRequest): string {
   return req.socket.remoteAddress || 'unknown'
 }
 
-// Rate limits per tier (for regeneration)
-const RATE_LIMITS = {
-  demo: 3,   // Demo page: 3 per hour
-  free: 1,   // Free users: 1 per hour per landing page
-  pro: 10,   // Pro users: 10 per hour per landing page
+// Get regeneration rate limit for a tier
+function getRegenerationLimit(tier: SubscriptionTier | 'demo'): number {
+  if (tier === 'demo') return DEMO_REGENERATIONS_PER_HOUR
+  return PLAN_LIMITS[tier]?.regenerationsPerHour ?? PLAN_LIMITS[SubscriptionTier.FREE].regenerationsPerHour
 }
 
-// Monthly scan limits per tier
-const SCAN_LIMITS = {
-  free: 15,      // 15 scans/month for free users
-  pro: Infinity, // Unlimited for pro
-  business: Infinity,
+// Get monthly scan limit for a tier
+function getScanLimit(tier: SubscriptionTier): number {
+  return PLAN_LIMITS[tier]?.scansPerMonth ?? PLAN_LIMITS[SubscriptionTier.FREE].scansPerMonth
 }
 
 async function checkRateLimit(ip: string, landingId: string, maxRequests: number): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
@@ -68,7 +70,7 @@ async function checkRateLimit(ip: string, landingId: string, maxRequests: number
     
     // Set expiry only on first request (when count was 0)
     if (newCount === 1) {
-      await kv.expire(key, RATE_LIMIT_WINDOW_SECONDS)
+      await kv.expire(key, RATE_LIMIT.WINDOW_SECONDS)
     }
     
     return { 
