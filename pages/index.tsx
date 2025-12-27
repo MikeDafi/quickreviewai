@@ -12,8 +12,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>QuickReviewAI - Turn Happy Customers into 5-Star Reviews</title>
-        <meta name="description" content="AI-powered review generation for local businesses. Help customers share positive experiences with QR codes." />
+        <title>QuickReviewAI - Rank for Keywords You&apos;re Missing | Local SEO Through Reviews</title>
+        <meta name="description" content="Turn customer reviews into SEO gold. AI-generated reviews mention YOUR keywords so you rank for searches you never showed up for. Free to start." />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-white to-emerald-50/30">
@@ -314,8 +314,8 @@ export default function Home() {
         <section id="pricing" className="px-4 py-24 bg-white">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Simple, Transparent Pricing</h2>
-              <p className="text-xl text-gray-600">Choose the plan that fits your business</p>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Cheaper Than SEO Agencies</h2>
+              <p className="text-xl text-gray-600">Get ongoing keyword-rich content for a fraction of the cost</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -325,9 +325,9 @@ export default function Home() {
                 period="forever"
                 features={[
                   '1 store location',
-                  '1 new AI review per hour',
+                  '1 keyword-rich review per hour',
                   '15 QR scans per month',
-                  'Google & Yelp links',
+                  'Google & Yelp posting',
                   'Email support'
                 ]}
                 buttonText="Start Free"
@@ -340,12 +340,12 @@ export default function Home() {
                 price="$9.99"
                 period="month"
                 features={[
-                  'Unlimited store locations',
-                  'Unlimited AI reviews',
+                  'Unlimited locations',
+                  'Unlimited keyword-rich reviews',
                   'Unlimited QR scans',
-                  'Custom review focus (guide what customers mention)',
+                  'Target specific keywords you want to rank for',
+                  'Google, Yelp, TripAdvisor, Facebook, OpenTable',
                   'Analytics dashboard',
-                  'All platforms supported',
                   'Priority support'
                 ]}
                 buttonText="Get Pro"
