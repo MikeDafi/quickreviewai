@@ -1,13 +1,39 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { QrCode, Copy, Zap, Plus, User, LogOut, Sparkles, Store as StoreIcon } from 'lucide-react';
+import { QrCode, Copy, Zap, Plus, User, LogOut, Sparkles, Store as StoreIcon, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Store } from '@/lib/types';
 import StoreCard from '@/components/StoreCard';
 import AddStoreModal from '@/components/AddStoreModal';
 import QRCodeModal from '@/components/QRCodeModal';
+
+// Plan limits (should match backend)
+const PLAN_LIMITS = {
+  free: { stores: 1, scansPerMonth: 15 },
+  pro: { stores: Infinity, scansPerMonth: Infinity },
+};
+
+// Toast notification component
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`fixed bottom-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${
+      type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+    }`}>
+      {type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-2 hover:opacity-80">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -19,6 +45,16 @@ export default function Dashboard() {
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: 'free' });
+  
+  // Loading states for mutations
+  const [savingStore, setSavingStore] = useState(false);
+  const [deletingStoreId, setDeletingStoreId] = useState<string | null>(null);
+  
+  // Toast notifications
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const showToast = useCallback((message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+  }, []);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -26,14 +62,7 @@ export default function Dashboard() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    if (session) {
-      fetchStores();
-      fetchStats();
-    }
-  }, [session]);
-
-  async function fetchStats() {
+  const fetchStats = useCallback(async () => {
     try {
       const res = await fetch('/api/stats');
       if (res.ok) {
@@ -43,9 +72,9 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
-  }
+  }, []);
 
-  async function fetchStores() {
+  const fetchStores = useCallback(async () => {
     try {
       const res = await fetch('/api/stores');
       if (res.ok) {
@@ -72,9 +101,19 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      fetchStores();
+      fetchStats();
+    }
+  }, [session, fetchStores, fetchStats]);
 
   async function handleAddStore(store: Omit<Store, 'id'>) {
+    if (savingStore) return; // Prevent double-clicks
+    setSavingStore(true);
+    
     try {
       const res = await fetch('/api/stores', {
         method: 'POST',
@@ -85,59 +124,83 @@ export default function Dashboard() {
       const data = await res.json();
       
       if (!res.ok) {
-        console.error('API Error:', data);
-        alert(`Failed to create store: ${data.error || 'Unknown error'}`);
+        showToast(data.error || 'Failed to create store', 'error');
         return;
       }
       
       setIsAddModalOpen(false);
+      showToast('Store created successfully!', 'success');
       await fetchStores();
-        // Automatically show QR code modal after creating a store
-        if (data.store) {
-          const newStore: Store = {
-            id: data.store.id,
-            name: data.store.name,
-            address: data.store.address || '',
-            businessType: data.store.business_type || '',
-            keywords: data.store.keywords || [],
-            reviewExpectations: data.store.review_expectations || [],
-            googleUrl: data.store.google_url,
-            yelpUrl: data.store.yelp_url,
-            landing_page_id: data.store.landing_page_id,
-          };
-          setQrCodeStore(newStore);
-        }
+      
+      // Automatically show QR code modal after creating a store
+      if (data.store) {
+        const newStore: Store = {
+          id: data.store.id,
+          name: data.store.name,
+          address: data.store.address || '',
+          businessType: data.store.business_type || '',
+          keywords: data.store.keywords || [],
+          reviewExpectations: data.store.review_expectations || [],
+          googleUrl: data.store.google_url,
+          yelpUrl: data.store.yelp_url,
+          landing_page_id: data.store.landing_page_id,
+        };
+        setQrCodeStore(newStore);
+      }
     } catch (error) {
       console.error('Failed to create store:', error);
-      alert('Failed to create store. Please try again.');
+      showToast('Failed to create store. Please try again.', 'error');
+    } finally {
+      setSavingStore(false);
     }
   }
 
   async function handleEditStore(store: Store) {
+    if (savingStore) return; // Prevent double-clicks
+    setSavingStore(true);
+    
     try {
       const res = await fetch(`/api/stores?id=${store.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(store),
       });
+      
       if (res.ok) {
         setEditingStore(null);
+        showToast('Store updated successfully!', 'success');
         fetchStores();
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Failed to update store', 'error');
       }
     } catch (error) {
       console.error('Failed to update store:', error);
+      showToast('Failed to update store. Please try again.', 'error');
+    } finally {
+      setSavingStore(false);
     }
   }
 
   async function handleDeleteStore(id: string) {
+    if (deletingStoreId) return; // Prevent double-clicks
     if (!confirm('Are you sure you want to delete this store?')) return;
+    
+    setDeletingStoreId(id);
+    
     try {
       const res = await fetch(`/api/stores?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
+        showToast('Store deleted', 'success');
         fetchStores();
+      } else {
+        showToast('Failed to delete store', 'error');
       }
     } catch (error) {
       console.error('Failed to delete store:', error);
+      showToast('Failed to delete store. Please try again.', 'error');
+    } finally {
+      setDeletingStoreId(null);
     }
   }
 
@@ -227,7 +290,7 @@ export default function Dashboard() {
               </div>
               <div className="text-3xl font-bold text-gray-900">
                 {stats.totalScans}
-                {stats.tier === 'free' && <span className="text-lg text-gray-400">/15</span>}
+                {stats.tier === 'free' && <span className="text-lg text-gray-400">/{PLAN_LIMITS.free.scansPerMonth}</span>}
               </div>
               <p className="text-sm text-gray-500 mt-1">
                 {stats.tier === 'free' ? 'This month' : 'Total views'}
@@ -252,7 +315,7 @@ export default function Dashboard() {
               {stats.tier === 'free' && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 mb-2">
-                    {stores.length}/1 store • 15 QR scans/mo
+                    {stores.length}/{PLAN_LIMITS.free.stores} store • {PLAN_LIMITS.free.scansPerMonth} QR scans/mo
                   </p>
                   <Link 
                     href="/upgrade" 
@@ -329,6 +392,15 @@ export default function Dashboard() {
           <QRCodeModal
             store={qrCodeStore}
             onClose={() => setQrCodeStore(null)}
+          />
+        )}
+
+        {/* Toast notifications */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
           />
         )}
       </div>
