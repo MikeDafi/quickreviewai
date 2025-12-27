@@ -20,6 +20,7 @@ export default function LandingPage() {
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [rateLimitError, setRateLimitError] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -48,10 +49,17 @@ export default function LandingPage() {
   async function regenerateReview() {
     if (!id) return;
     setGenerating(true);
+    setRateLimitError('');
     try {
       const res = await fetch(`/api/generate?id=${id}&regenerate=true`);
+      const result = await res.json();
+      
+      if (res.status === 429) {
+        setRateLimitError(result.message || 'Too many regenerations. Please try again later.');
+        return;
+      }
+      
       if (res.ok) {
-        const result = await res.json();
         setReview(result.review);
       }
     } catch (err) {
@@ -147,12 +155,20 @@ export default function LandingPage() {
 
             <button
               onClick={regenerateReview}
-              disabled={generating}
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              disabled={generating || !!rateLimitError}
+              className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
               Generate Another
             </button>
+            
+            {rateLimitError && (
+              <p className="text-center text-sm text-red-500 mt-2">
+                {rateLimitError}
+              </p>
+            )}
           </div>
 
           {/* Platform Buttons */}

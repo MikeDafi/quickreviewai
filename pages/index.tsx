@@ -280,6 +280,7 @@ export default function Home() {
                 ]}
                 buttonText="Start Free"
                 buttonVariant="secondary"
+                href="/login"
               />
               
               <PricingCard
@@ -297,6 +298,7 @@ export default function Home() {
                 ]}
                 buttonText="Start Pro Trial"
                 buttonVariant="primary"
+                href="/login?plan=pro"
                 popular
               />
             </div>

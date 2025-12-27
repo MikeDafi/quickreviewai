@@ -241,9 +241,9 @@ export default function Dashboard() {
                   <p className="text-xs text-gray-500">
                     {stores.length}/1 store • 15 scans/mo
                   </p>
-                  <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link href="/upgrade" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
                     Upgrade to Pro →
-                  </button>
+                  </Link>
                 </div>
               )}
               {stats.tier === 'pro' && (

@@ -4,6 +4,36 @@ import { getLandingPage, updateLandingPageCache, incrementViewCount, incrementCo
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
+// Rate limiting: Track regeneration requests per IP + landing page
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
+const MAX_REGENERATIONS_PER_WINDOW = 5
+
+function checkRateLimit(ip: string, landingId: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const key = `${ip}:${landingId}`
+  const now = Date.now()
+  const entry = rateLimitMap.get(key)
+  
+  // Clean up expired entries periodically
+  if (Math.random() < 0.1) {
+    for (const [k, v] of rateLimitMap.entries()) {
+      if (now > v.resetTime) rateLimitMap.delete(k)
+    }
+  }
+  
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS })
+    return { allowed: true, remaining: MAX_REGENERATIONS_PER_WINDOW - 1, resetIn: RATE_LIMIT_WINDOW_MS }
+  }
+  
+  if (entry.count >= MAX_REGENERATIONS_PER_WINDOW) {
+    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now }
+  }
+  
+  entry.count++
+  return { allowed: true, remaining: MAX_REGENERATIONS_PER_WINDOW - entry.count, resetIn: entry.resetTime - now }
+}
+
 interface LandingWithStore {
   store_name: string
   business_type: string
@@ -90,6 +120,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (cacheValid && !regenerate) {
       review = landing.cached_review
     } else {
+      // Rate limit regenerations
+      if (regenerate) {
+        const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
+                   req.socket.remoteAddress || 
+                   'unknown'
+        const rateLimit = checkRateLimit(ip, id)
+        
+        if (!rateLimit.allowed) {
+          return res.status(429).json({ 
+            error: 'Rate limit exceeded', 
+            message: `Too many regenerations. Try again in ${Math.ceil(rateLimit.resetIn / 60000)} minutes.`,
+            resetIn: rateLimit.resetIn
+          })
+        }
+      }
+      
       // Generate new review
       review = await generateReview(landing as LandingWithStore)
       

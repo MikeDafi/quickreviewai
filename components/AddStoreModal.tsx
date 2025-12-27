@@ -1,5 +1,5 @@
-import { useState, KeyboardEvent } from 'react';
-import { X, Lightbulb, Plus, HelpCircle, ExternalLink } from 'lucide-react';
+import { useState, KeyboardEvent, useRef, useEffect } from 'react';
+import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface AddStoreModalProps {
@@ -80,6 +80,8 @@ const keywordSuggestions: Record<string, string[]> = {
 export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalProps) {
   const [name, setName] = useState(store?.name || '');
   const [businessType, setBusinessType] = useState(store?.businessType || '');
+  const [businessTypeInput, setBusinessTypeInput] = useState(store?.businessType || '');
+  const [showBusinessTypeDropdown, setShowBusinessTypeDropdown] = useState(false);
   const [keywords, setKeywords] = useState<string[]>(store?.keywords || []);
   const [keywordInput, setKeywordInput] = useState('');
   const [expectations, setExpectations] = useState<string[]>(store?.reviewExpectations || []);
@@ -88,8 +90,57 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
   const [showGoogleHelp, setShowGoogleHelp] = useState(false);
   const [showYelpHelp, setShowYelpHelp] = useState(false);
+  
+  const businessTypeRef = useRef<HTMLDivElement>(null);
 
   const currentKeywordSuggestions = businessType ? keywordSuggestions[businessType] || keywordSuggestions['Restaurant'] || [] : [];
+  
+  // Filter business types based on input
+  const filteredBusinessTypes = businessTypeInput
+    ? BUSINESS_TYPES.filter(type => 
+        type.toLowerCase().includes(businessTypeInput.toLowerCase())
+      )
+    : BUSINESS_TYPES;
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (businessTypeRef.current && !businessTypeRef.current.contains(event.target as Node)) {
+        setShowBusinessTypeDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleBusinessTypeSelect = (type: string) => {
+    setBusinessType(type);
+    setBusinessTypeInput(type);
+    setShowBusinessTypeDropdown(false);
+    
+    // Auto-prefill keywords from suggestions for this business type
+    const suggestedKeywords = keywordSuggestions[type] || [];
+    if (suggestedKeywords.length > 0 && keywords.length === 0) {
+      // Only prefill if no keywords are set yet
+      setKeywords(suggestedKeywords);
+    }
+  };
+  
+  const handleBusinessTypeInputChange = (value: string) => {
+    setBusinessTypeInput(value);
+    setShowBusinessTypeDropdown(true);
+    
+    // If typed value matches a business type exactly, select it
+    const exactMatch = BUSINESS_TYPES.find(
+      type => type.toLowerCase() === value.toLowerCase()
+    );
+    if (exactMatch) {
+      setBusinessType(exactMatch);
+    } else if (value && !BUSINESS_TYPES.some(t => t.toLowerCase() === value.toLowerCase())) {
+      // Allow custom business type
+      setBusinessType(value);
+    }
+  };
 
   const handleKeywordKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -152,7 +203,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-2xl text-gray-900">
             {store ? 'Edit Store' : 'Add New Store'}
@@ -182,21 +233,53 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
           </div>
 
           {/* Business Type */}
-          <div>
+          <div ref={businessTypeRef} className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Business Type *
             </label>
-            <select
-              value={businessType}
-              onChange={(e) => setBusinessType(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
-            >
-              <option value="" disabled>Select your business type</option>
-              {BUSINESS_TYPES.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <input
+                type="text"
+                value={businessTypeInput}
+                onChange={(e) => handleBusinessTypeInputChange(e.target.value)}
+                onFocus={() => setShowBusinessTypeDropdown(true)}
+                placeholder="Type or select your business type..."
+                required
+                className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => setShowBusinessTypeDropdown(!showBusinessTypeDropdown)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <ChevronDown className={`w-5 h-5 transition-transform ${showBusinessTypeDropdown ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+            
+            {/* Dropdown List */}
+            {showBusinessTypeDropdown && filteredBusinessTypes.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {filteredBusinessTypes.map(type => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleBusinessTypeSelect(type)}
+                    className={`w-full px-4 py-2 text-left hover:bg-emerald-50 transition-colors ${
+                      businessType === type ? 'bg-emerald-100 text-emerald-700' : 'text-gray-700'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Custom type hint */}
+            {businessTypeInput && !BUSINESS_TYPES.some(t => t.toLowerCase() === businessTypeInput.toLowerCase()) && (
+              <p className="text-xs text-gray-500 mt-1">
+                Using custom business type: &quot;{businessTypeInput}&quot;
+              </p>
+            )}
           </div>
 
           {/* Review Expectations */}

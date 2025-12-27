@@ -8,12 +8,18 @@ import { Sparkles } from 'lucide-react';
 export default function Login() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const plan = router.query.plan as string | undefined;
 
   useEffect(() => {
     if (session) {
-      router.push('/dashboard');
+      // Redirect to upgrade page if user came from Pro pricing, otherwise dashboard
+      if (plan === 'pro') {
+        router.push('/upgrade');
+      } else {
+        router.push('/dashboard');
+      }
     }
-  }, [session, router]);
+  }, [session, router, plan]);
 
   if (status === 'loading') {
     return (
@@ -47,7 +53,7 @@ export default function Login() {
             </div>
 
             <button
-              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+              onClick={() => signIn('google', { callbackUrl: plan === 'pro' ? '/upgrade' : '/dashboard' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all text-gray-700 font-medium"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -75,7 +81,7 @@ export default function Login() {
               <p className="text-sm text-gray-600">
                 Don&apos;t have an account?{' '}
                 <button 
-                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn('google', { callbackUrl: plan === 'pro' ? '/upgrade' : '/dashboard' })}
                   className="text-emerald-600 hover:text-emerald-700 font-medium"
                 >
                   Sign up
