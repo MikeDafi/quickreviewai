@@ -6,7 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup": "vercel link && vercel env pull .env.local",
+    "env:pull": "vercel env pull .env.local",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/billing",
+    "deploy:prod": "vercel --prod"
+  },
+  "devSetup": {
+    "_comment": "Local Development Setup Steps",
+    "step1": "npm install - Install dependencies",
+    "step2": "vercel link - Link to Vercel project (first time only)",
+    "step3": "npm run env:pull - Pull environment variables from Vercel",
+    "step4": "npm run dev - Start local dev server at http://localhost:3000",
+    "step5_optional": "npm run stripe:listen - Forward Stripe webhooks for payment testing",
+    "stripe_test_card": "4242 4242 4242 4242 (any future expiry, any CVC)",
+    "production": "npm run deploy:prod OR git push to main branch"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

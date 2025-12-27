@@ -266,6 +266,13 @@ export default function Dashboard() {
                       <p className="text-xs text-gray-500 truncate">{session.user?.email}</p>
                     </div>
                   </div>
+                  <Link
+                    href="/profile"
+                    className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                  >
+                    <User className="w-4 h-4" />
+                    Account Settings
+                  </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-gray-700"
