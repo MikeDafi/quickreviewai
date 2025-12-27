@@ -7,19 +7,25 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 // Rate limiting config
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 // 1 hour
-const MAX_REGENERATIONS_PER_WINDOW = 5
 
-async function checkRateLimit(ip: string, landingId: string): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
+// Rate limits per tier
+const RATE_LIMITS = {
+  demo: 3,   // Demo page: 3 per hour
+  free: 1,   // Free users: 1 per hour per landing page
+  pro: 10,   // Pro users: 10 per hour per landing page
+}
+
+async function checkRateLimit(ip: string, landingId: string, maxRequests: number): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
   const key = `ratelimit:${ip}:${landingId}`
   
   try {
     // Get current count
     const count = await kv.get<number>(key) || 0
     
-    if (count >= MAX_REGENERATIONS_PER_WINDOW) {
+    if (count >= maxRequests) {
       // Get TTL to know when it resets
       const ttl = await kv.ttl(key)
-      return { allowed: false, remaining: 0, resetIn: ttl * 1000 }
+      return { allowed: false, remaining: 0, resetIn: Math.max(ttl, 0) * 1000 }
     }
     
     // Increment counter
@@ -32,13 +38,13 @@ async function checkRateLimit(ip: string, landingId: string): Promise<{ allowed:
     
     return { 
       allowed: true, 
-      remaining: MAX_REGENERATIONS_PER_WINDOW - newCount, 
+      remaining: maxRequests - newCount, 
       resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 
     }
   } catch (error) {
     // If KV fails, allow the request (fail open)
     console.error('Rate limit check failed:', error)
-    return { allowed: true, remaining: MAX_REGENERATIONS_PER_WINDOW, resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 }
+    return { allowed: true, remaining: maxRequests, resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 }
   }
 }
 
@@ -399,38 +405,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (cacheValid && !regenerate) {
       review = landing.cached_review
     } else {
-      // Check subscription tier for regeneration
+      // Rate limit regenerations (using Vercel KV)
       if (regenerate) {
-        // Get the store owner's subscription tier
-        const { rows: tierRows } = await sql`
-          SELECT u.subscription_tier 
-          FROM landing_pages lp
-          JOIN stores s ON lp.store_id = s.id
-          JOIN users u ON s.user_id = u.id
-          WHERE lp.id = ${id}
-        `
-        const userTier = tierRows[0]?.subscription_tier || 'free'
-        
-        // Free plan users cannot regenerate
-        if (userTier === 'free') {
-          return res.status(403).json({ 
-            error: 'Free plan limitation', 
-            message: 'Upgrade to Pro for unlimited review regenerations!',
-            isPlanLimit: true
-          })
-        }
-        
-        // Rate limit regenerations for paid users too (using Vercel KV)
         const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
                    req.socket.remoteAddress || 
                    'unknown'
-        const rateLimit = await checkRateLimit(ip, id)
         
-        if (!rateLimit.allowed) {
+        // Demo page has special handling
+        const isDemo = id === 'demo'
+        
+        let userTier: string = 'free'
+        let rateLimit: number = RATE_LIMITS.demo
+        
+        if (isDemo) {
+          // Demo page: 3 per hour for anyone
+          rateLimit = RATE_LIMITS.demo
+        } else {
+          // Get the store owner's subscription tier
+          const { rows: tierRows } = await sql`
+            SELECT u.subscription_tier 
+            FROM landing_pages lp
+            JOIN stores s ON lp.store_id = s.id
+            JOIN users u ON s.user_id = u.id
+            WHERE lp.id = ${id}
+          `
+          userTier = tierRows[0]?.subscription_tier || 'free'
+          rateLimit = userTier === 'pro' ? RATE_LIMITS.pro : RATE_LIMITS.free
+        }
+        
+        const rateLimitResult = await checkRateLimit(ip, id, rateLimit)
+        
+        if (!rateLimitResult.allowed) {
+          const minutes = Math.ceil(rateLimitResult.resetIn / 60000)
+          
+          // Different message for free users
+          if (userTier === 'free' && !isDemo) {
+            return res.status(429).json({ 
+              error: 'Free plan rate limit', 
+              message: `Free plan allows 1 regeneration per hour. Upgrade to Pro for 10/hour! Try again in ${minutes} minutes.`,
+              resetIn: rateLimitResult.resetIn,
+              isPlanLimit: true
+            })
+          }
+          
           return res.status(429).json({ 
             error: 'Rate limit exceeded', 
-            message: `Too many regenerations. Try again in ${Math.ceil(rateLimit.resetIn / 60000)} minutes.`,
-            resetIn: rateLimit.resetIn
+            message: `Too many regenerations. Try again in ${minutes} minutes.`,
+            resetIn: rateLimitResult.resetIn
           })
         }
       }
