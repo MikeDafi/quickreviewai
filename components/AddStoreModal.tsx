@@ -882,19 +882,13 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const handleBusinessTypeKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // If there's a typed value that's not in the list, allow custom type
+      // Only allow selecting from predefined list
       if (businessTypeInput.trim() && businessTypes.length < MAX_BUSINESS_TYPES) {
         const exactMatch = BUSINESS_TYPES.find(
           type => type.toLowerCase() === businessTypeInput.toLowerCase()
         );
         if (exactMatch && !businessTypes.includes(exactMatch)) {
           handleBusinessTypeSelect(exactMatch);
-        } else if (!exactMatch && !businessTypes.includes(businessTypeInput.trim())) {
-          // Custom business type
-          const newBusinessTypes = [...businessTypes, businessTypeInput.trim()];
-          setBusinessTypes(newBusinessTypes);
-          setBusinessTypeInput('');
-          setShowBusinessTypeDropdown(false);
         }
       }
     }
@@ -1108,10 +1102,10 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               </div>
             )}
             
-            {/* Custom type hint */}
-            {businessTypeInput && !BUSINESS_TYPES.some(t => t.toLowerCase() === businessTypeInput.toLowerCase()) && (
-              <p className="text-xs text-gray-500 mt-1">
-                Press Enter to add custom type: &quot;{businessTypeInput}&quot;
+            {/* No match hint */}
+            {businessTypeInput && !BUSINESS_TYPES.some(t => t.toLowerCase().includes(businessTypeInput.toLowerCase())) && (
+              <p className="text-xs text-amber-600 mt-1">
+                No matching business type found. Please select from the list above.
               </p>
             )}
             

@@ -25,9 +25,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Invalid plan' })
   }
 
-  const priceId = plan === 'pro' 
+  const priceId = (plan === 'pro' 
     ? process.env.STRIPE_PRO_PRICE_ID 
-    : process.env.STRIPE_BUSINESS_PRICE_ID
+    : process.env.STRIPE_BUSINESS_PRICE_ID)?.trim()
 
   if (!priceId) {
     return res.status(500).json({ error: 'Price ID not configured' })
