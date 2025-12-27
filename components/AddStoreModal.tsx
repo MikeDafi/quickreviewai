@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent, useRef, useEffect } from 'react';
-import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown } from 'lucide-react';
+import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Search, Loader2 } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface AddStoreModalProps {
@@ -632,6 +632,8 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const [showYelpHelp, setShowYelpHelp] = useState(false);
   const [googleUrlError, setGoogleUrlError] = useState('');
   const [yelpUrlError, setYelpUrlError] = useState('');
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupResult, setLookupResult] = useState<string | null>(null);
 
   // URL validation - only allow safe http/https URLs
   const validateUrl = (url: string): { valid: boolean; error: string } => {
@@ -676,6 +678,53 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     setYelpUrlError(validation.error);
   };
 
+  const lookupBusinessUrls = async () => {
+    if (!name.trim()) {
+      setLookupResult('Please enter a store name first');
+      return;
+    }
+    
+    setLookupLoading(true);
+    setLookupResult(null);
+    
+    try {
+      const res = await fetch('/api/lookup-business', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), address: address.trim() }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        let found = false;
+        
+        if (data.yelpUrl && !yelpUrl) {
+          setYelpUrl(data.yelpUrl);
+          found = true;
+        }
+        if (data.googleUrl && !googleUrl) {
+          setGoogleUrl(data.googleUrl);
+          found = true;
+        }
+        
+        if (found) {
+          setLookupResult('Found! Review the URLs below.');
+        } else if (yelpUrl && googleUrl) {
+          setLookupResult('URLs already filled in.');
+        } else {
+          setLookupResult('Could not find business. Try adding an address or enter URLs manually.');
+        }
+      } else {
+        setLookupResult('Lookup failed. Please enter URLs manually.');
+      }
+    } catch (error) {
+      console.error('Lookup error:', error);
+      setLookupResult('Lookup failed. Please enter URLs manually.');
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+  
   const businessTypeRef = useRef<HTMLDivElement>(null);
 
   // Get combined keyword suggestions from all selected business types
@@ -1066,6 +1115,39 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             <p className="text-xs text-gray-500 mt-1">
               Press Enter to add. Separate multiple with commas.
             </p>
+          </div>
+
+          {/* Auto-Lookup URLs */}
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Auto-find Review URLs</p>
+                <p className="text-xs text-gray-500">We&apos;ll search Yelp and Google for your business</p>
+              </div>
+              <button
+                type="button"
+                onClick={lookupBusinessUrls}
+                disabled={lookupLoading || !name.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {lookupLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    Find URLs
+                  </>
+                )}
+              </button>
+            </div>
+            {lookupResult && (
+              <p className={`text-xs mt-2 ${lookupResult.includes('Found') ? 'text-emerald-600' : 'text-amber-600'}`}>
+                {lookupResult}
+              </p>
+            )}
           </div>
 
           {/* Google Review URL */}
