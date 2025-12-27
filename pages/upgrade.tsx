@@ -72,7 +72,14 @@ export default function Upgrade() {
             <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Redirecting to checkout...</h2>
-          <p className="text-gray-600">You&apos;ll be redirected to Stripe to complete your payment.</p>
+          <p className="text-gray-600 mb-6">You&apos;ll be redirected to Stripe to complete your payment.</p>
+          <Link 
+            href="/dashboard"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Cancel and go back
+          </Link>
         </div>
       </div>
     );
@@ -175,13 +182,13 @@ export default function Upgrade() {
           </div>
 
           <div className="text-center mt-6 space-y-2">
-            <button 
-              onClick={() => router.back()}
+            <Link 
+              href="/dashboard"
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4" />
-              Go Back
-            </button>
+              Back to Dashboard
+            </Link>
             <p className="text-xs text-gray-500">
               Questions? Contact us at quickreviewai@gmail.com
             </p>

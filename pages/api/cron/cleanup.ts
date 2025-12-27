@@ -20,16 +20,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Delete review events older than 90 days
-    const { rowCount } = await sql`
+    const result = await sql`
       DELETE FROM review_events
-      WHERE created_at < NOW() - INTERVAL '${RETENTION_DAYS} days'
+      WHERE created_at < NOW() - INTERVAL '1 day' * ${RETENTION_DAYS}
     `
 
-    console.log(`Cleanup: Deleted ${rowCount} review events older than ${RETENTION_DAYS} days`)
+    const deletedCount = result.rowCount || 0
+    console.log(`Cleanup: Deleted ${deletedCount} review events older than ${RETENTION_DAYS} days`)
 
     return res.status(200).json({ 
       success: true, 
-      deletedCount: rowCount,
+      deletedCount,
       retentionDays: RETENTION_DAYS
     })
   } catch (error) {
