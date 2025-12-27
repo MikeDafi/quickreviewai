@@ -2201,18 +2201,31 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 </p>
               </div>
             )}
-            <input
-              type="url"
-              value={googleUrl}
-              onChange={(e) => handleGoogleUrlChange(e.target.value)}
-              placeholder="https://g.page/r/..."
-              maxLength={2000}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
-                googleUrlError 
-                  ? 'border-red-300 focus:ring-red-600' 
-                  : 'border-gray-300 focus:ring-emerald-600'
-              }`}
-            />
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={googleUrl}
+                onChange={(e) => handleGoogleUrlChange(e.target.value)}
+                placeholder="https://g.page/r/..."
+                maxLength={2000}
+                className={`flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+                  googleUrlError 
+                    ? 'border-red-300 focus:ring-red-600' 
+                    : 'border-gray-300 focus:ring-emerald-600'
+                }`}
+              />
+              {googleUrl && !googleUrlError && (
+                <a
+                  href={googleUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium flex items-center gap-1"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Verify
+                </a>
+              )}
+            </div>
             {googleUrlError && (
               <p className="text-xs text-red-500 mt-1">{googleUrlError}</p>
             )}
@@ -2254,18 +2267,31 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 </p>
               </div>
             )}
-            <input
-              type="url"
-              value={yelpUrl}
-              onChange={(e) => handleYelpUrlChange(e.target.value)}
-              placeholder="https://www.yelp.com/biz/..."
-              maxLength={2000}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
-                yelpUrlError 
-                  ? 'border-red-300 focus:ring-red-600' 
-                  : 'border-gray-300 focus:ring-emerald-600'
-              }`}
-            />
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={yelpUrl}
+                onChange={(e) => handleYelpUrlChange(e.target.value)}
+                placeholder="https://www.yelp.com/biz/..."
+                maxLength={2000}
+                className={`flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+                  yelpUrlError 
+                    ? 'border-red-300 focus:ring-red-600' 
+                    : 'border-gray-300 focus:ring-emerald-600'
+                }`}
+              />
+              {yelpUrl && !yelpUrlError && (
+                <a
+                  href={yelpUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium flex items-center gap-1"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Verify
+                </a>
+              )}
+            </div>
             {yelpUrlError && (
               <p className="text-xs text-red-500 mt-1">{yelpUrlError}</p>
             )}
