@@ -76,12 +76,12 @@ async function checkRateLimit(ip: string, landingId: string, maxRequests: number
     return { 
       allowed: true, 
       remaining: maxRequests - newCount, 
-      resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 
+      resetIn: RATE_LIMIT.WINDOW_SECONDS * 1000 
     }
   } catch (error) {
     // If KV fails, allow the request (fail open)
     console.error('Rate limit check failed:', error)
-    return { allowed: true, remaining: maxRequests, resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 }
+    return { allowed: true, remaining: maxRequests, resetIn: RATE_LIMIT.WINDOW_SECONDS * 1000 }
   }
 }
 
@@ -683,8 +683,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       `
       
       if (scanCheck) {
-        const tier = (scanCheck.tier || 'free') as keyof typeof SCAN_LIMITS
-        const limit = SCAN_LIMITS[tier] ?? SCAN_LIMITS.free
+        const tier = (scanCheck.tier || SubscriptionTier.FREE) as SubscriptionTier
+        const limit = getScanLimit(tier)
         const totalScans = parseInt(scanCheck.total_scans) || 0
         
         if (totalScans >= limit) {
@@ -827,7 +827,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           
           // Cache the event ID
           if (reviewEventId) {
-            await kv.set(eventCacheKey, reviewEventId, { ex: CACHE_TTL_SECONDS })
+            await kv.set(eventCacheKey, reviewEventId, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
           }
         } catch (error) {
           // Log but don't fail if analytics insert fails (table might not exist yet)
@@ -837,7 +837,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       // Cache the review for this specific IP (24 hour TTL)
       try {
-        await kv.set(cacheKey, review, { ex: CACHE_TTL_SECONDS })
+        await kv.set(cacheKey, review, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
       } catch (error) {
         console.error('Cache write error:', error)
       }
