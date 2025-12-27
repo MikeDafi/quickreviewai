@@ -1,37 +1,45 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { kv } from '@vercel/kv'
 import { getLandingPage, updateLandingPageCache, incrementViewCount, incrementCopyCount, sql } from '@/lib/db'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
-// Rate limiting: Track regeneration requests per IP + landing page
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
+// Rate limiting config
+const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 // 1 hour
 const MAX_REGENERATIONS_PER_WINDOW = 5
 
-function checkRateLimit(ip: string, landingId: string): { allowed: boolean; remaining: number; resetIn: number } {
-  const key = `${ip}:${landingId}`
-  const now = Date.now()
-  const entry = rateLimitMap.get(key)
+async function checkRateLimit(ip: string, landingId: string): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
+  const key = `ratelimit:${ip}:${landingId}`
   
-  // Clean up expired entries periodically
-  if (Math.random() < 0.1) {
-    for (const [k, v] of rateLimitMap.entries()) {
-      if (now > v.resetTime) rateLimitMap.delete(k)
+  try {
+    // Get current count
+    const count = await kv.get<number>(key) || 0
+    
+    if (count >= MAX_REGENERATIONS_PER_WINDOW) {
+      // Get TTL to know when it resets
+      const ttl = await kv.ttl(key)
+      return { allowed: false, remaining: 0, resetIn: ttl * 1000 }
     }
+    
+    // Increment counter
+    const newCount = await kv.incr(key)
+    
+    // Set expiry only on first request (when count was 0)
+    if (newCount === 1) {
+      await kv.expire(key, RATE_LIMIT_WINDOW_SECONDS)
+    }
+    
+    return { 
+      allowed: true, 
+      remaining: MAX_REGENERATIONS_PER_WINDOW - newCount, 
+      resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 
+    }
+  } catch (error) {
+    // If KV fails, allow the request (fail open)
+    console.error('Rate limit check failed:', error)
+    return { allowed: true, remaining: MAX_REGENERATIONS_PER_WINDOW, resetIn: RATE_LIMIT_WINDOW_SECONDS * 1000 }
   }
-  
-  if (!entry || now > entry.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS })
-    return { allowed: true, remaining: MAX_REGENERATIONS_PER_WINDOW - 1, resetIn: RATE_LIMIT_WINDOW_MS }
-  }
-  
-  if (entry.count >= MAX_REGENERATIONS_PER_WINDOW) {
-    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now }
-  }
-  
-  entry.count++
-  return { allowed: true, remaining: MAX_REGENERATIONS_PER_WINDOW - entry.count, resetIn: entry.resetTime - now }
 }
 
 interface LandingWithStore {
@@ -412,11 +420,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           })
         }
         
-        // Rate limit regenerations for paid users too
+        // Rate limit regenerations for paid users too (using Vercel KV)
         const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
                    req.socket.remoteAddress || 
                    'unknown'
-        const rateLimit = checkRateLimit(ip, id)
+        const rateLimit = await checkRateLimit(ip, id)
         
         if (!rateLimit.allowed) {
           return res.status(429).json({ 
