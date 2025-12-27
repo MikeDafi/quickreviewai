@@ -87,9 +87,6 @@ const BUSINESS_TYPES = [
   'Other'
 ];
 
-// Maximum character limit for review guidance
-const REVIEW_GUIDANCE_MAX_LENGTH = 500;
-
 const keywordSuggestions: Record<string, string[]> = {
   // Food & Beverage
   'Restaurant': [
@@ -1668,56 +1665,6 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
   const [googleAutoFilled, setGoogleAutoFilled] = useState(false);
   const [yelpAutoFilled, setYelpAutoFilled] = useState(false);
   const [lookupRateLimited, setLookupRateLimited] = useState(false);
-  
-  // AI-generated guidance suggestions
-  const [guidanceSuggestions, setGuidanceSuggestions] = useState<string[]>([]);
-  const [loadingGuidanceSuggestions, setLoadingGuidanceSuggestions] = useState(false);
-  const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
-
-  // Fetch AI-generated guidance suggestions when business types and city are set
-  useEffect(() => {
-    // Only fetch for Pro users with business types selected
-    if (tier !== SubscriptionTier.PRO || businessTypes.length === 0 || hasFetchedSuggestions) {
-      return;
-    }
-    
-    const fetchSuggestions = async () => {
-      setLoadingGuidanceSuggestions(true);
-      try {
-        const res = await fetch('/api/guidance-suggestions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            businessTypes, 
-            city: city.trim(),
-            storeName: name.trim() || undefined
-          }),
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.suggestions && Array.isArray(data.suggestions)) {
-            setGuidanceSuggestions(data.suggestions);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch guidance suggestions:', error);
-      } finally {
-        setLoadingGuidanceSuggestions(false);
-        setHasFetchedSuggestions(true);
-      }
-    };
-    
-    // Debounce: wait 1.5 seconds after business type selection
-    const timer = setTimeout(fetchSuggestions, 1500);
-    return () => clearTimeout(timer);
-  }, [businessTypes, city, name, tier, hasFetchedSuggestions]);
-  
-  // Reset suggestions fetch when business types change significantly
-  useEffect(() => {
-    setHasFetchedSuggestions(false);
-    setGuidanceSuggestions([]);
-  }, [businessTypes.join(',')]);
 
   // Auto-lookup URLs when name and address are filled and user stops typing for 3 seconds
   useEffect(() => {
@@ -2203,89 +2150,6 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
               value={businessTypes.length > 0 ? businessTypes.join(',') : ''} 
               required 
             />
-          </div>
-
-          {/* Review Guidance - Pro Only */}
-          <div className={tier === SubscriptionTier.FREE ? 'relative' : ''}>
-            {tier === SubscriptionTier.FREE && (
-              <button
-                type="button"
-                onClick={scrollToProFeature}
-                className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] z-10 rounded-lg flex items-center justify-center cursor-pointer"
-              >
-                <span className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
-                  <Lock className="w-4 h-4" />
-                  Upgrade to Pro to guide AI reviews
-                </span>
-              </button>
-            )}
-            <div className="mb-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                Review Guidance
-                {tier === SubscriptionTier.FREE && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
-                    <Lock className="w-3 h-3" />
-                    Pro
-                  </span>
-                )}
-            </label>
-            </div>
-            <p className="text-xs text-gray-500 mb-3">
-              Tell the AI what to emphasize in generated reviews. Be specific about what makes your business special.
-            </p>
-            <textarea
-              value={reviewGuidance}
-              onChange={(e) => tier === SubscriptionTier.PRO && setReviewGuidance(e.target.value.slice(0, REVIEW_GUIDANCE_MAX_LENGTH))}
-              disabled={tier === SubscriptionTier.FREE}
-              placeholder={tier === SubscriptionTier.FREE 
-                ? "Upgrade to Pro to customize review guidance..." 
-                : "Tell the AI what makes your business special..."}
-              rows={3}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent resize-none ${
-                tier === SubscriptionTier.FREE 
-                  ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
-                  : 'border-gray-300'
-              }`}
-            />
-            {tier === SubscriptionTier.PRO && (
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-xs text-gray-400">
-                  {reviewGuidance.length}/{REVIEW_GUIDANCE_MAX_LENGTH}
-                </p>
-              </div>
-            )}
-            
-            {/* AI-Generated Suggestions - Pro only */}
-            {tier === SubscriptionTier.PRO && businessTypes.length > 0 && (
-              <div className="mt-3">
-                {loadingGuidanceSuggestions ? (
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    <span>Generating personalized suggestions...</span>
-                  </div>
-                ) : guidanceSuggestions.length > 0 ? (
-                  <div className="space-y-2">
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
-                      <Lightbulb className="w-3 h-3" />
-                      Need ideas? Try one of these:
-                    </p>
-                    <div className="space-y-1.5">
-                      {guidanceSuggestions.map((suggestion, index) => (
-                <button
-                          key={index}
-                  type="button"
-                          onClick={() => setReviewGuidance(suggestion)}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-600 bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg transition-colors border border-transparent hover:border-emerald-200 truncate"
-                          title={suggestion}
-                        >
-                          {suggestion.length > 60 ? `${suggestion.slice(0, 60)}...` : suggestion}
-                </button>
-              ))}
-            </div>
-                  </div>
-                ) : null}
-              </div>
-            )}
           </div>
 
           {/* Keywords */}

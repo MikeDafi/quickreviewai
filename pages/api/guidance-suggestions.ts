@@ -17,11 +17,12 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
 // Cache duration: 24 hours
 const CACHE_TTL_SECONDS = TIME.DAY_SECONDS
 
-// Generate a cache key based on business type and location
-function generateCacheKey(businessTypes: string[], city: string): string {
+// Generate a cache key based on business type, location, and keywords
+function generateCacheKey(businessTypes: string[], city: string, keywords: string[] = []): string {
   const normalizedTypes = businessTypes.map(t => t.toLowerCase().trim()).sort().join('|')
   const normalizedCity = city.toLowerCase().trim()
-  const hash = crypto.createHash('sha256').update(`${normalizedTypes}:${normalizedCity}`).digest('hex').substring(0, 16)
+  const normalizedKeywords = keywords.slice(0, 5).join('|') // Limit to first 5 keywords for cache key
+  const hash = crypto.createHash('sha256').update(`${normalizedTypes}:${normalizedCity}:${normalizedKeywords}`).digest('hex').substring(0, 16)
   return `guidance_suggestions:${hash}`
 }
 
@@ -37,15 +38,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  const { businessTypes, city, storeName } = req.body
+  const { businessTypes, city, storeName, keywords } = req.body
 
   if (!businessTypes || !Array.isArray(businessTypes) || businessTypes.length === 0) {
     return res.status(400).json({ error: 'Business types are required' })
   }
 
+  // Normalize keywords for cache key
+  const normalizedKeywords = Array.isArray(keywords) 
+    ? keywords.filter((k: string) => typeof k === 'string' && k.trim()).map((k: string) => k.toLowerCase().trim()).sort()
+    : []
+
   try {
-    // Generate cache key based on business type and city (not store-specific for better cache hits)
-    const cacheKey = generateCacheKey(businessTypes, city || '')
+    // Generate cache key based on business type, city, and keywords
+    const cacheKey = generateCacheKey(businessTypes, city || '', normalizedKeywords)
     
     // Check cache first
     const cached = await kv.get<string[]>(cacheKey)
@@ -58,6 +64,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const businessTypeStr = businessTypes.join(' / ')
     const locationContext = city ? ` located in ${city}` : ''
+    const keywordsContext = normalizedKeywords.length > 0 
+      ? `\n- The business wants to highlight these aspects: ${normalizedKeywords.join(', ')}`
+      : ''
     
     const prompt = `Generate 4 short, specific review guidance suggestions for a ${businessTypeStr}${locationContext}.
 
@@ -69,7 +78,7 @@ Rules:
 - Focus on different aspects: service, quality, atmosphere, unique features
 - Sound natural, like a business owner describing what makes them special
 - Don't use generic phrases like "great service" - be specific
-${storeName ? `- The business is called "${storeName}"` : ''}
+${storeName ? `- The business is called "${storeName}"` : ''}${keywordsContext}
 
 Return ONLY a JSON array of 4 strings, no other text:
 ["suggestion 1", "suggestion 2", "suggestion 3", "suggestion 4"]`

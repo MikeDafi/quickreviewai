@@ -343,9 +343,11 @@ export default function StoreAnalytics() {
                 <span className="text-gray-500 text-sm">Copied to Clipboard</span>
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
               </div>
-              <div className="mb-2">
+              <div className="mb-1">
                 <span className="text-4xl font-bold text-gray-900 tabular-nums">{data.summary.copiedCount.toLocaleString()}</span>
-                <span className="text-xl text-emerald-600 ml-2 tabular-nums">{data.summary.copyRate}%</span>
+              </div>
+              <div className="text-sm text-gray-600 mb-2">
+                <span className="text-emerald-600 font-medium tabular-nums">{data.summary.copyRate}%</span> of generated
               </div>
               <div className="flex items-center gap-1.5">
                 {copiedChange.isNew ? (

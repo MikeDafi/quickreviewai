@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Lightbulb, Save } from 'lucide-react';
+import { X, Wand2, Lightbulb, Save, Sparkles, Loader2 } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface GuidanceModalProps {
@@ -9,18 +9,70 @@ interface GuidanceModalProps {
   saving?: boolean;
 }
 
-const EXAMPLE_GUIDANCE = [
-  "We just finished renovations with a beautiful new outdoor patio",
-  "Our head chef trained in Italy and makes fresh pasta daily",
-  "We're known for our fast, friendly service and family atmosphere",
-  "Mention our famous garlic knots and wood-fired pizza",
-  "We have the best happy hour deals in the neighborhood",
-  "Our new ownership has improved quality and cleanliness",
+// Fallback suggestions if AI fails
+const FALLBACK_SUGGESTIONS = [
+  "Highlight what makes our service exceptional and personalized",
+  "Mention our friendly, knowledgeable team and attention to detail",
+  "Focus on the quality and value we provide to every customer",
+  "Emphasize our commitment to customer satisfaction",
 ];
 
 export default function GuidanceModal({ store, onClose, onSave, saving }: GuidanceModalProps) {
   const [guidance, setGuidance] = useState(store.reviewExpectations?.[0] || '');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(true);
   const maxLength = 200;
+
+  // Fetch AI-generated suggestions based on store's business type and address
+  useEffect(() => {
+    async function fetchSuggestions() {
+      setLoadingSuggestions(true);
+      try {
+        // Parse business types from comma-separated string
+        const businessTypes = store.businessType 
+          ? store.businessType.split(',').map(t => t.trim()).filter(Boolean)
+          : [];
+        
+        // Extract city from address if available
+        const city = store.address?.split(',').pop()?.trim() || '';
+        
+        if (businessTypes.length === 0) {
+          setSuggestions(FALLBACK_SUGGESTIONS);
+          setLoadingSuggestions(false);
+          return;
+        }
+        
+        const res = await fetch('/api/guidance-suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            businessTypes, 
+            city,
+            storeName: store.name,
+            keywords: store.keywords || []
+          }),
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.suggestions && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+            setSuggestions(data.suggestions);
+          } else {
+            setSuggestions(FALLBACK_SUGGESTIONS);
+          }
+        } else {
+          setSuggestions(FALLBACK_SUGGESTIONS);
+        }
+      } catch (error) {
+        console.error('Failed to fetch guidance suggestions:', error);
+        setSuggestions(FALLBACK_SUGGESTIONS);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    }
+    
+    fetchSuggestions();
+  }, [store.businessType, store.address, store.name]);
 
   // Close on escape
   useEffect(() => {
@@ -98,20 +150,31 @@ export default function GuidanceModal({ store, onClose, onSave, saving }: Guidan
             </div>
           </div>
 
-          {/* Example Ideas */}
+          {/* AI-Generated Ideas */}
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Need ideas? Try one of these:</p>
-            <div className="flex flex-wrap gap-2">
-              {EXAMPLE_GUIDANCE.slice(0, 4).map((example, i) => (
-                <button
-                  key={i}
-                  onClick={() => useExample(example)}
-                  className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-left"
-                >
-                  {example.length > 40 ? example.slice(0, 40) + '...' : example}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-violet-500" />
+              <p className="text-sm font-medium text-gray-700">Need ideas? Try one of these:</p>
             </div>
+            
+            {loadingSuggestions ? (
+              <div className="flex items-center gap-2 text-sm text-violet-600 py-4">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating personalized suggestions...</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {suggestions.map((suggestion, i) => (
+                  <button
+                    key={i}
+                    onClick={() => useExample(suggestion)}
+                    className="w-full text-left px-4 py-3 text-sm text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-xl transition-colors border border-violet-200 hover:border-violet-300"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

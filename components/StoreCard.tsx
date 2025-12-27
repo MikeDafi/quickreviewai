@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare, AlertTriangle, Wand2 } from 'lucide-react';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, AlertTriangle, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { Store } from '@/lib/types';
 import { SubscriptionTier } from '@/lib/constants';
@@ -154,19 +154,6 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
         </div>
       )}
 
-      {/* Review Guidance Row - Pro Only */}
-      {tier === SubscriptionTier.PRO && store.reviewExpectations && store.reviewExpectations.length > 0 && store.reviewExpectations[0] && (
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Wand2 className="w-4 h-4 text-violet-500" />
-            <span className="text-xs font-medium text-violet-700">Review Guidance</span>
-          </div>
-          <p className="text-sm text-gray-600 bg-violet-50 rounded-lg px-3 py-2 italic">
-            &ldquo;{store.reviewExpectations[0]}&rdquo;
-          </p>
-        </div>
-      )}
-
       {/* Action Buttons - horizontal row for full-width cards */}
       <div className="flex gap-2 flex-wrap">
         <button
@@ -184,13 +171,13 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
           QR Code
         </button>
         
-        {/* Review Guidance Button */}
+        {/* Analytics Button */}
         {tier === SubscriptionTier.PRO ? (
           <button
             onClick={() => onShowGuidance?.(store)}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm"
           >
-            <Wand2 className="w-4 h-4" />
+            <Zap className="w-4 h-4" />
             Guidance
           </button>
         ) : (
@@ -199,15 +186,14 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
             className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-100 text-violet-400 rounded-lg hover:bg-violet-200 transition-colors text-sm group relative"
           >
             <Lock className="w-3 h-3" />
-            <Wand2 className="w-4 h-4" />
+            <Zap className="w-4 h-4" />
             Guidance
             <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Pro feature
             </span>
           </Link>
         )}
-        
-        {/* Analytics Button */}
+
         {tier === SubscriptionTier.PRO ? (
           <button
             onClick={() => onShowAnalytics?.(store)}

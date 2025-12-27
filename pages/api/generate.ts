@@ -252,6 +252,94 @@ function pickRandom<T>(arr: T[], count: number): T[] {
   return shuffled.slice(0, Math.min(count, arr.length))
 }
 
+// Weighted random selection based on keyword performance
+interface KeywordWeight {
+  keyword: string
+  weight: number
+}
+
+function pickWeightedRandom(keywords: string[], weights: KeywordWeight[], count: number): string[] {
+  if (keywords.length === 0) return []
+  if (keywords.length <= count) return keywords
+  
+  // Build weight map with paste rate as performance metric
+  // Keywords with higher paste rates get higher weights
+  // New keywords (not in stats) get a baseline weight to ensure they're tried
+  const weightMap = new Map<string, number>()
+  const baselineWeight = 1.0 // Baseline for keywords with no data
+  
+  for (const kw of keywords) {
+    const stat = weights.find(w => w.keyword.toLowerCase() === kw.toLowerCase())
+    if (stat) {
+      // Weight = paste rate + baseline (so even 0% paste rate keywords have a chance)
+      // This ensures exploration while favoring proven keywords
+      weightMap.set(kw, stat.weight + baselineWeight)
+    } else {
+      // New keywords get slightly higher weight to encourage exploration
+      weightMap.set(kw, baselineWeight * 1.5)
+    }
+  }
+  
+  // Weighted random selection without replacement
+  const selected: string[] = []
+  const remaining = [...keywords]
+  
+  for (let i = 0; i < count && remaining.length > 0; i++) {
+    // Calculate total weight of remaining keywords
+    const totalWeight = remaining.reduce((sum, kw) => sum + (weightMap.get(kw) || baselineWeight), 0)
+    
+    // Pick a random point
+    let random = Math.random() * totalWeight
+    
+    // Find which keyword this corresponds to
+    for (let j = 0; j < remaining.length; j++) {
+      const kw = remaining[j]
+      const weight = weightMap.get(kw) || baselineWeight
+      random -= weight
+      
+      if (random <= 0) {
+        selected.push(kw)
+        remaining.splice(j, 1)
+        break
+      }
+    }
+  }
+  
+  return selected
+}
+
+// Fetch keyword performance stats for a store
+async function getKeywordStats(storeId: string): Promise<KeywordWeight[]> {
+  try {
+    // Get stats from last 30 days
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    
+    const { rows } = await sql`
+      SELECT 
+        keyword,
+        COUNT(*) as usage_count,
+        COUNT(CASE WHEN was_pasted_google OR was_pasted_yelp THEN 1 END) as pasted_count
+      FROM review_events, unnest(keywords_used) as keyword
+      WHERE store_id = ${storeId}
+        AND created_at >= ${thirtyDaysAgo.toISOString()}::timestamp
+      GROUP BY keyword
+      HAVING COUNT(*) >= 2
+    `
+    
+    return rows.map(r => ({
+      keyword: r.keyword,
+      // Weight is paste rate (0-1), with minimum of 0.1 for keywords that have data but 0 pastes
+      weight: r.usage_count > 0 
+        ? Math.max(0.1, parseInt(r.pasted_count) / parseInt(r.usage_count))
+        : 0.5
+    }))
+  } catch (error) {
+    console.error('Failed to fetch keyword stats:', error)
+    return [] // Fall back to equal weights
+  }
+}
+
 // Helper to pick one random item
 function pickOne<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -474,11 +562,25 @@ interface ReviewResult {
 async function generateReview(landing: LandingWithStore): Promise<ReviewResult> {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
   
-  // Pick 1-2 random keywords
+  // Pick 1-2 keywords weighted by performance stats
   const keywordCount = Math.random() < 0.6 ? 1 : 2
-  const selectedKeywords = landing.keywords && landing.keywords.length > 0 
-    ? pickRandom(landing.keywords, keywordCount)
-    : ['good']
+  
+  let selectedKeywords: string[]
+  if (landing.keywords && landing.keywords.length > 0) {
+    // Fetch keyword performance stats
+    const keywordStats = await getKeywordStats(landing.store_id)
+    
+    if (keywordStats.length > 0) {
+      // Use weighted selection based on paste rates
+      selectedKeywords = pickWeightedRandom(landing.keywords, keywordStats, keywordCount)
+    } else {
+      // No stats yet, use pure random
+      selectedKeywords = pickRandom(landing.keywords, keywordCount)
+    }
+  } else {
+    selectedKeywords = ['good']
+  }
+  
   const keywordsStr = selectedKeywords.join(' and ')
 
   // Review guidance - the owner's custom instructions for what to emphasize
@@ -648,31 +750,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ success: true, counted: !alreadyCopied })
       }
       if (action === 'click' && platform) {
-        // Update click count in JSON column
+        // Validate platform is a known value - no defaults!
+        if (!VALID_PLATFORMS.includes(platform as Platform)) {
+          return res.status(400).json({ error: `Invalid platform: ${platform}. Must be one of: ${VALID_PLATFORMS.join(', ')}` })
+        }
+        
+        const platformKey = platform as Platform
+        
+        // Update click count in JSON column - use raw SQL for JSONB operations
         await sql`
           UPDATE landing_pages 
-          SET click_counts = click_counts || jsonb_build_object(${platform as string}, COALESCE((click_counts->${platform as string})::int, 0) + 1)
+          SET click_counts = click_counts || jsonb_build_object(${platformKey}::text, COALESCE((click_counts->${platformKey}::text)::int, 0) + 1)
           WHERE id = ${id}
         `
-        // Mark the review event as pasted to Google or Yelp (for analytics)
+        // Only mark as "pasted" if the review was COPIED first
+        // This ensures we only count users who actually had content to paste
         if (reviewEventId && typeof reviewEventId === 'string') {
           try {
-            if (platform === 'google') {
-              const result = await sql`
-                UPDATE review_events 
-                SET was_pasted_google = true 
-                WHERE id = ${reviewEventId}
-                RETURNING id
-              `
-              console.log('Updated was_pasted_google for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount)
-            } else if (platform === 'yelp') {
-              const result = await sql`
-                UPDATE review_events 
-                SET was_pasted_yelp = true 
-                WHERE id = ${reviewEventId}
-                RETURNING id
-              `
-              console.log('Updated was_pasted_yelp for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount)
+            // Use switch to handle each platform explicitly - no default fallback
+            switch (platformKey) {
+              case Platform.GOOGLE: {
+                const result = await sql`
+                  UPDATE review_events 
+                  SET was_pasted_google = true 
+                  WHERE id = ${reviewEventId} AND was_copied = true
+                  RETURNING id
+                `
+                console.log('Updated was_pasted_google for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount, '(only if copied first)')
+                break
+              }
+              case Platform.YELP: {
+                const result = await sql`
+                  UPDATE review_events 
+                  SET was_pasted_yelp = true 
+                  WHERE id = ${reviewEventId} AND was_copied = true
+                  RETURNING id
+                `
+                console.log('Updated was_pasted_yelp for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount, '(only if copied first)')
+                break
+              }
+              // No default case - TypeScript will warn if a Platform value is unhandled
             }
           } catch (error) {
             console.error('Failed to update review_events paste tracking:', error)

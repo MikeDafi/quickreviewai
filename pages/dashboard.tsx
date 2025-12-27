@@ -366,9 +366,7 @@ export default function Dashboard() {
                 {stats.tier === SubscriptionTier.FREE && <span className="text-lg text-gray-400">/{getPlanLimits(SubscriptionTier.FREE).scansPerMonth}</span>}
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                {stats.tier === SubscriptionTier.FREE 
-                  ? `This billing period${stats.periodStart ? ` (since ${formatPeriodDate(stats.periodStart)})` : ''}`
-                  : 'Total views'}
+                This billing period{stats.periodStart ? ` (since ${formatPeriodDate(stats.periodStart)})` : ''}
               </p>
             </div>
 
@@ -396,7 +394,7 @@ export default function Dashboard() {
                   {stats.blockedRegenerations}
                 </div>
                 <p className={`text-sm mt-1 ${stats.blockedRegenerations > 0 ? 'text-amber-600' : 'text-gray-500'}`}>
-                  {stats.blockedRegenerations > 0 ? 'Customers wanted different options' : 'None yet'}
+                  {stats.blockedRegenerations > 0 ? 'Customers wanted different review options' : 'None yet'}
                 </p>
               </div>
             )}
@@ -452,7 +450,7 @@ export default function Dashboard() {
                       <div>
                         <p className="font-medium text-gray-900 text-sm">Unlimited Regenerations</p>
                         <p className="text-xs text-gray-600">
-                          Fresh reviews anytime.
+                          Customers can generate as many reviews as they want.
                         </p>
                       </div>
                     </div>

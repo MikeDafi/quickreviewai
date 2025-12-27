@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Copy, RefreshCw, ExternalLink, Check, ArrowDown, X, AlertCircle } from 'lucide-react';
+import { Platform } from '@/lib/constants';
 
 // Toast component - prominent notification
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
@@ -200,7 +201,7 @@ export default function LandingPage() {
     setTimeout(() => setCopied(false), 30000);
   }
 
-  function trackClick(platform: string) {
+  function trackClick(platform: Platform) {
     // Skip tracking for demo - include reviewEventId for analytics
     if (!isDemo && reviewEventId) {
       // Use sendBeacon for reliable tracking even when navigating away
@@ -423,7 +424,7 @@ export default function LandingPage() {
                 href={data.google_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackClick('google')}
+                onClick={() => trackClick(Platform.GOOGLE)}
                 className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
                   copied 
                     ? 'border-blue-400 shadow-lg shadow-blue-200 animate-bounce-gentle ring-2 ring-blue-200' 
@@ -460,7 +461,7 @@ export default function LandingPage() {
                 href={data.yelp_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackClick('yelp')}
+                onClick={() => trackClick(Platform.YELP)}
                 className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
                   copied 
                     ? 'border-red-400 shadow-lg shadow-red-200 animate-bounce-gentle ring-2 ring-red-200' 

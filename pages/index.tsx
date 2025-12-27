@@ -28,12 +28,12 @@ export default function Home() {
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-gray-900 max-w-4xl mx-auto leading-tight">
-              Rank for Keywords You&apos;re Missing Out On
+              Have Your Google Business Show Up Everywhere
             </h1>
             
             <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-              Every review is SEO gold. When customers mention &quot;best pizza downtown&quot; or &quot;fast friendly service&quot;, 
-              Google indexes those keywords for YOUR business. Start ranking for searches you never showed up for.
+              When customers search for &quot;best pizza downtown&quot; or &quot;fast friendly service&quot;, we want
+              Google to find those keywords in your business' reviews. Start ranking for searches you never showed up for.
             </p>
             
             <div className="flex justify-center">
