@@ -666,6 +666,9 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupResult, setLookupResult] = useState<string | null>(null);
   const [hasAutoLookedUp, setHasAutoLookedUp] = useState(false);
+  const [googleAutoFilled, setGoogleAutoFilled] = useState(false);
+  const [yelpAutoFilled, setYelpAutoFilled] = useState(false);
+  const [lookupRateLimited, setLookupRateLimited] = useState(false);
 
   // Auto-lookup URLs when name and address are filled and user stops typing for 3 seconds
   useEffect(() => {
@@ -695,6 +698,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     if (!name.trim() || !address.trim()) return;
     
     setLookupLoading(true);
+    setLookupRateLimited(false);
     
     try {
       const res = await fetch('/api/lookup-business', {
@@ -707,13 +711,19 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
         const data = await res.json();
         if (data.yelpUrl && !yelpUrl) {
           setYelpUrl(data.yelpUrl);
+          setYelpAutoFilled(true);
         }
         if (data.googleUrl && !googleUrl) {
           setGoogleUrl(data.googleUrl);
+          setGoogleAutoFilled(true);
         }
         if (data.yelpUrl || data.googleUrl) {
           setLookupResult('Auto-filled review URLs!');
         }
+      } else if (res.status === 429) {
+        // Rate limited
+        setLookupRateLimited(true);
+        setLookupResult('Rate limited - try again later');
       }
     } catch (error) {
       console.error('Auto-lookup error:', error);
@@ -1238,49 +1248,39 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </p>
           </div>
 
-          {/* Auto-Lookup URLs Status */}
-          {(lookupLoading || lookupResult) && (
-            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+          {/* Rate limit warning */}
+          {lookupRateLimited && (
+            <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
               <div className="flex items-center gap-2">
-                {lookupLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
-                    <p className="text-sm text-emerald-700">Searching for review URLs...</p>
-                  </>
-                ) : lookupResult ? (
-                  <>
-                    <Search className="w-4 h-4 text-emerald-600" />
-                    <p className="text-sm text-emerald-700">{lookupResult}</p>
-                  </>
-                ) : null}
+                <HelpCircle className="w-4 h-4 text-amber-600" />
+                <p className="text-sm text-amber-700">Could auto-fill URLs, but rate limited. Please wait a moment and try again.</p>
               </div>
             </div>
           )}
           
-          {/* Manual lookup hint - only show if no auto-lookup happened yet and URLs are empty */}
-          {!lookupLoading && !lookupResult && !googleUrl && !yelpUrl && name.trim() && address.trim() && (
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-xs text-gray-500">Review URLs will auto-fill when you stop typing</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setHasAutoLookedUp(true);
-                  lookupBusinessUrls();
-                }}
-                className="text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-              >
-                <Search className="w-3 h-3" />
-                Find now
-              </button>
+          {/* Loading indicator for URL lookup */}
+          {lookupLoading && (
+            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                <p className="text-sm text-emerald-700">Searching for review URLs...</p>
+              </div>
             </div>
           )}
 
           {/* Google Review URL */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Google Review URL
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Google Review URL
+                </label>
+                {googleAutoFilled && (
+                  <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    ✓ Auto-filled
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => setShowGoogleHelp(!showGoogleHelp)}
@@ -1324,9 +1324,16 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
           {/* Yelp Review URL */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Yelp Review URL
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Yelp Review URL
+                </label>
+                {yelpAutoFilled && (
+                  <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    ✓ Auto-filled
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => setShowYelpHelp(!showYelpHelp)}

@@ -42,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const results: { yelpUrl?: string; googleUrl?: string } = {}
+  let rateLimited = false
 
   // Yelp lookup
   if (YELP_API_KEY) {
@@ -70,6 +71,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           // Construct the write review URL
           results.yelpUrl = `https://www.yelp.com/writeareview/biz/${business.id}`
         }
+      } else if (yelpRes.status === 429) {
+        rateLimited = true
+        console.error('Yelp API rate limited')
       } else {
         console.error('Yelp API error:', await yelpRes.text())
       }
@@ -99,13 +103,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const place = data.candidates[0]
           // Construct the Google review URL using place_id
           results.googleUrl = `https://search.google.com/local/writereview?placeid=${place.place_id}`
+        } else if (data.status === 'OVER_QUERY_LIMIT') {
+          rateLimited = true
+          console.error('Google Places API rate limited')
         }
+      } else if (googleRes.status === 429) {
+        rateLimited = true
+        console.error('Google Places API rate limited')
       } else {
         console.error('Google Places API error:', await googleRes.text())
       }
     } catch (error) {
       console.error('Google Places lookup error:', error)
     }
+  }
+
+  // If rate limited and no results, return 429
+  if (rateLimited && !results.yelpUrl && !results.googleUrl) {
+    return res.status(429).json({ error: 'Rate limited by external APIs. Please try again later.' })
   }
 
   // Fallback to Maps search URL if Places API didn't work
