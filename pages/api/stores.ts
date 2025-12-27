@@ -2,13 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getStores, createStore, updateStore, deleteStore, createLandingPage, sql } from '@/lib/db'
-
-// Store limits per tier
-const STORE_LIMITS = {
-  free: 1,
-  pro: Infinity,
-  business: Infinity,
-}
+import { SubscriptionTier, PLAN_LIMITS, getPlanLimits } from '@/lib/constants'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions)
@@ -44,18 +38,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           GROUP BY u.id
         `
         
-        const tier = (userInfo?.tier || 'free') as keyof typeof STORE_LIMITS
-        const limit = STORE_LIMITS[tier] ?? STORE_LIMITS.free
+        const tier = (userInfo?.tier || SubscriptionTier.FREE) as SubscriptionTier
+        const planLimits = getPlanLimits(tier)
         const currentCount = userInfo?.store_count || 0
         
-        if (currentCount >= limit) {
+        if (currentCount >= planLimits.stores) {
           return res.status(403).json({ 
             error: 'Store limit reached',
-            message: tier === 'free' 
+            message: tier === SubscriptionTier.FREE 
               ? 'Free plan allows 1 store. Upgrade to Pro for unlimited stores!'
               : 'You have reached your store limit.',
             currentCount,
-            limit,
+            limit: planLimits.stores,
           })
         }
 

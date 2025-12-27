@@ -746,12 +746,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Demo page has special handling
         const isDemo = id === 'demo'
         
-        let userTier: string = 'free'
-        let rateLimit: number = RATE_LIMITS.demo
+        let userTier: SubscriptionTier | 'demo' = isDemo ? 'demo' : SubscriptionTier.FREE
+        let rateLimit: number = getRegenerationLimit('demo')
         
         if (isDemo) {
-          // Demo page: 3 per hour for anyone
-          rateLimit = RATE_LIMITS.demo
+          // Demo page: uses demo rate limit
+          rateLimit = getRegenerationLimit('demo')
         } else {
           // Get the store owner's subscription tier
           const { rows: tierRows } = await sql`
@@ -761,8 +761,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             JOIN users u ON s.user_id = u.id
             WHERE lp.id = ${id}
           `
-          userTier = tierRows[0]?.subscription_tier || 'free'
-          rateLimit = userTier === 'pro' ? RATE_LIMITS.pro : RATE_LIMITS.free
+          userTier = (tierRows[0]?.subscription_tier || SubscriptionTier.FREE) as SubscriptionTier
+          rateLimit = getRegenerationLimit(userTier)
         }
         
         const rateLimitResult = await checkRateLimit(ip, id, rateLimit)
@@ -771,7 +771,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const minutes = Math.ceil(rateLimitResult.resetIn / 60000)
           
           // Different message for free users
-          if (userTier === 'free' && !isDemo) {
+          if (userTier === SubscriptionTier.FREE && !isDemo) {
             return res.status(429).json({ 
               error: 'Free plan rate limit', 
               message: `Free plan allows 1 regeneration per hour. Upgrade to Pro for 10/hour! Try again in ${minutes} minutes.`,

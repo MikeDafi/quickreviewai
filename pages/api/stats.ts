@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { sql, isNewBillingPeriod, resetBillingPeriod } from '@/lib/db'
 import { kv } from '@vercel/kv'
+import { SubscriptionTier, getPlanLimits, DEFAULTS } from '@/lib/constants'
 
 // Sync pending view counts from KV to DB for a user's landing pages
 async function syncUserViewCounts(userId: string) {
