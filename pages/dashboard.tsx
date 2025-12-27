@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, tier: 'free', reviewLimit: 50 });
+  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: 'free' });
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -212,8 +212,13 @@ export default function Dashboard() {
                 <span className="text-gray-600">QR Code Scans</span>
                 <QrCode className="w-5 h-5 text-emerald-500" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">{stats.totalScans.toLocaleString()}</div>
-              <p className="text-sm text-gray-500 mt-1">Total landing page views</p>
+              <div className="text-3xl font-bold text-gray-900">
+                {stats.totalScans}
+                {stats.tier === 'free' && <span className="text-lg text-gray-400">/15</span>}
+              </div>
+              <p className="text-sm text-gray-500 mt-1">
+                {stats.tier === 'free' ? 'This month' : 'Total views'}
+              </p>
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -221,34 +226,28 @@ export default function Dashboard() {
                 <span className="text-gray-600">Reviews Copied</span>
                 <Copy className="w-5 h-5 text-blue-500" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied}</div>
               <p className="text-sm text-gray-500 mt-1">AI reviews used by customers</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600">Plan Usage</span>
+                <span className="text-gray-600">Current Plan</span>
                 <Zap className="w-5 h-5 text-amber-500" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">
-                {stats.tier === 'free' ? (
-                  <span>{stats.reviewsCopied}<span className="text-lg text-gray-400">/{stats.reviewLimit}</span></span>
-                ) : (
-                  <span className="capitalize">{stats.tier}</span>
-                )}
-              </div>
+              <div className="text-2xl font-bold text-gray-900 capitalize">{stats.tier}</div>
               {stats.tier === 'free' && (
-                <div className="mt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-emerald-600 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min((stats.reviewsCopied / stats.reviewLimit) * 100, 100)}%` }}
-                    />
-                  </div>
-                  <button className="text-sm text-emerald-600 hover:text-emerald-700 mt-2 font-medium">
-                    Upgrade for unlimited
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-gray-500">
+                    {stores.length}/1 store • 15 scans/mo
+                  </p>
+                  <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+                    Upgrade to Pro →
                   </button>
                 </div>
+              )}
+              {stats.tier === 'pro' && (
+                <p className="text-sm text-gray-500 mt-1">Unlimited everything</p>
               )}
             </div>
           </div>
