@@ -289,23 +289,41 @@ export default function LandingPage() {
                 )}
               </button>
 
-              {!isFreePlanLimit && !isDemoLimit && (
-              <button
-                onClick={regenerateReview}
-                disabled={generating || !!rateLimitError}
-                className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
-                  rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                Generate Another
-              </button>
-              )}
-              
-              {rateLimitError && !isFreePlanLimit && (
-                <p className="text-center text-sm text-red-500 mt-2">
-                  {rateLimitError}
-                </p>
+              {!isDemoLimit && (
+                isFreePlanLimit ? (
+                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
+                    <p className="text-sm text-amber-800 font-medium mb-2">
+                      Want a different review?
+                    </p>
+                    <p className="text-xs text-amber-600 mb-3">
+                      Free plan includes 1 AI review per page. Pro users get unlimited regenerations!
+                    </p>
+                    <a 
+                      href="/upgrade" 
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-colors font-medium"
+                    >
+                      Upgrade to Pro →
+                    </a>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={regenerateReview}
+                      disabled={generating || !!rateLimitError}
+                      className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                        rateLimitError ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                      Generate Another
+                    </button>
+                    {rateLimitError && (
+                      <p className="text-center text-sm text-amber-600 mt-2">
+                        {rateLimitError}
+                      </p>
+                    )}
+                  </>
+                )
               )}
               
               {isDemoLimit && (
