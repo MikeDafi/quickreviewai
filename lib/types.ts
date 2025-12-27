@@ -13,6 +13,7 @@ export interface Store {
   // Analytics
   viewCount?: number;
   copyCount?: number;
+  blockedRegenerations?: number; // Times users tried to regenerate but hit free plan limit
 }
 
 export interface LandingPage {

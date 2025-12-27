@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Copy, RefreshCw, ExternalLink, Check, Sparkles } from 'lucide-react';
+import { Copy, RefreshCw, ExternalLink, Check, Sparkles, Lock, X } from 'lucide-react';
 
 const DEMO_REVIEWS = [
   "3rd time here this month lol. The pepperoni is legit and the crust has that perfect char. Parking can be annoying but honestly worth it",
@@ -22,9 +22,23 @@ export default function DemoLandingPage() {
   const [copied, setCopied] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [regenerationCount, setRegenerationCount] = useState(0);
+  const [showLimitToast, setShowLimitToast] = useState(false);
+
+  const isLimitReached = regenerationCount >= MAX_DEMO_REGENERATIONS;
+
+  // Auto-hide toast after 5 seconds
+  useEffect(() => {
+    if (showLimitToast) {
+      const timer = setTimeout(() => setShowLimitToast(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showLimitToast]);
 
   function regenerateReview() {
-    if (regenerationCount >= MAX_DEMO_REGENERATIONS) return;
+    if (isLimitReached) {
+      setShowLimitToast(true);
+      return;
+    }
     
     setGenerating(true);
     setTimeout(() => {
@@ -105,12 +119,55 @@ export default function DemoLandingPage() {
             <button
               onClick={regenerateReview}
               disabled={generating}
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                isLimitReached 
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
-              <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-              Generate Another
+              {isLimitReached ? (
+                <>
+                  <Lock className="w-4 h-4" />
+                  Limit Reached
+                </>
+              ) : (
+                <>
+                  <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                  Generate Another ({MAX_DEMO_REGENERATIONS - regenerationCount} left)
+                </>
+              )}
             </button>
           </div>
+
+          {/* Limit Toast */}
+          {showLimitToast && (
+            <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-gray-900 text-white rounded-xl p-4 shadow-2xl z-50 animate-slide-up">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-5 h-5 text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium mb-1">Demo limit reached</p>
+                  <p className="text-sm text-gray-400">
+                    Free plan customers get 1 review per visit. Upgrade to Pro for unlimited regenerations.
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowLimitToast(false)}
+                  className="text-gray-500 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <Link 
+                href="/login?plan=pro"
+                className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Upgrade to Pro
+              </Link>
+            </div>
+          )}
 
           {/* Platform Buttons */}
           <div className="space-y-3 mb-8">

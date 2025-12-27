@@ -117,7 +117,8 @@ export async function getStores(userId: string) {
       COUNT(lp.id)::int as landing_page_count,
       MIN(lp.id) as landing_page_id,
       COALESCE(SUM(lp.view_count), 0)::int as view_count,
-      COALESCE(SUM(lp.copy_count), 0)::int as copy_count
+      COALESCE(SUM(lp.copy_count), 0)::int as copy_count,
+      COALESCE(SUM(lp.blocked_regenerations), 0)::int as blocked_regenerations
     FROM stores s
     LEFT JOIN landing_pages lp ON lp.store_id = s.id
     WHERE s.user_id = ${userId}

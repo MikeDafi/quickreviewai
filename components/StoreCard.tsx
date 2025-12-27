@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare } from 'lucide-react';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
 import { Store } from '@/lib/types';
 import { SubscriptionTier } from '@/lib/constants';
 
@@ -86,14 +87,37 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
           </div>
         </div>
         {(store.viewCount || 0) > 0 && (
-          <div className="ml-auto text-right">
+          <div className="text-right">
             <div className="text-lg font-semibold text-emerald-600">
               {Math.round(((store.copyCount || 0) / (store.viewCount || 1)) * 100)}%
             </div>
             <div className="text-xs text-gray-500">Conversion</div>
           </div>
         )}
+        {/* Blocked Regenerations - Only show for Free users with > 0 blocked */}
+        {tier === SubscriptionTier.FREE && (store.blockedRegenerations || 0) > 0 && (
+          <div className="ml-auto text-right">
+            <div className="text-lg font-semibold text-amber-600 flex items-center gap-1 justify-end">
+              <AlertTriangle className="w-4 h-4" />
+              {store.blockedRegenerations}
+            </div>
+            <div className="text-xs text-amber-600">Missed Reviews</div>
+          </div>
+        )}
       </div>
+      
+      {/* Upgrade prompt for missed reviews */}
+      {tier === SubscriptionTier.FREE && (store.blockedRegenerations || 0) > 0 && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-sm text-amber-800">
+            <strong>{store.blockedRegenerations} customer{(store.blockedRegenerations || 0) > 1 ? 's' : ''}</strong> wanted a different review but hit the free limit.{' '}
+            <Link href="/upgrade" className="text-amber-700 underline hover:text-amber-900 font-medium">
+              Upgrade to Pro
+            </Link>{' '}
+            for unlimited regenerations!
+          </p>
+        </div>
+      )}
 
       {/* Keywords Row */}
       {store.keywords.length > 0 && (

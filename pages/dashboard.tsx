@@ -88,6 +88,7 @@ export default function Dashboard() {
           landing_page_id: s.landing_page_id,
           viewCount: s.view_count || 0,
           copyCount: s.copy_count || 0,
+          blockedRegenerations: s.blocked_regenerations || 0,
         }));
         setStores(mappedStores);
       }
