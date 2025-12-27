@@ -634,6 +634,62 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const [yelpUrlError, setYelpUrlError] = useState('');
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupResult, setLookupResult] = useState<string | null>(null);
+  const [hasAutoLookedUp, setHasAutoLookedUp] = useState(false);
+
+  // Auto-lookup URLs when name and address are filled and user stops typing for 3 seconds
+  useEffect(() => {
+    // Skip if already looked up, or if URLs are already filled, or if editing existing store
+    if (hasAutoLookedUp || store?.googleUrl || store?.yelpUrl || googleUrl || yelpUrl) {
+      return;
+    }
+    
+    // Need both name and address to auto-lookup
+    if (!name.trim() || !address.trim()) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      // Double-check URLs aren't filled (could have changed during timeout)
+      if (!googleUrl && !yelpUrl) {
+        setHasAutoLookedUp(true);
+        lookupBusinessUrlsAuto();
+      }
+    }, 3000); // 3 seconds after stopping typing
+
+    return () => clearTimeout(timer);
+  }, [name, address, googleUrl, yelpUrl, hasAutoLookedUp, store]);
+
+  // Auto-lookup function (silent, no error messages)
+  const lookupBusinessUrlsAuto = async () => {
+    if (!name.trim() || !address.trim()) return;
+    
+    setLookupLoading(true);
+    
+    try {
+      const res = await fetch('/api/lookup-business', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), address: address.trim() }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.yelpUrl && !yelpUrl) {
+          setYelpUrl(data.yelpUrl);
+        }
+        if (data.googleUrl && !googleUrl) {
+          setGoogleUrl(data.googleUrl);
+        }
+        if (data.yelpUrl || data.googleUrl) {
+          setLookupResult('Auto-filled review URLs!');
+        }
+      }
+    } catch (error) {
+      console.error('Auto-lookup error:', error);
+    } finally {
+      setLookupLoading(false);
+    }
+  };
 
   // URL validation - only allow safe http/https URLs
   const validateUrl = (url: string): { valid: boolean; error: string } => {
@@ -686,6 +742,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     
     setLookupLoading(true);
     setLookupResult(null);
+    setHasAutoLookedUp(true);
     
     try {
       const res = await fetch('/api/lookup-business', {
@@ -1117,38 +1174,42 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </p>
           </div>
 
-          {/* Auto-Lookup URLs */}
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Auto-find Review URLs</p>
-                <p className="text-xs text-gray-500">We&apos;ll search Yelp and Google for your business</p>
-              </div>
-              <button
-                type="button"
-                onClick={lookupBusinessUrls}
-                disabled={lookupLoading || !name.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+          {/* Auto-Lookup URLs Status */}
+          {(lookupLoading || lookupResult) && (
+            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+              <div className="flex items-center gap-2">
                 {lookupLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Searching...
+                    <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                    <p className="text-sm text-emerald-700">Searching for review URLs...</p>
                   </>
-                ) : (
+                ) : lookupResult ? (
                   <>
-                    <Search className="w-4 h-4" />
-                    Find URLs
+                    <Search className="w-4 h-4 text-emerald-600" />
+                    <p className="text-sm text-emerald-700">{lookupResult}</p>
                   </>
-                )}
+                ) : null}
+              </div>
+            </div>
+          )}
+          
+          {/* Manual lookup hint - only show if no auto-lookup happened yet and URLs are empty */}
+          {!lookupLoading && !lookupResult && !googleUrl && !yelpUrl && name.trim() && address.trim() && (
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-xs text-gray-500">Review URLs will auto-fill when you stop typing</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setHasAutoLookedUp(true);
+                  lookupBusinessUrls();
+                }}
+                className="text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+              >
+                <Search className="w-3 h-3" />
+                Find now
               </button>
             </div>
-            {lookupResult && (
-              <p className={`text-xs mt-2 ${lookupResult.includes('Found') ? 'text-emerald-600' : 'text-amber-600'}`}>
-                {lookupResult}
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Google Review URL */}
           <div>
