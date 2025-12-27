@@ -78,8 +78,22 @@ export default function Dashboard() {
         body: JSON.stringify(store),
       });
       if (res.ok) {
+        const data = await res.json();
         setIsAddModalOpen(false);
-        fetchStores();
+        await fetchStores();
+        // Automatically show QR code modal after creating a store
+        if (data.store) {
+          const newStore: Store = {
+            id: data.store.id,
+            name: data.store.name,
+            businessType: data.store.business_type || '',
+            keywords: data.store.keywords || [],
+            reviewExpectations: data.store.review_expectations || [],
+            googleUrl: data.store.google_url,
+            yelpUrl: data.store.yelp_url,
+          };
+          setQrCodeStore(newStore);
+        }
       }
     } catch (error) {
       console.error('Failed to create store:', error);

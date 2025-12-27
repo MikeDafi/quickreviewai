@@ -123,9 +123,9 @@ export default function Home() {
                           <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">delicious</span>
                         </div>
                       </div>
-                      <button className="w-full bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-medium">
+                      <div className="w-full bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-medium text-center cursor-default select-none">
                         Generate QR Code
-                      </button>
+                      </div>
                     </div>
                   </div>
                   
@@ -176,10 +176,10 @@ export default function Home() {
                       <p className="text-sm text-gray-800 text-center leading-relaxed mb-3">
                         &quot;Amazing experience! The authentic pizza was delicious...&quot;
                       </p>
-                      <button className="w-full bg-emerald-600 text-white py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 font-medium">
+                      <div className="w-full bg-emerald-600 text-white py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 font-medium cursor-default select-none">
                         <Check className="w-4 h-4" />
                         Copy Review
-                      </button>
+                      </div>
                     </div>
                   </div>
                   

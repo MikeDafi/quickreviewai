@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Check } from 'lucide-react';
 
 interface PricingCardProps {
@@ -8,6 +9,7 @@ interface PricingCardProps {
   buttonText: string;
   buttonVariant: 'primary' | 'secondary';
   popular?: boolean;
+  href?: string;
 }
 
 export default function PricingCard({
@@ -17,7 +19,8 @@ export default function PricingCard({
   features,
   buttonText,
   buttonVariant,
-  popular = false
+  popular = false,
+  href = '/login'
 }: PricingCardProps) {
   return (
     <div className={`relative bg-white rounded-2xl border-2 p-8 ${
@@ -48,13 +51,16 @@ export default function PricingCard({
         ))}
       </ul>
 
-      <button className={`w-full px-6 py-3 rounded-xl transition-all ${
-        buttonVariant === 'primary'
-          ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/30'
-          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-      }`}>
+      <Link 
+        href={href}
+        className={`block w-full px-6 py-3 rounded-xl transition-all text-center ${
+          buttonVariant === 'primary'
+            ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/30'
+            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+        }`}
+      >
         {buttonText}
-      </button>
+      </Link>
     </div>
   );
 }
