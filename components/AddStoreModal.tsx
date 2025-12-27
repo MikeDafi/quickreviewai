@@ -2,10 +2,11 @@ import { useState, KeyboardEvent, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Search, Loader2, Lock } from 'lucide-react';
 import { Store } from '@/lib/types';
+import { SubscriptionTier } from '@/lib/constants';
 
 interface AddStoreModalProps {
   store?: Store;
-  tier?: 'free' | 'pro';
+  tier?: SubscriptionTier;
   onClose: () => void;
   onSave: (store: Store | Omit<Store, 'id'>) => void;
 }
@@ -1642,7 +1643,7 @@ function parseAddress(address: string): { street: string; city: string; state: s
   return { street: address, city: '', state: '', zip: '' };
 }
 
-export default function AddStoreModal({ store, tier = 'free', onClose, onSave }: AddStoreModalProps) {
+export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onClose, onSave }: AddStoreModalProps) {
   const [name, setName] = useState(store?.name || '');
   
   // Parse existing address into parts
@@ -2129,8 +2130,8 @@ export default function AddStoreModal({ store, tier = 'free', onClose, onSave }:
           </div>
 
           {/* Review Expectations - Pro Only */}
-          <div className={tier === 'free' ? 'relative' : ''}>
-            {tier === 'free' && (
+          <div className={tier === SubscriptionTier.FREE ? 'relative' : ''}>
+            {tier === SubscriptionTier.FREE && (
               <div className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] z-10 rounded-lg flex items-center justify-center">
                 <Link
                   href="/upgrade"
@@ -2143,15 +2144,15 @@ export default function AddStoreModal({ store, tier = 'free', onClose, onSave }:
             )}
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                Review Expectations
-                {tier === 'free' && (
+              Review Expectations
+                {tier === SubscriptionTier.FREE && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
                     <Lock className="w-3 h-3" />
                     Pro
                   </span>
                 )}
-              </label>
-              {tier === 'pro' && (
+            </label>
+              {tier === SubscriptionTier.PRO && (
                 <button
                   type="button"
                   onClick={() => {
@@ -2175,14 +2176,14 @@ export default function AddStoreModal({ store, tier = 'free', onClose, onSave }:
                 <button
                   key={exp}
                   type="button"
-                  onClick={() => tier === 'pro' && toggleExpectation(exp)}
-                  disabled={tier === 'free'}
+                  onClick={() => tier === SubscriptionTier.PRO && toggleExpectation(exp)}
+                  disabled={tier === SubscriptionTier.FREE}
                   className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
                     expectations.includes(exp)
                       ? 'bg-emerald-600 text-white border-emerald-600'
-                      : tier === 'free'
+                      : tier === SubscriptionTier.FREE
                         ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
                   }`}
                 >
                   {exp}

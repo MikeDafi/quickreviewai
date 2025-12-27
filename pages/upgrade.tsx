@@ -178,7 +178,7 @@ export default function Upgrade() {
               Secure payment powered by Stripe
             </p>
             <p className="text-center text-xs text-gray-400 mt-2">
-              Full refund available within 3 days via Profile page or quickreviewai@gmail.com
+              Full refund available within 3 days via Profile page or quickreviewsai@gmail.com
             </p>
           </div>
 
@@ -191,7 +191,7 @@ export default function Upgrade() {
               Back to Dashboard
             </Link>
             <p className="text-xs text-gray-500">
-              Questions? Contact us at quickreviewai@gmail.com
+              Questions? Contact us at quickreviewsai@gmail.com
             </p>
           </div>
         </div>

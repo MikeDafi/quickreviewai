@@ -356,7 +356,7 @@ export default function Home() {
             </div>
             
             <p className="text-center text-sm text-gray-500 mt-8">
-              Full refund available within 3 days via your Profile page or by emailing quickreviewai@gmail.com
+              Full refund available within 3 days via your Profile page or by emailing quickreviewsai@gmail.com
             </p>
           </div>
         </section>
