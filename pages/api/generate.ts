@@ -263,22 +263,72 @@ const EXAMPLE_HUMAN_REVIEWS = [
   "Been meaning to try this spot forever. Finally made it last weekend with some friends. We got way too much food but no regrets. That dessert though... I'm still thinking about it",
 ]
 
-// Ultra-short examples for very brief reviews
+// Ultra-short examples for very brief reviews (NO repeated openers!)
 const ULTRA_SHORT_EXAMPLES = [
-  "Solid spot. Been here twice now",
   "Finally tried it, not disappointed",
-  "My new go-to",
+  "My new go-to honestly",
   "The hype is real ngl",
   "Better than expected tbh",
-  "Good stuff, fair prices",
   "Came for the reviews, staying for the food",
-  "Worth the wait",
+  "Worth the wait fr",
   "10/10 would come back",
-  "Exactly what I needed",
-  "Can't complain",
+  "Exactly what I needed today",
+  "Can't complain at all",
   "Slaps every time",
   "Pretty decent actually",
-  "They know what they're doing here",
+  "They know what they're doing",
+  "Hit the spot perfectly",
+  "This place gets it",
+  "Yep. Coming back",
+  "A+ vibes here",
+  "No notes tbh",
+  "Just what I was looking for",
+  "Lived up to expectations",
+  "Good find right here",
+  "Why did I wait so long",
+  "Yeah this place is legit",
+  "Consider me a regular now",
+  "Take my money already",
+  "Instant favorite",
+  "Where has this been all my life",
+  "Nailed it",
+  "Didn't disappoint",
+  "Checks all the boxes",
+  "I'm sold",
+]
+
+// Different opening phrases to force variety
+const REVIEW_OPENERS = [
+  "Ok so",
+  "Honestly",
+  "Not gonna lie",
+  "Finally",
+  "So glad",
+  "Been meaning to",
+  "Came here",
+  "Stopped by",
+  "First time",
+  "Just tried",
+  "Had to",
+  "Decided to",
+  "My friend",
+  "Someone told me",
+  "Heard about",
+  "Found this",
+  "Walked past",
+  "Actually",
+  "Lowkey",
+  "Can confirm",
+  "Y'all",
+  "Listen",
+  "Look",
+  "Real talk",
+  "Quick review",
+  "Gotta say",
+  "Man",
+  "Dude",
+  "Yo",
+  "This place",
 ]
 
 async function generateReview(landing: LandingWithStore): Promise<string> {
@@ -300,8 +350,8 @@ async function generateReview(landing: LandingWithStore): Promise<string> {
 
   // Random review length profile (real reviews vary wildly)
   const lengthProfiles = [
-    { type: 'ultra-short', instruction: '6-10 words only. Just a quick one-liner reaction.', weight: 1 },
-    { type: 'ultra-short', instruction: '6-10 words only. Just a quick one-liner reaction.', weight: 1 },
+    { type: 'ultra-short', instruction: '6-12 words only. Just a quick one-liner reaction.', weight: 1 },
+    { type: 'ultra-short', instruction: '6-12 words only. Just a quick one-liner reaction.', weight: 1 },
     { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
     { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
     { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
@@ -320,16 +370,19 @@ async function generateReview(landing: LandingWithStore): Promise<string> {
   
   // Random visit reason
   const visitReason = pickOne(VISIT_REASONS)
+  
+  // Pick a required opener to force variety
+  const requiredOpener = pickOne(REVIEW_OPENERS)
 
   // Random quirks that real people have
   const quirks = []
   if (Math.random() < 0.3) quirks.push('use "lol", "lmao", or "haha" once')
   if (Math.random() < 0.25) quirks.push('use "gonna", "kinda", "gotta", or "wanna"')
-  if (Math.random() < 0.2) quirks.push('include a minor typo like "teh", "definately", "resturant", or missing apostrophe')
+  if (Math.random() < 0.15) quirks.push('include a minor typo like "teh", "definately", "resturant", or missing apostrophe')
   if (Math.random() < 0.3) quirks.push('use "..." or "—" mid-thought')
   if (Math.random() < 0.25) quirks.push('abbreviate something like "bf", "bc", "tbh", "imo", or "ngl"')
   if (Math.random() < 0.2) quirks.push('start a sentence with "And" or "But" or "So"')
-  if (Math.random() < 0.15) quirks.push('use lowercase "i" instead of "I" once')
+  if (Math.random() < 0.1) quirks.push('use lowercase "i" instead of "I" once')
 
   // Pick 2 example reviews to show
   const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
@@ -348,14 +401,17 @@ WORK IN NATURALLY: ${keywordsStr}${expectationsStr ? ` and mention ${expectation
 
 LENGTH: ${lengthProfile.instruction}
 
-${lengthProfile.type === 'ultra-short' ? `ULTRA-SHORT EXAMPLES (match this length):
-"${pickRandom(ULTRA_SHORT_EXAMPLES, 3).join('", "')}"` : `HERE ARE REAL HUMAN REVIEWS FOR REFERENCE (match this vibe, NOT the content):
+**CRITICAL: START YOUR REVIEW WITH "${requiredOpener}" OR A SIMILAR CASUAL OPENING. DO NOT START WITH "Solid" or the business name.**
+
+${lengthProfile.type === 'ultra-short' ? `ULTRA-SHORT EXAMPLES (match this length and casual vibe):
+"${pickRandom(ULTRA_SHORT_EXAMPLES, 4).join('"\n"')}"` : `HERE ARE REAL HUMAN REVIEWS FOR REFERENCE (match this vibe, NOT the content):
 "${exampleReviews[0]}"
 "${exampleReviews[1]}"`}
 
 CRITICAL - SOUND HUMAN BY:
 ${quirks.length > 0 ? quirks.map(q => `• ${q}`).join('\n') : '• Write casually like texting a friend'}
 • Use contractions (don't, wasn't, couldn't, it's)
+• VARY YOUR SENTENCE STRUCTURE - don't start multiple sentences the same way
 ${lengthProfile.type !== 'ultra-short' ? `• Be specific about ONE thing you liked, not everything
 • It's ok to mention something small that wasn't perfect
 • Write like you're telling a friend, not writing an essay
@@ -374,6 +430,7 @@ ABSOLUTE BANNED PHRASES (instant AI detection):
 ❌ Listing multiple compliments in a row
 ❌ More than one exclamation point total
 ❌ Starting with the business name
+❌ Starting with "Solid" or similar generic adjective
 
 Just write the review. No quotes. No "Here's a review:" preamble.`
 
@@ -381,17 +438,24 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 1.4, // Even higher for more natural variation
-        topP: 0.95,
-        topK: 50,
+        temperature: 1.5, // Higher for more variation
+        topP: 0.98,
+        topK: 60,
       },
     })
     const response = result.response
     return response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
   } catch (error) {
     console.error('Gemini API error:', error)
-    // Fallback review if API fails
-    return `Solid spot. Came here last week and was impressed with the ${selectedKeywords[0] || 'vibe'}. Would come back.`
+    // Varied fallback reviews if API fails
+    const fallbacks = [
+      `${requiredOpener} I tried this place and the ${selectedKeywords[0] || 'experience'} was great. Would come back.`,
+      `Finally checked out ${landing.store_name}. Pretty impressed with the ${selectedKeywords[0] || 'vibe'} tbh.`,
+      `Not gonna lie, this place exceeded what I expected. The ${selectedKeywords[0] || 'quality'} is legit.`,
+      `Been here a few times now. Consistently good ${selectedKeywords[0] || 'stuff'}. No complaints.`,
+      `My friend kept telling me to try this spot. Glad I listened, the ${selectedKeywords[0] || 'service'} was on point.`,
+    ]
+    return pickOne(fallbacks)
   }
 }
 
