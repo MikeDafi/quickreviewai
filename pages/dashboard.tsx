@@ -130,15 +130,37 @@ export default function Dashboard() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-200 transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:ring-2 hover:ring-emerald-200 transition-all overflow-hidden"
               >
-                <User className="w-5 h-5 text-emerald-700" />
+                {session.user?.image ? (
+                  <img 
+                    src={session.user.image} 
+                    alt={session.user.name || 'Profile'} 
+                    className="w-10 h-10 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-emerald-700" />
+                  </div>
+                )}
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm text-gray-500 truncate">{session.user?.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
+                  <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+                    {session.user?.image && (
+                      <img 
+                        src={session.user.image} 
+                        alt="" 
+                        className="w-8 h-8 rounded-full"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{session.user?.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{session.user?.email}</p>
+                    </div>
                   </div>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
