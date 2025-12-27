@@ -3,7 +3,7 @@ export interface Store {
   name: string;
   businessType: string;
   keywords: string[];
-  tone: string;
+  reviewExpectations?: string[];
   googleUrl?: string;
   yelpUrl?: string;
   landing_page_count?: number;
@@ -15,8 +15,7 @@ export interface LandingPage {
   store_name: string;
   business_type: string;
   keywords: string[];
-  tone: string;
-  prompt_guidance?: string;
+  review_expectations?: string[];
   google_url?: string;
   yelp_url?: string;
   cached_review?: string;
@@ -24,4 +23,3 @@ export interface LandingPage {
   view_count: number;
   copy_count: number;
 }
-

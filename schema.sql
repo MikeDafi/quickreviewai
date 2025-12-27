@@ -15,8 +15,7 @@ CREATE TABLE stores (
   name TEXT NOT NULL,
   business_type TEXT,
   keywords TEXT[],
-  tone TEXT DEFAULT 'friendly',
-  prompt_guidance TEXT,
+  review_expectations TEXT[],
   google_url TEXT,
   yelp_url TEXT,
   created_at TIMESTAMP DEFAULT NOW()
@@ -37,4 +36,3 @@ CREATE TABLE landing_pages (
 -- Indexes for performance
 CREATE INDEX idx_stores_user_id ON stores(user_id);
 CREATE INDEX idx_landing_pages_store_id ON landing_pages(store_id);
-

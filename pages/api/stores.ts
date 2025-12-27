@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       case 'POST': {
-        const { name, businessType, keywords, tone, promptGuidance, googleUrl, yelpUrl } = req.body
+        const { name, businessType, keywords, reviewExpectations, googleUrl, yelpUrl } = req.body
         
         if (!name) {
           return res.status(400).json({ error: 'Store name is required' })
@@ -31,8 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           name,
           businessType,
           keywords,
-          tone,
-          promptGuidance,
+          reviewExpectations,
           googleUrl,
           yelpUrl,
         })
@@ -49,14 +48,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ error: 'Store ID is required' })
         }
 
-        const { name, businessType, keywords, tone, promptGuidance, googleUrl, yelpUrl } = req.body
+        const { name, businessType, keywords, reviewExpectations, googleUrl, yelpUrl } = req.body
         
         const store = await updateStore(id, userId, {
           name,
           businessType,
           keywords,
-          tone,
-          promptGuidance,
+          reviewExpectations,
           googleUrl,
           yelpUrl,
         })
@@ -87,4 +85,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
-

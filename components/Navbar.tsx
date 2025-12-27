@@ -13,10 +13,7 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 hidden sm:block">
-            Features
-          </Link>
-          <Link href="/" className="text-gray-600 hover:text-gray-900 hidden sm:block">
+          <Link href="/#pricing" className="text-gray-600 hover:text-gray-900 hidden sm:block">
             Pricing
           </Link>
           <Link 

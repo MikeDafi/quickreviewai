@@ -59,21 +59,20 @@ export async function createStore(data: {
   name: string
   businessType?: string
   keywords?: string[]
-  tone?: string
-  promptGuidance?: string
+  reviewExpectations?: string[]
   googleUrl?: string
   yelpUrl?: string
 }) {
   const keywordsArray = toPostgresArray(data.keywords)
+  const expectationsArray = toPostgresArray(data.reviewExpectations)
   const { rows } = await sql`
-    INSERT INTO stores (user_id, name, business_type, keywords, tone, prompt_guidance, google_url, yelp_url)
+    INSERT INTO stores (user_id, name, business_type, keywords, review_expectations, google_url, yelp_url)
     VALUES (
       ${data.userId},
       ${data.name},
       ${data.businessType || null},
       ${keywordsArray}::text[],
-      ${data.tone || 'friendly'},
-      ${data.promptGuidance || null},
+      ${expectationsArray}::text[],
       ${data.googleUrl || null},
       ${data.yelpUrl || null}
     )
@@ -87,19 +86,18 @@ export async function updateStore(storeId: string, userId: string, data: {
   name?: string
   businessType?: string
   keywords?: string[]
-  tone?: string
-  promptGuidance?: string
+  reviewExpectations?: string[]
   googleUrl?: string
   yelpUrl?: string
 }) {
   const keywordsArray = toPostgresArray(data.keywords)
+  const expectationsArray = toPostgresArray(data.reviewExpectations)
   const { rows } = await sql`
     UPDATE stores SET
       name = COALESCE(${data.name || null}, name),
       business_type = COALESCE(${data.businessType || null}, business_type),
       keywords = COALESCE(${keywordsArray}::text[], keywords),
-      tone = COALESCE(${data.tone || null}, tone),
-      prompt_guidance = COALESCE(${data.promptGuidance || null}, prompt_guidance),
+      review_expectations = COALESCE(${expectationsArray}::text[], review_expectations),
       google_url = COALESCE(${data.googleUrl || null}, google_url),
       yelp_url = COALESCE(${data.yelpUrl || null}, yelp_url)
     WHERE id = ${storeId} AND user_id = ${userId}
@@ -116,8 +114,8 @@ export async function deleteStore(storeId: string, userId: string) {
 // Get landing page by ID (public)
 export async function getLandingPage(id: string) {
   const { rows } = await sql`
-    SELECT lp.*, s.name as store_name, s.business_type, s.keywords, s.tone, 
-           s.prompt_guidance, s.google_url, s.yelp_url
+    SELECT lp.*, s.name as store_name, s.business_type, s.keywords, 
+           s.review_expectations, s.google_url, s.yelp_url
     FROM landing_pages lp
     JOIN stores s ON lp.store_id = s.id
     WHERE lp.id = ${id} AND lp.is_active = true
@@ -161,4 +159,3 @@ export async function getLandingPages(storeId: string) {
   `
   return rows
 }
-

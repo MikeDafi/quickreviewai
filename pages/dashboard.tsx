@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Store as StoreIcon, Plus, User, LogOut, Sparkles } from 'lucide-react';
+import { QrCode, Copy, Zap, Plus, User, LogOut, Sparkles, Store as StoreIcon } from 'lucide-react';
 import { Store } from '@/lib/types';
 import StoreCard from '@/components/StoreCard';
 import AddStoreModal from '@/components/AddStoreModal';
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, tier: 'free', reviewLimit: 50 });
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -28,8 +29,21 @@ export default function Dashboard() {
   useEffect(() => {
     if (session) {
       fetchStores();
+      fetchStats();
     }
   }, [session]);
+
+  async function fetchStats() {
+    try {
+      const res = await fetch('/api/stats');
+      if (res.ok) {
+        const data = await res.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  }
 
   async function fetchStores() {
     try {
@@ -42,7 +56,7 @@ export default function Dashboard() {
           name: s.name,
           businessType: s.business_type || '',
           keywords: s.keywords || [],
-          tone: s.tone || 'friendly',
+          reviewExpectations: s.review_expectations || [],
           googleUrl: s.google_url,
           yelpUrl: s.yelp_url,
           landing_page_count: s.landing_page_count,
@@ -181,28 +195,47 @@ export default function Dashboard() {
           <div className="grid sm:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600">Total Stores</span>
-                <StoreIcon className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-600">QR Code Scans</span>
+                <QrCode className="w-5 h-5 text-emerald-500" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">{stores.length}</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.totalScans.toLocaleString()}</div>
+              <p className="text-sm text-gray-500 mt-1">Total landing page views</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600">Landing Pages</span>
-                <StoreIcon className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-600">Reviews Copied</span>
+                <Copy className="w-5 h-5 text-blue-500" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">{stores.length}</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied.toLocaleString()}</div>
+              <p className="text-sm text-gray-500 mt-1">AI reviews used by customers</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600">Current Plan</span>
+                <span className="text-gray-600">Plan Usage</span>
+                <Zap className="w-5 h-5 text-amber-500" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">Free</div>
-              <button className="text-sm text-emerald-600 hover:text-emerald-700 mt-1 font-medium">
-                Upgrade
-              </button>
+              <div className="text-3xl font-bold text-gray-900">
+                {stats.tier === 'free' ? (
+                  <span>{stats.reviewsCopied}<span className="text-lg text-gray-400">/{stats.reviewLimit}</span></span>
+                ) : (
+                  <span className="capitalize">{stats.tier}</span>
+                )}
+              </div>
+              {stats.tier === 'free' && (
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-emerald-600 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min((stats.reviewsCopied / stats.reviewLimit) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <button className="text-sm text-emerald-600 hover:text-emerald-700 mt-2 font-medium">
+                    Upgrade for unlimited
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

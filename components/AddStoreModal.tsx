@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent } from 'react';
-import { X, Lightbulb } from 'lucide-react';
+import { X, Lightbulb, Plus, HelpCircle, ExternalLink } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface AddStoreModalProps {
@@ -8,177 +8,73 @@ interface AddStoreModalProps {
   onSave: (store: Store | Omit<Store, 'id'>) => void;
 }
 
-const businessTypes = [
+const BUSINESS_TYPES = [
   // Food & Beverage
-  'Restaurant',
-  'Cafe',
-  'Coffee Shop',
-  'Bakery',
-  'Bar',
-  'Brewery',
-  'Food Truck',
-  'Catering',
-  'Ice Cream Shop',
-  'Juice Bar',
-  'Pizza Shop',
-  'Deli',
-  'Fast Food',
-  'Fine Dining',
+  'Restaurant', 'Cafe', 'Bar', 'Bakery', 'Food Truck', 'Pizzeria', 'Sushi Bar', 
+  'Ice Cream Shop', 'Brewery', 'Winery', 'Juice Bar', 'Deli',
   // Health & Beauty
-  'Salon',
-  'Barbershop',
-  'Spa',
-  'Nail Salon',
-  'Med Spa',
-  'Massage Therapy',
-  'Tattoo Studio',
-  'Waxing Studio',
-  'Skincare Clinic',
-  'Tanning Salon',
-  // Fitness & Wellness
-  'Gym',
-  'Yoga Studio',
-  'Pilates Studio',
-  'CrossFit Box',
-  'Martial Arts Studio',
-  'Dance Studio',
-  'Personal Training',
-  'Physical Therapy',
-  'Chiropractic',
+  'Salon', 'Barbershop', 'Spa', 'Nail Salon', 'Med Spa', 'Massage Therapy',
+  'Tattoo Parlor', 'Tanning Salon', 'Skincare Clinic',
   // Automotive
-  'Auto Shop',
-  'Car Wash',
-  'Auto Detailing',
-  'Tire Shop',
-  'Oil Change',
-  'Body Shop',
-  'Car Dealership',
-  'Motorcycle Shop',
-  'RV Dealer',
+  'Auto Shop', 'Car Wash', 'Auto Detailing', 'Tire Shop', 'Body Shop',
+  'Oil Change', 'Car Dealership',
+  // Fitness & Recreation
+  'Gym', 'Yoga Studio', 'Pilates Studio', 'CrossFit', 'Martial Arts',
+  'Dance Studio', 'Golf Course', 'Bowling Alley',
   // Retail
-  'Retail Store',
-  'Boutique',
-  'Clothing Store',
-  'Jewelry Store',
-  'Shoe Store',
-  'Pet Store',
-  'Furniture Store',
-  'Electronics Store',
-  'Bookstore',
-  'Florist',
-  'Gift Shop',
-  'Thrift Store',
-  'Sporting Goods',
-  'Hardware Store',
-  'Liquor Store',
-  'Smoke Shop',
-  'Convenience Store',
-  'Grocery Store',
+  'Retail Store', 'Boutique', 'Jewelry Store', 'Florist', 'Pet Store',
+  'Bookstore', 'Gift Shop', 'Furniture Store', 'Electronics Store',
+  // Services
+  'Dry Cleaner', 'Laundromat', 'Tailor', 'Locksmith', 'Moving Company',
+  'Storage Facility', 'Printing Shop',
   // Professional Services
-  'Law Firm',
-  'Accounting Firm',
-  'Insurance Agency',
-  'Real Estate Agency',
-  'Financial Advisor',
-  'Marketing Agency',
-  'IT Services',
-  'Consulting',
-  'Architecture Firm',
-  'Engineering Firm',
+  'Law Firm', 'Accounting Firm', 'Insurance Agency', 'Real Estate Agency',
+  'Marketing Agency', 'Photography Studio', 'Consulting Firm',
+  // Healthcare
+  'Dental Office', 'Chiropractor', 'Optometrist', 'Veterinarian',
+  'Physical Therapy', 'Urgent Care', 'Pharmacy',
   // Home Services
-  'Plumber',
-  'Electrician',
-  'HVAC',
-  'Roofing',
-  'Landscaping',
-  'Lawn Care',
-  'Cleaning Service',
-  'Pest Control',
-  'Moving Company',
-  'Handyman',
-  'Interior Design',
-  'Pool Service',
-  'Painting',
-  'Flooring',
-  'Fencing',
-  // Medical & Dental
-  'Doctor',
-  'Dentist',
-  'Orthodontist',
-  'Optometrist',
-  'Veterinarian',
-  'Urgent Care',
-  'Mental Health',
-  'Pediatrician',
-  'Dermatologist',
-  'Pharmacy',
-  // Education & Childcare
-  'Daycare',
-  'Preschool',
-  'Tutoring',
-  'Music School',
-  'Art School',
-  'Driving School',
-  'Language School',
-  'Test Prep',
-  // Entertainment & Recreation
-  'Movie Theater',
-  'Bowling Alley',
-  'Arcade',
-  'Escape Room',
-  'Amusement Park',
-  'Golf Course',
-  'Mini Golf',
-  'Laser Tag',
-  'Trampoline Park',
-  'Go Kart',
-  'Axe Throwing',
-  // Hospitality & Travel
-  'Hotel',
-  'Motel',
-  'Bed & Breakfast',
-  'Vacation Rental',
-  'Travel Agency',
-  'Tour Operator',
-  'Wedding Venue',
-  'Event Venue',
-  // Photography & Creative
-  'Photography Studio',
-  'Video Production',
-  'Graphic Design',
-  'Printing Shop',
-  'Sign Shop',
-  'Music Studio',
+  'Plumber', 'Electrician', 'HVAC', 'Landscaping', 'Cleaning Service',
+  'Pest Control', 'Roofing', 'Painting',
+  // Entertainment
+  'Movie Theater', 'Arcade', 'Escape Room', 'Comedy Club', 'Music Venue',
+  // Hospitality
+  'Hotel', 'Bed & Breakfast', 'Vacation Rental',
+  // Education
+  'Tutoring Center', 'Music School', 'Driving School', 'Language School',
   // Other
-  'Dry Cleaner',
-  'Laundromat',
-  'Tailor',
-  'Locksmith',
-  'Storage Facility',
-  'Shipping Store',
-  'Pawn Shop',
-  'Gun Shop',
-  'Vape Shop',
   'Other'
 ];
 
+const REVIEW_EXPECTATIONS = [
+  'Cleanliness',
+  'Customer Service', 
+  'Food Quality',
+  'Atmosphere',
+  'Value for Money',
+  'Wait Time',
+  'Staff Friendliness',
+  'Product Quality',
+  'Expertise',
+  'Communication',
+  'Professionalism',
+  'Results',
+  'Convenience',
+  'Selection',
+  'Parking',
+];
+
 const keywordSuggestions: Record<string, string[]> = {
-  'Restaurant': ['delicious', 'authentic', 'family-friendly', 'fresh ingredients', 'cozy atmosphere', 'great service'],
-  'Cafe': ['cozy', 'artisanal', 'fresh', 'friendly service', 'best coffee', 'relaxing'],
-  'Coffee Shop': ['best coffee', 'friendly baristas', 'cozy', 'great atmosphere', 'quality beans'],
-  'Salon': ['professional', 'relaxing', 'modern', 'skilled stylists', 'luxurious', 'friendly'],
-  'Barbershop': ['skilled barbers', 'clean', 'great haircut', 'friendly', 'classic'],
-  'Spa': ['relaxing', 'rejuvenating', 'professional', 'tranquil', 'luxurious'],
-  'Gym': ['motivating', 'clean', 'professional trainers', 'state-of-the-art', 'welcoming'],
+  'Restaurant': ['delicious', 'authentic', 'family-friendly', 'fresh ingredients', 'cozy atmosphere'],
+  'Salon': ['professional', 'relaxing', 'modern', 'skilled stylists', 'luxurious'],
   'Auto Shop': ['reliable', 'trustworthy', 'quick service', 'honest pricing', 'expert mechanics'],
-  'Retail Store': ['quality products', 'great selection', 'helpful staff', 'affordable', 'convenient'],
-  'Dentist': ['gentle', 'professional', 'friendly staff', 'modern equipment', 'pain-free'],
-  'Doctor': ['caring', 'professional', 'thorough', 'attentive', 'knowledgeable'],
-  'Plumber': ['reliable', 'quick response', 'fair pricing', 'professional', 'expert'],
-  'Electrician': ['professional', 'reliable', 'knowledgeable', 'fair pricing', 'safe'],
-  'Cleaning Service': ['thorough', 'reliable', 'professional', 'trustworthy', 'detail-oriented'],
-  'Hotel': ['comfortable', 'clean', 'great location', 'friendly staff', 'excellent amenities'],
-  'default': ['excellent', 'professional', 'friendly', 'high-quality', 'recommended', 'great experience']
+  'Cafe': ['cozy', 'artisanal', 'fresh', 'friendly service', 'best coffee'],
+  'Gym': ['motivating', 'clean', 'professional trainers', 'state-of-the-art', 'welcoming'],
+  'Spa': ['relaxing', 'rejuvenating', 'professional', 'tranquil', 'top-notch service'],
+  'Dental Office': ['gentle', 'thorough', 'modern equipment', 'friendly staff', 'painless'],
+  'Veterinarian': ['caring', 'knowledgeable', 'gentle with pets', 'thorough', 'compassionate'],
+  'Plumber': ['prompt', 'professional', 'fair pricing', 'clean work', 'reliable'],
+  'Hotel': ['comfortable', 'clean rooms', 'great location', 'friendly staff', 'amenities'],
 };
 
 export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalProps) {
@@ -186,11 +82,54 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const [businessType, setBusinessType] = useState(store?.businessType || '');
   const [keywords, setKeywords] = useState<string[]>(store?.keywords || []);
   const [keywordInput, setKeywordInput] = useState('');
+  const [expectations, setExpectations] = useState<string[]>(store?.reviewExpectations || []);
   const [googleUrl, setGoogleUrl] = useState(store?.googleUrl || '');
   const [yelpUrl, setYelpUrl] = useState(store?.yelpUrl || '');
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
+  const [showGoogleHelp, setShowGoogleHelp] = useState(false);
+  const [showYelpHelp, setShowYelpHelp] = useState(false);
 
-  const currentKeywordSuggestions = keywordSuggestions[businessType] || keywordSuggestions['default'];
+  const currentKeywordSuggestions = businessType ? keywordSuggestions[businessType] || keywordSuggestions['Restaurant'] || [] : [];
+
+  const handleKeywordKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addKeywords(keywordInput);
+    }
+  };
+
+  const addKeywords = (input: string) => {
+    if (!input.trim()) return;
+    
+    // Split by comma to handle CSV input
+    const newKeywords = input
+      .split(',')
+      .map(k => k.trim())
+      .filter(k => k && !keywords.includes(k));
+    
+    if (newKeywords.length > 0) {
+      setKeywords([...keywords, ...newKeywords]);
+    }
+    setKeywordInput('');
+  };
+
+  const removeKeyword = (keyword: string) => {
+    setKeywords(keywords.filter(k => k !== keyword));
+  };
+
+  const addSuggestedKeyword = (keyword: string) => {
+    if (!keywords.includes(keyword)) {
+      setKeywords([...keywords, keyword]);
+    }
+  };
+
+  const toggleExpectation = (expectation: string) => {
+    if (expectations.includes(expectation)) {
+      setExpectations(expectations.filter(e => e !== expectation));
+    } else {
+      setExpectations([...expectations, expectation]);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,7 +138,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
       name,
       businessType,
       keywords,
-      tone: 'friendly', // Keep a default tone for the API
+      reviewExpectations: expectations,
       googleUrl: googleUrl || undefined,
       yelpUrl: yelpUrl || undefined
     };
@@ -209,39 +148,6 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     } else {
       onSave(storeData);
     }
-  };
-
-  const handleKeywordKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addKeywordsFromInput();
-    }
-  };
-
-  const addKeywordsFromInput = () => {
-    if (!keywordInput.trim()) return;
-    
-    // Split by comma and add each keyword
-    const newKeywords = keywordInput
-      .split(',')
-      .map(k => k.trim().toLowerCase())
-      .filter(k => k && !keywords.includes(k));
-    
-    if (newKeywords.length > 0) {
-      setKeywords([...keywords, ...newKeywords]);
-    }
-    setKeywordInput('');
-  };
-
-  const addSuggestedKeyword = (keyword: string) => {
-    const normalizedKeyword = keyword.toLowerCase();
-    if (!keywords.includes(normalizedKeyword)) {
-      setKeywords([...keywords, normalizedKeyword]);
-    }
-  };
-
-  const removeKeyword = (keywordToRemove: string) => {
-    setKeywords(keywords.filter(k => k !== keywordToRemove));
   };
 
   return (
@@ -260,8 +166,9 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Store Name */}
           <div>
-            <label className="block text-sm text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Store Name *
             </label>
             <input
@@ -274,8 +181,9 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             />
           </div>
 
+          {/* Business Type */}
           <div>
-            <label className="block text-sm text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Business Type *
             </label>
             <select
@@ -285,18 +193,45 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
             >
               <option value="" disabled>Select your business type</option>
-              {businessTypes.map((type) => (
+              {BUSINESS_TYPES.map(type => (
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
           </div>
 
+          {/* Review Expectations */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Review Expectations
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              What should customers focus on in their review?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {REVIEW_EXPECTATIONS.map(exp => (
+                <button
+                  key={exp}
+                  type="button"
+                  onClick={() => toggleExpectation(exp)}
+                  className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
+                    expectations.includes(exp)
+                      ? 'bg-emerald-600 text-white border-emerald-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
+                  }`}
+                >
+                  {exp}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Keywords */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm text-gray-700">
-                Keywords *
+              <label className="block text-sm font-medium text-gray-700">
+                Keywords
               </label>
-              {currentKeywordSuggestions.length > 0 && (
+              {businessType && currentKeywordSuggestions.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setShowKeywordSuggestions(!showKeywordSuggestions)}
@@ -310,17 +245,17 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             
             {showKeywordSuggestions && currentKeywordSuggestions.length > 0 && (
               <div className="mb-2 p-3 bg-emerald-50 rounded-lg">
-                <p className="text-xs text-emerald-700 mb-2">Click to add:</p>
+                <p className="text-xs text-emerald-700 mb-2">Suggested keywords:</p>
                 <div className="flex flex-wrap gap-2">
                   {currentKeywordSuggestions.map((keyword) => (
                     <button
                       key={keyword}
                       type="button"
                       onClick={() => addSuggestedKeyword(keyword)}
-                      disabled={keywords.includes(keyword.toLowerCase())}
+                      disabled={keywords.includes(keyword)}
                       className={`text-xs px-2 py-1 rounded transition-colors ${
-                        keywords.includes(keyword.toLowerCase())
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        keywords.includes(keyword)
+                          ? 'bg-emerald-200 text-emerald-600 cursor-not-allowed'
                           : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
                       }`}
                     >
@@ -331,19 +266,19 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               </div>
             )}
 
-            {/* Keywords display */}
+            {/* Keyword Tags */}
             {keywords.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {keywords.map((keyword) => (
                   <span
                     key={keyword}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full"
                   >
                     {keyword}
                     <button
                       type="button"
                       onClick={() => removeKeyword(keyword)}
-                      className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-200 transition-colors"
+                      className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-200"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -352,51 +287,105 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               </div>
             )}
 
-            <input
-              type="text"
-              value={keywordInput}
-              onChange={(e) => setKeywordInput(e.target.value)}
-              onKeyDown={handleKeywordKeyDown}
-              onBlur={addKeywordsFromInput}
-              placeholder="Type keyword and press Enter (or comma-separated)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyDown={handleKeywordKeyDown}
+                placeholder="Type keyword and press Enter"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => addKeywords(keywordInput)}
+                className="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            </div>
             <p className="text-xs text-gray-500 mt-1">
-              Press Enter to add • Use commas for multiple keywords
+              Press Enter to add. Separate multiple with commas.
             </p>
-            {keywords.length === 0 && (
-              <p className="text-xs text-red-500 mt-1">
-                At least one keyword is required
-              </p>
-            )}
           </div>
 
+          {/* Google Review URL */}
           <div>
-            <label className="block text-sm text-gray-700 mb-2">
-              Google Review URL
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Google Review URL
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowGoogleHelp(!showGoogleHelp)}
+                className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              >
+                <HelpCircle className="w-3 h-3" />
+                How to find this
+              </button>
+            </div>
+            {showGoogleHelp && (
+              <div className="mb-3 p-3 bg-blue-50 rounded-lg text-xs text-blue-800">
+                <p className="font-medium mb-2">To get your Google Review link:</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Go to <a href="https://business.google.com" target="_blank" rel="noopener noreferrer" className="underline">Google Business Profile</a></li>
+                  <li>Select your business</li>
+                  <li>Click &quot;Get more reviews&quot; or &quot;Share review form&quot;</li>
+                  <li>Copy the link provided</li>
+                </ol>
+                <p className="mt-2 text-blue-600">
+                  Or search your business on Google Maps, click &quot;Write a review&quot;, and copy the URL.
+                </p>
+              </div>
+            )}
             <input
               type="url"
               value={googleUrl}
               onChange={(e) => setGoogleUrl(e.target.value)}
-              placeholder="https://www.google.com/maps/..."
+              placeholder="https://g.page/r/..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
             />
           </div>
 
+          {/* Yelp Review URL */}
           <div>
-            <label className="block text-sm text-gray-700 mb-2">
-              Yelp Review URL
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Yelp Review URL
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowYelpHelp(!showYelpHelp)}
+                className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              >
+                <HelpCircle className="w-3 h-3" />
+                How to find this
+              </button>
+            </div>
+            {showYelpHelp && (
+              <div className="mb-3 p-3 bg-red-50 rounded-lg text-xs text-red-800">
+                <p className="font-medium mb-2">To get your Yelp Review link:</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Go to <a href="https://biz.yelp.com" target="_blank" rel="noopener noreferrer" className="underline">Yelp for Business</a></li>
+                  <li>Log in to your business account</li>
+                  <li>Go to your business page on Yelp</li>
+                  <li>Copy the URL (e.g., yelp.com/biz/your-business-name)</li>
+                </ol>
+                <p className="mt-2 text-red-600">
+                  Or simply search for your business on Yelp and copy the page URL.
+                </p>
+              </div>
+            )}
             <input
               type="url"
               value={yelpUrl}
               onChange={(e) => setYelpUrl(e.target.value)}
-              placeholder="https://www.yelp.com/..."
+              placeholder="https://www.yelp.com/biz/..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
             />
           </div>
 
+          {/* Submit Buttons */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
@@ -407,7 +396,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </button>
             <button
               type="submit"
-              disabled={keywords.length === 0}
+              disabled={!name || !businessType}
               className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {store ? 'Save Changes' : 'Add Store'}

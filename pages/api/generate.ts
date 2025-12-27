@@ -8,26 +8,29 @@ interface LandingWithStore {
   store_name: string
   business_type: string
   keywords: string[]
-  tone: string
-  prompt_guidance?: string
+  review_expectations?: string[]
 }
 
 async function generateReview(landing: LandingWithStore): Promise<string> {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
   
-  const keywordsStr = landing.keywords?.length > 0 
+  const keywordsStr = landing.keywords && landing.keywords.length > 0 
     ? landing.keywords.join(', ') 
     : 'quality service, great experience'
+
+  const expectationsStr = landing.review_expectations && landing.review_expectations.length > 0
+    ? landing.review_expectations.join(', ')
+    : ''
 
   const prompt = `Generate a genuine, authentic 2-3 sentence positive review for a ${landing.business_type || 'business'} called "${landing.store_name}".
 
 Requirements:
-- Include these aspects naturally: ${keywordsStr}
-- Tone: ${landing.tone || 'friendly'}
+- Include these keywords/aspects naturally: ${keywordsStr}
+${expectationsStr ? `- Focus on these qualities: ${expectationsStr}` : ''}
 - Sound like a real customer, not AI-generated
 - Be specific but not over-the-top
 - No hashtags or emojis
-${landing.prompt_guidance ? `- Additional context: ${landing.prompt_guidance}` : ''}
+- Warm and genuine tone
 
 Write only the review text, nothing else.`
 
@@ -109,4 +112,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
-
