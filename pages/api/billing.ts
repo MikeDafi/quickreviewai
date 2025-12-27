@@ -33,15 +33,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing stripe-signature header' })
   }
 
+  // Fail fast if webhook secret is not configured - never accept unverified webhooks
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    console.error('CRITICAL: STRIPE_WEBHOOK_SECRET is not configured')
+    return res.status(500).json({ error: 'Webhook endpoint not configured' })
+  }
+
   let event: Stripe.Event
 
   try {
     const buf = await buffer(req)
-    event = stripe.webhooks.constructEvent(
-      buf,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ''
-    )
+    event = stripe.webhooks.constructEvent(buf, sig, webhookSecret)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     console.error('Webhook signature verification failed:', message)
