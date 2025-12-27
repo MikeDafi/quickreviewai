@@ -105,508 +105,436 @@ const REVIEW_EXPECTATIONS = [
 const keywordSuggestions: Record<string, string[]> = {
   // Food & Beverage
   'Restaurant': [
-    // 1 node away - core dining attributes
-    'delicious', 'flavorful', 'tasty', 'authentic', 'fresh ingredients', 'well-seasoned', 'perfectly cooked', 'generous portions', 'beautifully plated', 'mouthwatering',
-    'savory', 'quality ingredients', 'homemade', 'chef-crafted', 'farm-to-table', 'locally sourced', 'signature dishes', 'diverse menu', 'seasonal specials', 'comfort food',
-    // 2 nodes away - experience & atmosphere
-    'cozy atmosphere', 'family-friendly', 'romantic setting', 'great ambiance', 'attentive service', 'friendly staff', 'quick service', 'knowledgeable servers', 'perfect for date night', 'great for groups',
-    'welcoming', 'clean', 'well-decorated', 'comfortable seating', 'reasonable prices', 'good value', 'worth every penny', 'hidden gem', 'local favorite', 'must-try',
-    'memorable experience', 'will return', 'highly recommend', 'exceeded expectations', 'consistent quality', 'never disappoints', 'best in town', 'Instagram-worthy', 'great for celebrations', 'easy parking'
+    'dinner', 'lunch', 'breakfast', 'brunch', 'takeout', 'delivery', 'dine-in', 'reservations', 'outdoor seating', 'patio',
+    'family dining', 'date night', 'happy hour', 'private dining', 'catering', 'buffet', 'kids menu', 'vegetarian', 'vegan', 'gluten-free',
+    'fast service', 'good portions', 'fresh food', 'homemade', 'local ingredients', 'daily specials', 'full bar', 'wine list', 'craft cocktails', 'beer',
+    'parking', 'wheelchair accessible', 'pet friendly', 'late night', 'early bird', 'group dining', 'birthday', 'anniversary', 'business lunch', 'casual dining',
+    'fine dining', 'comfort food', 'healthy options', 'organic', 'farm to table', 'seasonal menu', 'chef special', 'tasting menu', 'prix fixe', 'open kitchen'
   ],
   'Cafe': [
-    // 1 node away - coffee & food
-    'best coffee', 'perfectly brewed', 'artisanal', 'rich espresso', 'smooth latte', 'great pastries', 'fresh-baked', 'delicious treats', 'quality beans', 'expertly crafted',
-    'flavorful', 'aromatic', 'specialty drinks', 'creative menu', 'dairy alternatives', 'vegan options', 'homemade goods', 'breakfast favorites', 'light bites', 'fresh sandwiches',
-    // 2 nodes away - atmosphere & experience
-    'cozy', 'inviting', 'perfect for working', 'great WiFi', 'comfortable seating', 'aesthetic interior', 'Instagram-worthy', 'relaxing vibe', 'friendly baristas', 'quick service',
-    'warm atmosphere', 'local favorite', 'neighborhood gem', 'perfect study spot', 'great music', 'natural lighting', 'outdoor seating', 'peaceful', 'charming', 'unique decor',
-    'consistent quality', 'reasonable prices', 'loyalty rewards', 'convenient location', 'early hours', 'clean', 'sustainable practices', 'community hub', 'welcoming', 'will return'
+    'coffee', 'espresso', 'latte', 'cappuccino', 'americano', 'cold brew', 'iced coffee', 'tea', 'matcha', 'chai',
+    'pastries', 'croissants', 'muffins', 'scones', 'bagels', 'sandwiches', 'salads', 'soup', 'breakfast', 'brunch',
+    'wifi', 'study spot', 'work friendly', 'outlets', 'quiet', 'outdoor seating', 'patio', 'drive thru', 'mobile order', 'pickup',
+    'oat milk', 'almond milk', 'soy milk', 'dairy free', 'vegan', 'gluten free', 'organic', 'fair trade', 'local roast', 'fresh baked',
+    'early morning', 'open late', 'weekend hours', 'parking', 'cozy', 'clean', 'fast service', 'friendly staff', 'loyalty program', 'gift cards'
   ],
   'Bar': [
-    // 1 node away - drinks & service
-    'great cocktails', 'craft drinks', 'skilled bartenders', 'creative mixology', 'extensive selection', 'quality spirits', 'craft beer', 'wine selection', 'signature drinks', 'perfectly mixed',
-    'fresh ingredients', 'unique flavors', 'strong pours', 'well-balanced', 'premium liquor', 'local brews', 'rotating taps', 'happy hour deals', 'drink specials', 'impressive menu',
-    // 2 nodes away - atmosphere & experience
-    'fun atmosphere', 'great vibes', 'friendly bartenders', 'lively crowd', 'perfect for groups', 'date night spot', 'late night', 'good music', 'dancing', 'sports viewing',
-    'comfortable seating', 'rooftop views', 'outdoor patio', 'cozy booths', 'clean', 'good food', 'appetizers', 'welcoming', 'local hangout', 'neighborhood bar',
-    'no pretense', 'unpretentious', 'inclusive', 'reasonable prices', 'quick service', 'attentive staff', 'memorable night', 'will return', 'highly recommend', 'hidden gem'
+    'cocktails', 'beer', 'wine', 'whiskey', 'vodka', 'tequila', 'rum', 'gin', 'bourbon', 'scotch',
+    'draft beer', 'craft beer', 'local beer', 'imported beer', 'wine list', 'happy hour', 'drink specials', 'shots', 'margaritas', 'martinis',
+    'sports bar', 'live music', 'DJ', 'dancing', 'karaoke', 'trivia night', 'pool table', 'darts', 'arcade', 'patio',
+    'late night', 'open late', 'food menu', 'appetizers', 'wings', 'burgers', 'nachos', 'kitchen open late', 'full menu', 'bar food',
+    'rooftop', 'outdoor', 'private events', 'bachelor party', 'bachelorette', 'birthday', 'group friendly', 'reservations', 'VIP', 'bottle service'
   ],
   'Bakery': [
-    // 1 node away - baked goods
-    'fresh-baked', 'delicious pastries', 'flaky croissants', 'moist cakes', 'artisan bread', 'homemade', 'quality ingredients', 'perfectly sweetened', 'buttery', 'melt-in-your-mouth',
-    'creative flavors', 'beautiful decorations', 'custom cakes', 'wedding cakes', 'specialty items', 'gluten-free options', 'vegan options', 'seasonal treats', 'traditional recipes', 'family recipes',
-    // 2 nodes away - experience
-    'wonderful aroma', 'friendly staff', 'welcoming', 'charming shop', 'cozy', 'quick service', 'great for gifts', 'perfect portions', 'reasonably priced', 'good value',
-    'local favorite', 'hidden gem', 'morning treat', 'coffee pairing', 'celebration cakes', 'party orders', 'consistent quality', 'never disappoints', 'Instagram-worthy', 'must-try',
-    'early hours', 'convenient location', 'clean', 'beautiful display', 'helpful recommendations', 'takes special orders', 'always fresh', 'sells out fast', 'worth the wait', 'will return'
+    'bread', 'cakes', 'cupcakes', 'cookies', 'pastries', 'croissants', 'donuts', 'muffins', 'pies', 'brownies',
+    'wedding cakes', 'birthday cakes', 'custom cakes', 'sheet cakes', 'layer cakes', 'cheesecake', 'tiered cakes', 'cake pops', 'cake slices', 'mini cakes',
+    'fresh baked', 'made daily', 'gluten free', 'vegan', 'sugar free', 'keto', 'organic', 'local', 'artisan', 'homemade',
+    'special orders', 'custom orders', 'catering', 'party trays', 'dessert trays', 'gift boxes', 'delivery', 'pickup', 'preorder', 'same day',
+    'coffee', 'espresso', 'breakfast', 'sandwiches', 'early morning', 'open early', 'parking', 'seating', 'quick service', 'wholesale'
   ],
   'Food Truck': [
-    // 1 node away - food quality
-    'fresh ingredients', 'unique flavors', 'creative menu', 'delicious', 'flavorful', 'generous portions', 'quality food', 'homemade', 'authentic', 'perfectly seasoned',
-    'bold flavors', 'fusion cuisine', 'specialty items', 'signature dish', 'locally sourced', 'made to order', 'hot and fresh', 'satisfying', 'tasty', 'crave-worthy',
-    // 2 nodes away - experience
-    'quick service', 'great value', 'friendly', 'fast but quality', 'convenient', 'perfect lunch', 'worth the line', 'affordable', 'cash and card', 'easy to find',
-    'food festival favorite', 'local favorite', 'follows schedule', 'clean setup', 'good portions', 'fair prices', 'catering available', 'events', 'outdoor dining', 'casual vibe',
-    'Instagram-worthy', 'great photos', 'must-try', 'hidden gem', 'loyal following', 'always a line', 'worth tracking down', 'food truck rallies', 'community events', 'will seek out again'
+    'tacos', 'burritos', 'burgers', 'hot dogs', 'sandwiches', 'BBQ', 'wings', 'fries', 'nachos', 'quesadillas',
+    'lunch', 'dinner', 'late night', 'street food', 'fast food', 'quick lunch', 'grab and go', 'takeout', 'catering', 'events',
+    'cash', 'card', 'mobile pay', 'venmo', 'menu board', 'daily specials', 'combo meals', 'sides', 'drinks', 'dessert',
+    'location schedule', 'food truck park', 'brewery', 'parking lot', 'downtown', 'office park', 'festival', 'fair', 'concert', 'market',
+    'vegetarian', 'vegan', 'gluten free', 'halal', 'kosher', 'organic', 'local', 'fresh made', 'homemade', 'authentic'
   ],
   'Pizzeria': [
-    // 1 node away - pizza quality
-    'perfect crust', 'fresh ingredients', 'authentic', 'wood-fired', 'crispy crust', 'cheesy', 'generous toppings', 'quality cheese', 'homemade sauce', 'traditional recipe',
-    'New York style', 'Neapolitan', 'thin crust', 'deep dish', 'perfectly baked', 'not greasy', 'well-balanced', 'flavorful', 'signature pies', 'creative toppings',
-    // 2 nodes away - experience
-    'family-friendly', 'great for groups', 'quick delivery', 'hot and fresh', 'generous portions', 'good value', 'reasonable prices', 'friendly staff', 'fast service', 'takeout friendly',
-    'dine-in atmosphere', 'local favorite', 'neighborhood staple', 'late night', 'game day', 'party orders', 'catering', 'kids menu', 'comfortable', 'casual vibe',
-    'consistent quality', 'never disappoints', 'best in town', 'will return', 'highly recommend', 'crave-worthy', 'go-to spot', 'reliable', 'always satisfying', 'worth the drive'
+    'pizza', 'slice', 'whole pie', 'pepperoni', 'cheese pizza', 'supreme', 'meat lovers', 'veggie', 'margherita', 'white pizza',
+    'thin crust', 'thick crust', 'deep dish', 'NY style', 'Sicilian', 'stuffed crust', 'gluten free crust', 'cauliflower crust', 'pan pizza', 'wood fired',
+    'delivery', 'pickup', 'dine in', 'takeout', 'catering', 'party size', 'family deal', 'lunch special', 'dinner deal', 'combo',
+    'wings', 'breadsticks', 'garlic knots', 'calzone', 'stromboli', 'salad', 'pasta', 'subs', 'appetizers', 'dessert',
+    'open late', 'fast delivery', 'online ordering', 'app', 'coupons', 'deals', 'specials', 'rewards', 'gift cards', 'catering menu'
   ],
   'Sushi Bar': [
-    // 1 node away - sushi quality
-    'fresh fish', 'high-quality', 'skilled chefs', 'beautiful presentation', 'authentic', 'melt-in-your-mouth', 'perfectly cut', 'premium ingredients', 'ocean-fresh', 'sashimi-grade',
-    'creative rolls', 'traditional preparation', 'omakase', 'chef specials', 'seasonal fish', 'imported ingredients', 'wasabi freshly grated', 'perfect rice', 'artistic plating', 'attention to detail',
-    // 2 nodes away - experience
-    'great selection', 'extensive menu', 'sake pairings', 'Japanese beer', 'elegant atmosphere', 'sushi bar seating', 'watch the chefs', 'intimate setting', 'clean', 'minimalist decor',
-    'attentive service', 'knowledgeable staff', 'recommendations', 'worth the price', 'special occasion', 'date night', 'omakase experience', 'authentic atmosphere', 'peaceful', 'refined',
-    'consistent quality', 'always fresh', 'best sushi in town', 'will return', 'highly recommend', 'impressed', 'exceeded expectations', 'memorable meal', 'must-try', 'hidden gem'
+    'sushi', 'sashimi', 'rolls', 'nigiri', 'maki', 'hand roll', 'specialty roll', 'dragon roll', 'rainbow roll', 'spicy tuna',
+    'salmon', 'tuna', 'yellowtail', 'eel', 'shrimp', 'crab', 'octopus', 'scallop', 'mackerel', 'sea bass',
+    'omakase', 'chef special', 'sushi combo', 'sashimi platter', 'boat', 'party tray', 'catering', 'all you can eat', 'lunch special', 'dinner',
+    'sake', 'Japanese beer', 'plum wine', 'green tea', 'miso soup', 'edamame', 'gyoza', 'tempura', 'teriyaki', 'ramen',
+    'dine in', 'takeout', 'delivery', 'reservations', 'sushi bar', 'private room', 'happy hour', 'BYOB', 'fresh fish', 'daily catch'
   ],
   'Ice Cream Shop': [
-    // 1 node away - ice cream quality
-    'delicious flavors', 'creamy', 'rich', 'homemade', 'unique flavors', 'generous scoops', 'high-quality', 'real ingredients', 'not too sweet', 'perfectly smooth',
-    'creative combinations', 'seasonal flavors', 'fresh waffle cones', 'toppings galore', 'sundae bar', 'milkshakes', 'dairy-free options', 'vegan options', 'sorbet', 'gelato',
-    // 2 nodes away - experience
-    'fun atmosphere', 'friendly staff', 'great portions', 'good value', 'kid-friendly', 'nostalgic', 'charming shop', 'cute decor', 'Instagram-worthy', 'colorful',
-    'quick service', 'samples available', 'helpful recommendations', 'local favorite', 'summer staple', 'perfect treat', 'family outing', 'birthday parties', 'outdoor seating', 'walk-up window',
-    'always a line', 'worth the wait', 'will return', 'best ice cream', 'consistent quality', 'never disappoints', 'memorable', 'sweet tooth satisfied', 'happy place', 'highly recommend'
+    'ice cream', 'gelato', 'frozen yogurt', 'sorbet', 'soft serve', 'hard scoop', 'cone', 'cup', 'waffle cone', 'sugar cone',
+    'sundae', 'banana split', 'milkshake', 'malt', 'float', 'smoothie', 'ice cream cake', 'pint', 'quart', 'gallon',
+    'chocolate', 'vanilla', 'strawberry', 'mint chip', 'cookies and cream', 'cookie dough', 'rocky road', 'butter pecan', 'seasonal flavors', 'specialty flavors',
+    'toppings', 'sprinkles', 'hot fudge', 'caramel', 'whipped cream', 'nuts', 'candy', 'fruit', 'brownie', 'cookie',
+    'dairy free', 'vegan', 'sugar free', 'gluten free', 'nut free', 'kid friendly', 'party packs', 'catering', 'gift cards', 'punch card'
   ],
   'Brewery': [
-    // 1 node away - beer quality
-    'craft beer', 'fresh brews', 'unique flavors', 'quality ingredients', 'small batch', 'locally brewed', 'hoppy', 'smooth', 'well-balanced', 'creative recipes',
-    'rotating taps', 'seasonal releases', 'IPAs', 'stouts', 'lagers', 'sours', 'barrel-aged', 'limited editions', 'flight options', 'variety',
-    // 2 nodes away - experience
-    'great selection', 'knowledgeable staff', 'fun atmosphere', 'brewery tours', 'taproom', 'outdoor space', 'beer garden', 'dog-friendly', 'family-friendly', 'live music',
-    'food trucks', 'good snacks', 'trivia nights', 'events', 'local hangout', 'community vibe', 'relaxed atmosphere', 'industrial chic', 'merchandise', 'growler fills',
-    'support local', 'passionate brewers', 'will return', 'highly recommend', 'great for groups', 'date night', 'weekend spot', 'consistent quality', 'hidden gem', 'must visit'
+    'craft beer', 'IPA', 'lager', 'stout', 'porter', 'pilsner', 'wheat beer', 'pale ale', 'amber', 'sour',
+    'hazy IPA', 'double IPA', 'session beer', 'seasonal beer', 'limited release', 'barrel aged', 'nitro', 'cider', 'seltzer', 'flight',
+    'taproom', 'beer garden', 'patio', 'outdoor seating', 'tours', 'tastings', 'growler', 'crowler', 'cans', 'bottles',
+    'food trucks', 'kitchen', 'snacks', 'pretzels', 'live music', 'trivia', 'events', 'private events', 'dog friendly', 'kid friendly',
+    'merchandise', 'gift shop', 'beer club', 'mug club', 'parking', 'reservations', 'walk-ins', 'happy hour', 'local', 'small batch'
   ],
   'Winery': [
-    // 1 node away - wine quality
-    'excellent wines', 'smooth', 'well-balanced', 'complex flavors', 'award-winning', 'premium grapes', 'estate grown', 'small production', 'aged perfectly', 'varietals',
-    'reds', 'whites', 'rosé', 'sparkling', 'dessert wines', 'reserve selections', 'vintage', 'terroir', 'oak notes', 'fruit-forward',
-    // 2 nodes away - experience
-    'beautiful setting', 'scenic views', 'vineyard tours', 'great tastings', 'knowledgeable staff', 'relaxing', 'peaceful', 'romantic', 'stunning grounds', 'outdoor seating',
-    'picnic area', 'cheese pairings', 'events', 'weddings', 'private tastings', 'wine club', 'friendly hosts', 'educational', 'Instagram-worthy', 'photo opportunities',
-    'day trip worthy', 'memorable experience', 'will return', 'highly recommend', 'special occasion', 'gift shop', 'ships wine', 'consistent quality', 'hidden gem', 'must visit'
+    'wine', 'red wine', 'white wine', 'rosé', 'sparkling', 'champagne', 'prosecco', 'cabernet', 'merlot', 'pinot noir',
+    'chardonnay', 'sauvignon blanc', 'pinot grigio', 'riesling', 'moscato', 'zinfandel', 'malbec', 'sangria', 'port', 'dessert wine',
+    'wine tasting', 'tasting room', 'tasting fee', 'flight', 'bottle', 'glass', 'wine club', 'membership', 'vineyard tour', 'cellar tour',
+    'outdoor seating', 'patio', 'picnic area', 'cheese', 'charcuterie', 'food pairing', 'live music', 'events', 'weddings', 'private events',
+    'gift shop', 'wine shipping', 'local', 'estate grown', 'reserve', 'vintage', 'organic', 'sustainable', 'views', 'scenery'
   ],
   'Juice Bar': [
-    // 1 node away - product quality
-    'fresh ingredients', 'cold-pressed', 'organic', 'nutrient-rich', 'healthy', 'delicious', 'vibrant colors', 'natural', 'no added sugar', 'real fruit',
-    'smoothies', 'acai bowls', 'green juices', 'detox options', 'protein boosts', 'superfood add-ins', 'customizable', 'fresh daily', 'energizing', 'refreshing',
-    // 2 nodes away - experience
-    'quick service', 'clean', 'modern', 'bright atmosphere', 'friendly staff', 'knowledgeable', 'helpful recommendations', 'great taste', 'good portions', 'reasonable prices',
-    'post-workout', 'meal replacement', 'grab and go', 'convenient location', 'loyalty program', 'sustainable packaging', 'eco-friendly', 'health-conscious', 'feel-good', 'local ingredients',
-    'consistent quality', 'will return', 'daily habit', 'highly recommend', 'best smoothies', 'tastes fresh', 'never disappoints', 'worth it', 'healthy and delicious', 'guilt-free'
+    'juice', 'smoothie', 'acai bowl', 'pitaya bowl', 'cold pressed', 'fresh squeezed', 'green juice', 'fruit juice', 'vegetable juice', 'detox',
+    'protein shake', 'meal replacement', 'superfood', 'wheatgrass', 'ginger shot', 'turmeric', 'wellness shot', 'immunity boost', 'energy boost', 'cleanse',
+    'organic', 'raw', 'vegan', 'dairy free', 'gluten free', 'no sugar added', 'natural', 'fresh', 'local', 'seasonal',
+    'protein powder', 'almond butter', 'peanut butter', 'hemp seeds', 'chia seeds', 'spirulina', 'collagen', 'CBD', 'add-ins', 'customize',
+    'grab and go', 'quick service', 'online order', 'pickup', 'delivery', 'catering', 'cleanse packages', 'subscription', 'loyalty program', 'gift cards'
   ],
   'Deli': [
-    // 1 node away - food quality
-    'fresh cuts', 'quality meats', 'great sandwiches', 'generous portions', 'quality ingredients', 'house-made', 'fresh bread', 'perfectly seasoned', 'authentic', 'traditional recipes',
-    'specialty items', 'imported goods', 'cheese selection', 'prepared foods', 'salads', 'soups', 'hot sandwiches', 'cold cuts', 'catering trays', 'party platters',
-    // 2 nodes away - experience
-    'friendly service', 'quick', 'efficient', 'knows regulars', 'old-school charm', 'neighborhood staple', 'family-owned', 'clean', 'well-organized', 'good value',
-    'lunch spot', 'takeout friendly', 'call ahead', 'reliable', 'consistent', 'satisfying', 'filling', 'comfort food', 'nostalgic', 'authentic experience',
-    'local favorite', 'will return', 'highly recommend', 'best sandwich', 'go-to spot', 'never disappoints', 'worth the line', 'must-try', 'hidden gem', 'legendary'
+    'sandwich', 'sub', 'hoagie', 'hero', 'cold cuts', 'sliced meat', 'turkey', 'ham', 'roast beef', 'pastrami',
+    'salami', 'bologna', 'corned beef', 'brisket', 'cheese', 'swiss', 'provolone', 'american', 'cheddar', 'pepper jack',
+    'salad', 'coleslaw', 'potato salad', 'macaroni salad', 'soup', 'chili', 'pickle', 'chips', 'sides', 'combo meal',
+    'catering', 'party trays', 'sandwich platters', 'meat and cheese trays', 'wrap platters', 'box lunches', 'corporate catering', 'event catering', 'delivery', 'pickup',
+    'breakfast', 'lunch', 'early morning', 'quick service', 'call ahead', 'online order', 'daily specials', 'fresh baked bread', 'gluten free', 'vegetarian'
   ],
   // Health & Beauty
   'Salon': [
-    // 1 node away - service quality
-    'skilled stylists', 'professional', 'talented', 'experienced', 'up-to-date techniques', 'listens to clients', 'attention to detail', 'precision cuts', 'beautiful color', 'perfect highlights',
-    'balayage experts', 'color correction', 'styling expertise', 'blowouts', 'updos', 'extensions', 'treatments', 'healthy hair', 'quality products', 'personalized service',
-    // 2 nodes away - experience
-    'relaxing', 'modern', 'luxurious', 'clean', 'welcoming atmosphere', 'comfortable', 'stylish decor', 'good music', 'complimentary drinks', 'friendly staff',
-    'easy booking', 'on time', 'reasonable prices', 'good value', 'consistent results', 'no pressure upselling', 'honest recommendations', 'transformation', 'confidence boost', 'feel amazing',
-    'will return', 'highly recommend', 'found my stylist', 'best haircut', 'loyal client', 'trusted', 'never disappoints', 'exceeded expectations', 'worth every penny', 'life-changing'
+    'haircut', 'hair color', 'highlights', 'balayage', 'ombre', 'lowlights', 'root touch up', 'full color', 'color correction', 'bleach',
+    'blowout', 'styling', 'updo', 'braids', 'extensions', 'keratin', 'straightening', 'perm', 'relaxer', 'deep conditioning',
+    'trim', 'layers', 'bangs', 'bob', 'pixie', 'long hair', 'short hair', 'mens cut', 'kids cut', 'senior cut',
+    'wedding hair', 'bridal', 'prom', 'special occasion', 'consultation', 'walk-ins', 'appointments', 'online booking', 'same day', 'late hours',
+    'parking', 'wheelchair accessible', 'gift cards', 'packages', 'loyalty program', 'student discount', 'senior discount', 'products', 'retail', 'tips welcome'
   ],
   'Barbershop': [
-    // 1 node away - service quality
-    'skilled barbers', 'precise cuts', 'clean fades', 'sharp lines', 'attention to detail', 'classic techniques', 'modern styles', 'beard trims', 'hot towel shave', 'straight razor',
-    'lineup perfection', 'scissor work', 'clipper skills', 'experienced', 'knows what looks good', 'listens', 'consistent cuts', 'quality products', 'styling advice', 'grooming expertise',
-    // 2 nodes away - experience
-    'friendly atmosphere', 'good conversation', 'welcoming', 'classic vibe', 'modern shop', 'clean', 'comfortable chairs', 'walk-ins welcome', 'appointments available', 'quick service',
-    'fair prices', 'no long wait', 'community feel', 'neighborhood shop', 'loyal customers', 'regulars', 'sports on TV', 'good music', 'relaxed vibe', 'masculine space',
-    'will return', 'highly recommend', 'found my barber', 'best cut ever', 'trusted', 'consistent', 'never disappoints', 'go-to spot', 'worth the visit', 'local gem'
+    'haircut', 'fade', 'taper', 'buzz cut', 'crew cut', 'flat top', 'line up', 'edge up', 'shape up', 'skin fade',
+    'beard trim', 'beard shape', 'shave', 'hot towel shave', 'straight razor', 'mustache trim', 'eyebrow trim', 'neck shave', 'ear trim', 'nose trim',
+    'mens haircut', 'boys haircut', 'kids cut', 'senior cut', 'military cut', 'classic cut', 'modern styles', 'textured', 'pompadour', 'undercut',
+    'walk-ins', 'appointments', 'online booking', 'wait time', 'check in', 'cash', 'card', 'tips', 'loyalty program', 'student discount',
+    'senior discount', 'parking', 'TV', 'wifi', 'drinks', 'products', 'pomade', 'wax', 'gel', 'beard oil'
   ],
   'Spa': [
-    // 1 node away - service quality
-    'relaxing', 'rejuvenating', 'therapeutic', 'professional', 'skilled therapists', 'healing', 'restorative', 'deep tissue', 'hot stone', 'aromatherapy',
-    'facials', 'body treatments', 'wraps', 'scrubs', 'customized treatments', 'quality products', 'organic options', 'effective results', 'tension relief', 'stress reduction',
-    // 2 nodes away - experience
-    'tranquil', 'serene', 'peaceful atmosphere', 'beautiful space', 'clean', 'luxurious', 'escape', 'pampering', 'self-care', 'wellness',
-    'attentive staff', 'complimentary amenities', 'robes and slippers', 'sauna', 'steam room', 'quiet rooms', 'couples treatments', 'packages available', 'gift certificates', 'membership perks',
-    'will return', 'highly recommend', 'much needed', 'total relaxation', 'felt renewed', 'melted stress away', 'heavenly', 'worth every penny', 'treat yourself', 'best spa'
+    'massage', 'facial', 'body treatment', 'scrub', 'wrap', 'sauna', 'steam room', 'hot tub', 'jacuzzi', 'pool',
+    'Swedish massage', 'deep tissue', 'hot stone', 'aromatherapy', 'couples massage', 'prenatal massage', 'sports massage', 'reflexology', 'Thai massage', 'shiatsu',
+    'anti-aging facial', 'hydrating facial', 'acne facial', 'chemical peel', 'microdermabrasion', 'LED therapy', 'oxygen facial', 'collagen', 'vitamin C', 'hyaluronic',
+    'mani pedi', 'waxing', 'body contouring', 'detox', 'relaxation', 'wellness', 'day spa', 'spa day', 'spa package', 'couples package',
+    'gift card', 'membership', 'robes', 'slippers', 'locker room', 'shower', 'refreshments', 'parking', 'reservations', 'walk-ins'
   ],
   'Nail Salon': [
-    // 1 node away - service quality
-    'skilled technicians', 'clean', 'sanitary', 'attention to detail', 'precise', 'beautiful designs', 'nail art', 'long-lasting', 'quality products', 'gel manicure',
-    'acrylics', 'dip powder', 'pedicures', 'cuticle care', 'shape perfection', 'color selection', 'trendy styles', 'classic looks', 'French tips', 'ombre',
-    // 2 nodes away - experience
-    'relaxing', 'friendly staff', 'welcoming', 'comfortable chairs', 'massage chairs', 'clean environment', 'well-ventilated', 'appointment available', 'walk-ins welcome', 'efficient',
-    'reasonable prices', 'good value', 'loyalty rewards', 'consistent quality', 'no rushing', 'takes their time', 'listens to requests', 'gentle', 'professional atmosphere', 'modern salon',
-    'will return', 'highly recommend', 'found my salon', 'love my nails', 'always perfect', 'never disappoints', 'best nails', 'compliments every time', 'trusted', 'go-to spot'
+    'manicure', 'pedicure', 'gel manicure', 'gel pedicure', 'acrylic nails', 'dip powder', 'SNS', 'shellac', 'regular polish', 'nail art',
+    'french tips', 'fill', 'full set', 'overlay', 'nail repair', 'nail removal', 'soak off', 'cuticle care', 'nail shaping', 'buffing',
+    'spa pedicure', 'deluxe pedicure', 'paraffin', 'hot stones', 'callus removal', 'leg massage', 'arm massage', 'exfoliation', 'moisturizing', 'mask',
+    'walk-ins', 'appointments', 'online booking', 'wait time', 'groups', 'parties', 'bridal party', 'birthday party', 'kids', 'mens',
+    'cash', 'card', 'tips', 'gift cards', 'loyalty program', 'parking', 'clean', 'sanitary', 'ventilated', 'relaxing'
   ],
   'Med Spa': [
-    // 1 node away - treatment quality
-    'professional', 'effective treatments', 'visible results', 'modern equipment', 'latest technology', 'skilled practitioners', 'medical-grade', 'customized plans', 'Botox', 'fillers',
-    'laser treatments', 'chemical peels', 'microneedling', 'body contouring', 'skin rejuvenation', 'anti-aging', 'acne treatment', 'pigmentation', 'safe procedures', 'FDA approved',
-    // 2 nodes away - experience
-    'knowledgeable staff', 'thorough consultations', 'clean facility', 'sterile environment', 'comfortable', 'discreet', 'private', 'honest recommendations', 'no pressure', 'transparent pricing',
-    'follow-up care', 'before and after photos', 'natural-looking results', 'subtle enhancements', 'confidence boost', 'feel younger', 'refreshed look', 'maintained results', 'membership options', 'packages',
-    'will return', 'highly recommend', 'life-changing', 'worth the investment', 'trusted provider', 'exceeded expectations', 'amazing results', 'professional experience', 'best decision', 'transformed'
+    'botox', 'filler', 'lip filler', 'juvederm', 'restylane', 'kybella', 'sculptra', 'dysport', 'xeomin', 'injectable',
+    'laser', 'IPL', 'laser hair removal', 'tattoo removal', 'skin resurfacing', 'fraxel', 'CO2 laser', 'BBL', 'photofacial', 'vein treatment',
+    'microneedling', 'PRP', 'vampire facial', 'chemical peel', 'hydrafacial', 'dermaplaning', 'microdermabrasion', 'LED therapy', 'oxygen facial', 'vi peel',
+    'coolsculpting', 'body contouring', 'cellulite treatment', 'skin tightening', 'ultherapy', 'RF', 'emsculpt', 'kybella', 'liposuction', 'fat dissolving',
+    'consultation', 'free consultation', 'financing', 'packages', 'membership', 'before after', 'certified', 'licensed', 'RN', 'MD supervised'
   ],
   'Massage Therapy': [
-    // 1 node away - service quality
-    'skilled therapists', 'therapeutic', 'deep tissue', 'Swedish', 'sports massage', 'prenatal', 'hot stone', 'aromatherapy', 'pressure just right', 'tension relief',
-    'pain relief', 'muscle relaxation', 'knot release', 'full body', 'targeted areas', 'customized pressure', 'professional technique', 'healing touch', 'range of motion', 'flexibility',
-    // 2 nodes away - experience
-    'relaxing', 'clean', 'peaceful environment', 'tranquil', 'calming music', 'comfortable table', 'warm room', 'quality oils', 'fresh linens', 'private rooms',
-    'stress relief', 'mental clarity', 'feel renewed', 'better sleep', 'regular maintenance', 'wellness routine', 'self-care', 'treat yourself', 'membership options', 'packages available',
-    'will return', 'highly recommend', 'found my therapist', 'best massage', 'exactly what I needed', 'melted tension', 'heavenly', 'life-changing', 'worth every penny', 'regular now'
+    'massage', 'Swedish massage', 'deep tissue', 'hot stone', 'aromatherapy', 'sports massage', 'prenatal massage', 'couples massage', 'Thai massage', 'shiatsu',
+    'reflexology', 'lymphatic drainage', 'trigger point', 'myofascial', 'cupping', 'craniosacral', 'chair massage', 'back massage', 'neck massage', 'full body',
+    '30 minute', '60 minute', '90 minute', '120 minute', 'add-on', 'hot towel', 'scalp massage', 'foot massage', 'hand massage', 'face massage',
+    'walk-ins', 'appointments', 'online booking', 'same day', 'evening hours', 'weekend hours', 'parking', 'private room', 'relaxing', 'quiet',
+    'gift card', 'package', 'membership', 'loyalty program', 'couples room', 'tips accepted', 'cash', 'card', 'HSA', 'FSA'
   ],
   'Tattoo Parlor': [
-    // 1 node away - artistry
-    'skilled artists', 'talented', 'creative designs', 'custom work', 'original art', 'attention to detail', 'clean lines', 'solid color', 'fine line work', 'realistic',
-    'traditional', 'neo-traditional', 'blackwork', 'watercolor', 'geometric', 'portraits', 'cover-ups', 'touch-ups', 'healed beautifully', 'aged well',
-    // 2 nodes away - experience
-    'clean', 'sterile environment', 'professional', 'proper sanitation', 'new needles', 'licensed', 'comfortable', 'good communication', 'patient', 'collaborative',
-    'listens to ideas', 'honest advice', 'fair pricing', 'transparent quotes', 'no rushing', 'takes their time', 'consultation available', 'portfolio impressive', 'friendly staff', 'welcoming',
-    'will return', 'highly recommend', 'found my artist', 'love my tattoo', 'exceeded expectations', 'exactly what I wanted', 'painless as possible', 'trusted', 'best work', 'worth the wait'
+    'tattoo', 'custom tattoo', 'flash tattoo', 'cover up', 'touch up', 'color tattoo', 'black and grey', 'fine line', 'blackwork', 'traditional',
+    'neo traditional', 'realism', 'portrait', 'watercolor', 'geometric', 'tribal', 'Japanese', 'American traditional', 'script', 'lettering',
+    'small tattoo', 'large tattoo', 'sleeve', 'half sleeve', 'back piece', 'chest piece', 'leg tattoo', 'arm tattoo', 'hand tattoo', 'neck tattoo',
+    'walk-ins', 'appointment', 'consultation', 'deposit', 'hourly rate', 'flat rate', 'minimum charge', 'portfolio', 'instagram', 'booking',
+    'sterile', 'clean', 'licensed', 'experienced', 'aftercare', 'touch up included', 'cash', 'card', 'tip', 'gift certificate'
   ],
   'Tanning Salon': [
-    // 1 node away - service quality
-    'even tan', 'natural-looking', 'great color', 'no streaks', 'gradual build', 'long-lasting', 'quality beds', 'spray tan', 'airbrush', 'customized levels',
-    'bronzed glow', 'sun-kissed', 'golden tan', 'premium lotions', 'skin care', 'moisturizing', 'fast results', 'controlled exposure', 'timer options', 'various bed types',
-    // 2 nodes away - experience
-    'clean', 'sanitized beds', 'friendly staff', 'helpful recommendations', 'comfortable', 'private rooms', 'air-conditioned', 'convenient', 'easy booking', 'flexible hours',
-    'membership options', 'package deals', 'fair prices', 'good value', 'quick sessions', 'no waiting', 'well-maintained', 'modern equipment', 'results-focused', 'knowledgeable',
-    'will return', 'highly recommend', 'perfect for events', 'vacation prep', 'confidence boost', 'consistent results', 'trusted', 'go-to spot', 'always satisfied', 'best tan'
+    'tanning bed', 'spray tan', 'airbrush tan', 'UV tanning', 'stand up', 'lay down', 'high pressure', 'low pressure', 'red light', 'bronzing bed',
+    'mystic tan', 'versa spa', 'custom spray', 'express tan', 'rapid tan', 'competition tan', 'bridal tan', 'prom tan', 'event tan', 'vacation tan',
+    'lotion', 'bronzer', 'accelerator', 'tingle lotion', 'moisturizer', 'after tan', 'tan extender', 'exfoliator', 'prep', 'products',
+    'single session', 'package', 'unlimited', 'monthly', 'membership', 'first time free', 'student discount', 'referral', 'gift card', 'rewards',
+    'clean beds', 'sanitized', 'private rooms', 'AC', 'music', 'fan', 'timer', 'goggles', 'towels', 'parking'
   ],
   'Skincare Clinic': [
-    // 1 node away - treatment quality
-    'professional', 'effective treatments', 'visible results', 'clear skin', 'glowing complexion', 'customized approach', 'thorough analysis', 'quality products', 'medical-grade', 'science-backed',
-    'facials', 'peels', 'extractions', 'hydration', 'anti-aging', 'acne treatment', 'rosacea', 'hyperpigmentation', 'texture improvement', 'pore refinement',
-    // 2 nodes away - experience
-    'knowledgeable staff', 'licensed estheticians', 'clean facility', 'relaxing', 'educational', 'home care advice', 'honest recommendations', 'no pressure', 'follow-up care', 'progress tracking',
-    'before and after', 'transformation', 'confidence boost', 'skin health', 'long-term results', 'maintenance plans', 'packages available', 'membership perks', 'quality over quick fixes', 'investment in self',
-    'will return', 'highly recommend', 'life-changing', 'skin transformed', 'finally clear', 'trusted provider', 'best decision', 'worth it', 'amazing results', 'found my clinic'
+    'facial', 'acne treatment', 'anti-aging', 'chemical peel', 'microdermabrasion', 'dermaplaning', 'hydrafacial', 'LED therapy', 'microneedling', 'extraction',
+    'acne', 'rosacea', 'eczema', 'psoriasis', 'hyperpigmentation', 'melasma', 'sun damage', 'age spots', 'fine lines', 'wrinkles',
+    'consultation', 'skin analysis', 'customized treatment', 'treatment plan', 'home care', 'products', 'skincare routine', 'follow up', 'series', 'package',
+    'licensed', 'esthetician', 'dermatologist', 'certified', 'medical grade', 'professional', 'clean', 'sterile', 'private', 'relaxing',
+    'appointment', 'online booking', 'parking', 'gift card', 'membership', 'loyalty', 'HSA', 'FSA', 'financing', 'before after'
   ],
   // Automotive
   'Auto Shop': [
-    // 1 node away - service quality
-    'expert mechanics', 'skilled technicians', 'accurate diagnosis', 'quality repairs', 'thorough inspection', 'attention to detail', 'proper fix', 'OEM parts', 'warranty on work', 'certified',
-    'brake service', 'engine repair', 'transmission', 'electrical', 'suspension', 'timing belt', 'tune-ups', 'maintenance', 'preventive care', 'check engine light',
-    // 2 nodes away - experience
-    'honest', 'trustworthy', 'fair pricing', 'no upselling', 'transparent quotes', 'explained repairs', 'showed the problem', 'reliable', 'quick turnaround', 'on-time completion',
-    'clean shop', 'organized', 'professional', 'friendly staff', 'good communication', 'kept informed', 'convenient location', 'shuttle service', 'loaner cars', 'comfortable waiting area',
-    'will return', 'highly recommend', 'found my mechanic', 'trusted for years', 'family cars', 'fleet service', 'honest shop', 'no surprises', 'fair and square', 'best in town'
+    'oil change', 'brake repair', 'brakes', 'engine repair', 'transmission', 'AC repair', 'air conditioning', 'heating', 'check engine light', 'diagnostics',
+    'tune up', 'spark plugs', 'timing belt', 'water pump', 'radiator', 'coolant', 'battery', 'alternator', 'starter', 'electrical',
+    'suspension', 'shocks', 'struts', 'alignment', 'steering', 'power steering', 'exhaust', 'muffler', 'catalytic converter', 'emissions',
+    'inspection', 'state inspection', 'safety inspection', 'pre-purchase inspection', 'maintenance', 'scheduled maintenance', 'factory service', 'warranty work', 'recall', 'TSB',
+    'appointment', 'walk-in', 'drop off', 'shuttle', 'loaner car', 'waiting room', 'wifi', 'estimate', 'warranty', 'ASE certified'
   ],
   'Car Wash': [
-    // 1 node away - wash quality
-    'thorough clean', 'sparkling finish', 'attention to detail', 'streak-free', 'spot-free rinse', 'premium wash', 'wax included', 'tire shine', 'interior cleaning', 'vacuum service',
-    'hand wash', 'touchless', 'soft cloth', 'undercarriage', 'wheel cleaning', 'bug removal', 'tar removal', 'clay bar', 'polish', 'protection',
-    // 2 nodes away - experience
-    'quick service', 'efficient', 'convenient', 'drive-through', 'self-serve options', 'good value', 'fair prices', 'membership deals', 'unlimited washes', 'express lane',
-    'friendly staff', 'professional', 'well-maintained equipment', 'clean facility', 'waiting area', 'free vacuums', 'air fresheners', 'mat cleaning', 'consistent quality', 'reliable',
-    'will return', 'highly recommend', 'go-to wash', 'best car wash', 'car looks new', 'always satisfied', 'monthly member', 'worth it', 'convenient location', 'never disappoints'
+    'car wash', 'exterior wash', 'interior cleaning', 'full service', 'express wash', 'hand wash', 'touchless', 'soft touch', 'tunnel wash', 'self serve',
+    'wax', 'polish', 'tire shine', 'wheel clean', 'undercarriage', 'bug removal', 'tar removal', 'spot free rinse', 'air dry', 'hand dry',
+    'interior vacuum', 'floor mats', 'dashboard', 'windows', 'door jambs', 'trunk', 'console', 'cup holders', 'air freshener', 'leather clean',
+    'unlimited plan', 'monthly membership', 'wash club', 'single wash', 'package', 'upgrade', 'add-on', 'gift card', 'fleet', 'commercial',
+    'drive thru', 'quick', 'no appointment', 'open early', 'open late', 'weekend hours', 'parking', 'vacuum stations', 'clean', 'fast'
   ],
   'Auto Detailing': [
-    // 1 node away - detailing quality
-    'meticulous', 'attention to detail', 'showroom finish', 'like new', 'thorough', 'deep clean', 'paint correction', 'ceramic coating', 'wax protection', 'polish',
-    'interior detailing', 'leather conditioning', 'stain removal', 'odor elimination', 'engine bay', 'wheel detailing', 'headlight restoration', 'scratch removal', 'swirl removal', 'hand wash',
-    // 2 nodes away - experience
-    'professional', 'skilled detailers', 'quality products', 'premium service', 'before and after photos', 'transformation', 'worth every penny', 'investment protection', 'resale value', 'pride of ownership',
-    'mobile service', 'convenient', 'on-site', 'flexible scheduling', 'packages available', 'custom quotes', 'honest assessment', 'recommendations', 'maintenance plans', 'memberships',
-    'will return', 'highly recommend', 'best detail ever', 'exceeded expectations', 'car looks amazing', 'trusted', 'consistent quality', 'found my detailer', 'worth the price', 'incredible results'
+    'detail', 'full detail', 'interior detail', 'exterior detail', 'hand wash', 'clay bar', 'polish', 'wax', 'sealant', 'ceramic coating',
+    'paint correction', 'scratch removal', 'swirl removal', 'oxidation', 'headlight restoration', 'trim restoration', 'wheel detail', 'engine bay', 'undercarriage', 'door jambs',
+    'shampoo', 'carpet cleaning', 'upholstery', 'leather conditioning', 'vinyl', 'plastic restoration', 'odor removal', 'pet hair', 'stain removal', 'smoke smell',
+    'mobile detailing', 'come to you', 'shop', 'drop off', 'same day', 'appointment', 'package', 'quote', 'estimate', 'gift card',
+    'new car', 'used car', 'pre-sale', 'showroom', 'boat', 'RV', 'motorcycle', 'fleet', 'commercial', 'regular maintenance'
   ],
   'Tire Shop': [
-    // 1 node away - service quality
-    'quality tires', 'proper installation', 'balanced correctly', 'aligned perfectly', 'knowledgeable staff', 'right tire recommendations', 'brand selection', 'all-season', 'performance', 'winter tires',
-    'tire rotation', 'flat repair', 'TPMS service', 'proper torque', 'road hazard warranty', 'mileage warranty', 'tire inspection', 'tread check', 'pressure check', 'spare tire',
-    // 2 nodes away - experience
-    'quick service', 'fair pricing', 'competitive prices', 'price matching', 'no appointment needed', 'efficient', 'while you wait', 'comfortable waiting area', 'honest recommendations', 'no pressure',
-    'explained options', 'transparent pricing', 'reliable', 'professional', 'clean shop', 'organized', 'good inventory', 'special orders', 'fleet service', 'commercial accounts',
-    'will return', 'highly recommend', 'found my tire shop', 'trusted', 'best prices', 'quality service', 'no surprises', 'consistent', 'go-to shop', 'always satisfied'
+    'tires', 'new tires', 'used tires', 'tire installation', 'tire mount', 'tire balance', 'wheel alignment', 'rotation', 'flat repair', 'plug',
+    'all season', 'summer tires', 'winter tires', 'snow tires', 'performance tires', 'truck tires', 'SUV tires', 'run flat', 'spare tire', 'donut',
+    'Michelin', 'Goodyear', 'Bridgestone', 'Continental', 'Pirelli', 'BF Goodrich', 'Firestone', 'Cooper', 'Hankook', 'Yokohama',
+    'TPMS', 'valve stem', 'tire pressure', 'tread depth', 'road hazard', 'warranty', 'mileage warranty', 'price match', 'financing', 'rebate',
+    'no appointment', 'while you wait', 'same day', 'quick service', 'free inspection', 'free rotation', 'free air', 'parking', 'wifi', 'waiting room'
   ],
   'Body Shop': [
-    // 1 node away - repair quality
-    'quality work', 'seamless repairs', 'color match perfect', 'factory finish', 'attention to detail', 'skilled technicians', 'certified', 'OEM parts', 'structural repair', 'frame straightening',
-    'dent removal', 'paintless dent repair', 'bumper repair', 'scratch repair', 'collision repair', 'insurance approved', 'lifetime warranty', 'quality paint', 'clear coat', 'blending',
-    // 2 nodes away - experience
-    'professional', 'fair estimates', 'accurate quotes', 'no hidden fees', 'works with insurance', 'direct billing', 'timely completion', 'kept informed', 'good communication', 'clean facility',
-    'rental car assistance', 'towing available', 'before and after photos', 'honest assessment', 'trustworthy', 'reliable', 'family-owned', 'established', 'reputation', 'referrals',
-    'will return', 'highly recommend', 'car looks new', 'exceeded expectations', 'couldn\'t tell difference', 'seamless repair', 'trusted shop', 'stress-free', 'handled everything', 'best body shop'
+    'collision repair', 'body work', 'dent repair', 'dent removal', 'paintless dent repair', 'PDR', 'scratch repair', 'bumper repair', 'fender repair', 'door ding',
+    'paint', 'auto paint', 'color match', 'blend', 'clear coat', 'full paint', 'spot paint', 'touch up', 'custom paint', 'wrap',
+    'frame repair', 'frame straightening', 'structural repair', 'unibody', 'welding', 'panel replacement', 'quarter panel', 'hood', 'trunk', 'roof',
+    'insurance claim', 'direct repair', 'estimate', 'free estimate', 'rental car', 'tow', 'towing', 'storage', 'supplement', 'total loss',
+    'certified', 'warranty', 'lifetime warranty', 'OEM parts', 'aftermarket', 'quality', 'before after', 'photos', 'timeline', 'updates'
   ],
   'Oil Change': [
-    // 1 node away - service quality
-    'quick service', 'thorough', 'proper oil', 'quality filter', 'fluid top-off', 'tire pressure check', 'inspection included', 'synthetic options', 'conventional', 'high-mileage',
-    'correct weight', 'manufacturer specs', 'reset reminder', 'check all fluids', 'air filter check', 'cabin filter', 'wiper check', 'battery test', 'light inspection', 'belts and hoses',
-    // 2 nodes away - experience
-    'convenient', 'fast', 'no appointment', 'while you wait', 'comfortable waiting', 'WiFi available', 'fair pricing', 'transparent', 'no upselling', 'honest recommendations',
-    'professional', 'clean facility', 'friendly staff', 'explained everything', 'showed old filter', 'printed report', 'maintenance tracking', 'reminder service', 'fleet accounts', 'loyalty program',
-    'will return', 'highly recommend', 'go-to spot', 'trusted', 'reliable', 'consistent service', 'best value', 'quick and easy', 'no hassle', 'always professional'
+    'oil change', 'synthetic oil', 'full synthetic', 'synthetic blend', 'conventional oil', 'high mileage', 'diesel oil', 'European formula', 'oil filter', 'drain plug',
+    'Mobil 1', 'Castrol', 'Pennzoil', 'Valvoline', 'Royal Purple', 'Amsoil', 'Quaker State', '5W30', '5W20', '0W20',
+    'fluid check', 'top off', 'air filter', 'cabin filter', 'wiper blades', 'tire pressure', 'tire rotation', 'battery test', 'light check', 'belt check',
+    'quick lube', 'express', 'no appointment', 'while you wait', 'drive thru', '15 minute', '10 minute', 'fast', 'convenient', 'cheap',
+    'coupon', 'deal', 'special', 'package', 'maintenance plan', 'sticker', 'reminder', 'mileage', 'manufacturer spec', 'warranty safe'
   ],
   'Car Dealership': [
-    // 1 node away - sales quality
-    'great selection', 'quality vehicles', 'well-maintained inventory', 'certified pre-owned', 'new models', 'fair pricing', 'competitive rates', 'trade-in value', 'financing options', 'lease specials',
-    'knowledgeable staff', 'product expertise', 'test drives', 'vehicle history', 'Carfax provided', 'warranty options', 'extended coverage', 'service plans', 'transparent pricing', 'no hidden fees',
-    // 2 nodes away - experience
-    'no pressure', 'patient', 'listened to needs', 'found the right car', 'worked within budget', 'respectful', 'professional', 'follow-up service', 'after-sale support', 'service department',
-    'clean showroom', 'comfortable', 'refreshments', 'kids area', 'shuttle service', 'loaner vehicles', 'convenient hours', 'weekend availability', 'online inventory', 'virtual tours',
-    'will return', 'highly recommend', 'found my car', 'great experience', 'smooth transaction', 'no regrets', 'trusted dealership', 'family purchases', 'loyal customer', 'best dealership'
+    'new cars', 'used cars', 'certified pre-owned', 'CPO', 'inventory', 'test drive', 'trade in', 'financing', 'lease', 'buy',
+    'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'Hyundai', 'Kia', 'BMW', 'Mercedes', 'Audi',
+    'sedan', 'SUV', 'truck', 'van', 'coupe', 'convertible', 'hybrid', 'electric', 'EV', 'crossover',
+    'service department', 'parts', 'accessories', 'warranty', 'extended warranty', 'maintenance plan', 'recall', 'loaner car', 'shuttle', 'pickup delivery',
+    'no haggle', 'one price', 'negotiable', 'OTD price', 'monthly payment', 'down payment', 'credit check', 'approval', 'rebate', 'incentive'
   ],
   // Fitness & Recreation
   'Gym': [
-    // 1 node away - facility quality
-    'state-of-the-art equipment', 'well-maintained', 'clean', 'variety of machines', 'free weights', 'cardio section', 'functional training', 'stretching area', 'locker rooms', 'showers',
-    'professional trainers', 'certified staff', 'personal training', 'group classes', 'spinning', 'yoga', 'HIIT', 'strength training', 'programming', 'fitness assessments',
-    // 2 nodes away - experience
-    'motivating', 'welcoming', 'inclusive', 'all fitness levels', 'supportive community', 'friendly members', 'no intimidation', 'positive atmosphere', '24/7 access', 'convenient hours',
-    'affordable membership', 'no contracts', 'flexible plans', 'family plans', 'guest passes', 'parking available', 'towel service', 'sauna', 'pool', 'amenities',
-    'will return', 'highly recommend', 'reached my goals', 'consistent results', 'life-changing', 'found my gym', 'worth the investment', 'motivating environment', 'best gym', 'love coming here'
+    'weights', 'free weights', 'dumbbells', 'barbells', 'squat rack', 'bench press', 'machines', 'cable machine', 'smith machine', 'leg press',
+    'cardio', 'treadmill', 'elliptical', 'bike', 'stair climber', 'rowing machine', 'spin bike', 'track', 'pool', 'sauna',
+    'personal training', 'group fitness', 'classes', 'yoga', 'pilates', 'spin', 'HIIT', 'bootcamp', 'Zumba', 'aerobics',
+    '24 hour', 'open late', 'early morning', 'locker room', 'showers', 'towels', 'parking', 'wifi', 'TV', 'AC',
+    'membership', 'no contract', 'month to month', 'annual', 'student discount', 'senior discount', 'corporate', 'family plan', 'guest pass', 'free trial'
   ],
   'Yoga Studio': [
-    // 1 node away - class quality
-    'skilled instructors', 'knowledgeable teachers', 'proper alignment', 'modifications offered', 'all levels welcome', 'variety of styles', 'vinyasa', 'hatha', 'restorative', 'hot yoga',
-    'meditation', 'breathwork', 'mindfulness', 'spiritual practice', 'physical challenge', 'flexibility', 'strength building', 'balance', 'body awareness', 'mind-body connection',
-    // 2 nodes away - experience
-    'peaceful', 'tranquil', 'welcoming', 'inclusive', 'non-judgmental', 'supportive community', 'clean space', 'beautiful studio', 'natural light', 'good energy',
-    'quality mats', 'props available', 'reasonable prices', 'class packages', 'unlimited options', 'beginner-friendly', 'workshops', 'teacher training', 'retreats', 'online classes',
-    'will return', 'highly recommend', 'transformative', 'life-changing', 'found my practice', 'stress relief', 'mental clarity', 'physical progress', 'best studio', 'second home'
+    'yoga', 'vinyasa', 'hatha', 'power yoga', 'hot yoga', 'bikram', 'yin yoga', 'restorative', 'prenatal yoga', 'kids yoga',
+    'beginner', 'intermediate', 'advanced', 'all levels', 'flow', 'stretch', 'meditation', 'breathwork', 'mindfulness', 'relaxation',
+    'morning class', 'evening class', 'weekend class', 'drop in', 'class pass', 'membership', 'unlimited', 'private session', 'workshop', 'retreat',
+    'mat rental', 'props', 'blocks', 'straps', 'blankets', 'bolsters', 'hot room', 'heated', 'AC', 'showers',
+    'parking', 'online booking', 'app', 'schedule', 'first class free', 'new student special', 'teacher training', 'certified', 'RYT', 'experienced'
   ],
   'Pilates Studio': [
-    // 1 node away - class quality
-    'expert instructors', 'certified teachers', 'proper form', 'core strength', 'full-body workout', 'reformer classes', 'mat classes', 'challenging', 'progressive', 'personalized attention',
-    'classical Pilates', 'contemporary', 'rehabilitation', 'injury prevention', 'posture improvement', 'flexibility', 'muscle tone', 'controlled movements', 'mind-body', 'breathwork',
-    // 2 nodes away - experience
-    'supportive', 'encouraging', 'small classes', 'individual attention', 'clean studio', 'quality equipment', 'well-maintained reformers', 'welcoming atmosphere', 'professional environment', 'results-driven',
-    'scheduling flexibility', 'package options', 'private sessions', 'duets', 'group classes', 'beginner-friendly', 'advanced options', 'workshops', 'consistent progress', 'measurable results',
-    'will return', 'highly recommend', 'transformed my body', 'stronger than ever', 'pain-free', 'life-changing', 'found my workout', 'addicted', 'best investment', 'love this studio'
+    'pilates', 'reformer', 'mat pilates', 'tower', 'cadillac', 'chair', 'barrel', 'springboard', 'megaformer', 'lagree',
+    'core', 'strength', 'flexibility', 'posture', 'alignment', 'balance', 'toning', 'lengthening', 'low impact', 'rehabilitation',
+    'private session', 'duet', 'trio', 'group class', 'beginner', 'intermediate', 'advanced', 'prenatal', 'postnatal', 'senior',
+    'class pack', 'membership', 'unlimited', 'drop in', 'intro offer', 'first class', 'new client', 'schedule', 'online booking', 'app',
+    'certified', 'PMA', 'experienced', 'small class', 'personal attention', 'clean studio', 'equipment', 'parking', 'showers', 'towels'
   ],
   'CrossFit': [
-    // 1 node away - training quality
-    'skilled coaches', 'certified trainers', 'proper technique', 'scalable workouts', 'functional fitness', 'high-intensity', 'varied programming', 'strength training', 'conditioning', 'Olympic lifting',
-    'WODs', 'AMRAP', 'EMOM', 'benchmark workouts', 'skill development', 'gymnastics', 'rowing', 'assault bike', 'kettlebells', 'barbell work',
-    // 2 nodes away - experience
-    'great community', 'supportive members', 'motivating', 'encouraging', 'competitive atmosphere', 'team spirit', 'accountability', 'challenging', 'push your limits', 'personal records',
-    'clean box', 'well-equipped', 'quality gear', 'convenient schedule', 'multiple class times', 'beginner on-ramp', 'fundamentals course', 'nutrition guidance', 'competitions', 'events',
-    'will return', 'highly recommend', 'life-changing', 'found my tribe', 'best shape ever', 'addicted', 'transformed', 'strong community', 'more than a gym', 'family atmosphere'
+    'CrossFit', 'WOD', 'AMRAP', 'EMOM', 'metcon', 'strength', 'conditioning', 'functional fitness', 'HIIT', 'circuit',
+    'Olympic lifting', 'snatch', 'clean and jerk', 'deadlift', 'squat', 'press', 'pull ups', 'muscle ups', 'box jumps', 'burpees',
+    'kettlebell', 'barbell', 'dumbbell', 'rowing', 'bike', 'running', 'rope climb', 'wall balls', 'double unders', 'handstand',
+    'fundamentals', 'on-ramp', 'beginner', 'scaled', 'RX', 'competition', 'open gym', 'class schedule', 'drop in', 'membership',
+    'community', 'coaching', 'certified', 'programming', 'nutrition', 'mobility', 'recovery', 'parking', 'showers', 'lockers'
   ],
   'Martial Arts': [
-    // 1 node away - training quality
-    'skilled instructors', 'experienced masters', 'proper technique', 'traditional training', 'authentic', 'discipline', 'structured curriculum', 'belt progression', 'self-defense', 'sparring',
-    'forms', 'kata', 'striking', 'grappling', 'weapons training', 'competition prep', 'fitness benefits', 'flexibility', 'strength', 'coordination',
-    // 2 nodes away - experience
-    'respectful environment', 'safe training', 'all ages', 'family classes', 'kids programs', 'adult classes', 'beginner-friendly', 'advanced training', 'supportive community', 'character development',
-    'confidence building', 'focus', 'mental discipline', 'stress relief', 'clean dojo', 'well-maintained', 'quality equipment', 'protective gear', 'reasonable tuition', 'trial classes',
-    'will return', 'highly recommend', 'life-changing', 'found my passion', 'kids love it', 'whole family trains', 'discipline improved', 'confidence boost', 'best decision', 'transformative'
+    'karate', 'taekwondo', 'jiu jitsu', 'BJJ', 'judo', 'MMA', 'kickboxing', 'muay thai', 'boxing', 'kung fu',
+    'self defense', 'sparring', 'grappling', 'striking', 'forms', 'kata', 'belt', 'rank', 'tournament', 'competition',
+    'kids class', 'adult class', 'family class', 'beginner', 'advanced', 'private lesson', 'group class', 'after school', 'summer camp', 'birthday party',
+    'uniform', 'gi', 'equipment', 'gloves', 'pads', 'bag work', 'mat', 'ring', 'cage', 'dojo',
+    'schedule', 'trial class', 'free class', 'membership', 'contract', 'testing', 'belt test', 'certified', 'master', 'instructor'
   ],
   'Dance Studio': [
-    // 1 node away - instruction quality
-    'talented instructors', 'professional dancers', 'experienced teachers', 'patient', 'encouraging', 'proper technique', 'variety of styles', 'ballet', 'jazz', 'hip-hop',
-    'contemporary', 'tap', 'ballroom', 'Latin', 'salsa', 'choreography', 'performance opportunities', 'recitals', 'competitions', 'progressive curriculum',
-    // 2 nodes away - experience
-    'fun atmosphere', 'welcoming', 'inclusive', 'all ages', 'all levels', 'supportive community', 'great music', 'nice studio space', 'sprung floors', 'mirrors',
-    'reasonable tuition', 'flexible scheduling', 'drop-in classes', 'packages available', 'costume assistance', 'performance prep', 'confidence building', 'self-expression', 'fitness benefits', 'social',
-    'will return', 'highly recommend', 'found my passion', 'look forward to class', 'great exercise', 'stress relief', 'amazing community', 'kids love it', 'adult-friendly', 'life-changing'
+    'dance', 'ballet', 'jazz', 'tap', 'hip hop', 'contemporary', 'modern', 'lyrical', 'ballroom', 'Latin',
+    'salsa', 'bachata', 'swing', 'tango', 'waltz', 'line dance', 'country', 'breakdance', 'pole', 'aerial',
+    'kids dance', 'adult dance', 'beginner', 'intermediate', 'advanced', 'competition', 'recital', 'performance', 'choreography', 'technique',
+    'private lesson', 'group class', 'drop in', 'class pack', 'membership', 'schedule', 'online booking', 'studio rental', 'party', 'event',
+    'costume', 'shoes', 'attire', 'dress code', 'parking', 'waiting area', 'viewing window', 'mirrors', 'sprung floor', 'AC'
   ],
   'Golf Course': [
-    // 1 node away - course quality
-    'well-maintained', 'manicured greens', 'challenging layout', 'fair fairways', 'good conditions', 'scenic holes', 'variety of tees', 'strategic design', 'playable for all levels', 'true putting',
-    'good pace of play', 'marshals helpful', 'course management', 'yardage markers', 'GPS carts', 'practice facility', 'driving range', 'putting green', 'chipping area', 'lessons available',
-    // 2 nodes away - experience
-    'beautiful scenery', 'peaceful setting', 'great views', 'wildlife', 'friendly staff', 'professional service', 'well-stocked pro shop', 'quality equipment', 'club rentals', 'cart included',
-    'good food', 'clubhouse', 'bar service', 'event hosting', 'tournaments', 'membership options', 'public welcome', 'reasonable rates', 'twilight specials', 'stay and play',
-    'will return', 'highly recommend', 'favorite course', 'great value', 'worth the drive', 'bucket list course', 'memorable round', 'bring your friends', 'best in area', 'hidden gem'
+    'golf', 'tee time', '18 holes', '9 holes', 'twilight', 'walking', 'riding', 'cart', 'pull cart', 'caddie',
+    'driving range', 'practice green', 'putting green', 'chipping area', 'lessons', 'pro shop', 'club rental', 'club fitting', 'demo day', 'tournament',
+    'green fee', 'cart fee', 'membership', 'public', 'semi-private', 'private', 'resort', 'links', 'parkland', 'executive',
+    'par 3', 'par 72', 'slope rating', 'course rating', 'handicap', 'GPS', 'yardage', 'scorecard', 'beverage cart', 'snack bar',
+    'clubhouse', 'restaurant', 'bar', 'grill', 'locker room', 'event space', 'wedding', 'outing', 'corporate', 'charity'
   ],
   'Bowling Alley': [
-    // 1 node away - facility quality
-    'clean lanes', 'well-maintained', 'smooth approaches', 'consistent pin action', 'quality balls', 'variety of weights', 'comfortable shoes', 'modern scoring', 'automatic bumpers', 'good lighting',
-    'league bowling', 'open bowling', 'cosmic bowling', 'glow bowling', 'party packages', 'arcade games', 'billiards', 'air hockey', 'laser tag', 'entertainment center',
-    // 2 nodes away - experience
-    'fun atmosphere', 'family-friendly', 'great for groups', 'birthday parties', 'corporate events', 'team building', 'good food', 'full bar', 'reasonable prices', 'shoe rental included',
-    'friendly staff', 'helpful with kids', 'music playing', 'TVs for sports', 'comfortable seating', 'clean restrooms', 'convenient parking', 'weekend specials', 'daily deals', 'loyalty program',
-    'will return', 'highly recommend', 'great time', 'fun for everyone', 'perfect outing', 'kids loved it', 'date night success', 'group favorite', 'best bowling alley', 'always a blast'
+    'bowling', 'lanes', 'open bowling', 'league', 'cosmic bowling', 'glow bowling', 'blacklight', 'bumpers', 'kids bowling', 'adult league',
+    'shoes', 'shoe rental', 'balls', 'house ball', 'own ball', 'pro shop', 'drilling', 'league night', 'open play', 'reservations',
+    'arcade', 'games', 'prizes', 'snack bar', 'food', 'drinks', 'beer', 'pizza', 'nachos', 'wings',
+    'birthday party', 'party package', 'group event', 'corporate event', 'team building', 'private party', 'room rental', 'catering', 'DJ', 'music',
+    'per game', 'per hour', 'unlimited', 'specials', 'discount', 'coupon', 'student discount', 'family deal', 'parking', 'clean'
   ],
-  // Retail - keeping entries shorter for space
+  // Retail
   'Retail Store': [
-    'great selection', 'quality products', 'fair prices', 'helpful staff', 'knowledgeable', 'well-organized', 'clean', 'easy to find items', 'good inventory', 'latest products',
-    'variety', 'brands I trust', 'competitive prices', 'price matching', 'sales and deals', 'loyalty program', 'returns accepted', 'exchange policy', 'gift cards', 'special orders',
-    'friendly service', 'no pressure', 'quick checkout', 'convenient location', 'parking available', 'good hours', 'weekend availability', 'online ordering', 'in-store pickup', 'delivery options',
-    'local business', 'community-focused', 'supports local', 'family-owned', 'established', 'trusted', 'consistent quality', 'go-to store', 'always satisfied', 'will return',
-    'highly recommend', 'best store', 'found what I needed', 'exceeded expectations', 'pleasant experience', 'stress-free shopping', 'one-stop shop', 'favorite store', 'loyal customer', 'hidden gem'
+    'shopping', 'products', 'merchandise', 'inventory', 'selection', 'variety', 'brands', 'new arrivals', 'clearance', 'sale',
+    'price', 'discount', 'coupon', 'deal', 'BOGO', 'percent off', 'buy one get one', 'special offer', 'member price', 'rewards',
+    'return policy', 'exchange', 'refund', 'receipt', 'warranty', 'guarantee', 'gift card', 'gift receipt', 'layaway', 'financing',
+    'cash', 'card', 'apple pay', 'contactless', 'checkout', 'self checkout', 'online order', 'pickup', 'delivery', 'shipping',
+    'hours', 'location', 'parking', 'wheelchair accessible', 'restroom', 'fitting room', 'customer service', 'help desk', 'cart', 'basket'
   ],
   'Boutique': [
-    'unique selection', 'curated items', 'quality pieces', 'stylish', 'trendy', 'one-of-a-kind', 'handpicked', 'local designers', 'exclusive brands', 'limited quantities',
-    'personalized service', 'styling advice', 'knows my taste', 'honest opinions', 'special orders', 'alterations', 'gift wrapping', 'beautiful packaging', 'attention to detail', 'memorable experience',
-    'beautiful store', 'aesthetic', 'Instagram-worthy', 'inviting atmosphere', 'well-displayed', 'easy to browse', 'not overwhelming', 'comfortable', 'relaxed shopping', 'no pressure',
-    'fair prices', 'quality over quantity', 'investment pieces', 'timeless', 'versatile', 'sustainable', 'ethical brands', 'local support', 'small business', 'community',
-    'will return', 'highly recommend', 'found my style', 'always find something', 'go-to boutique', 'favorite shop', 'special finds', 'gift destination', 'hidden gem', 'love this store'
+    'clothing', 'dresses', 'tops', 'pants', 'jeans', 'skirts', 'jackets', 'coats', 'sweaters', 'blouses',
+    'accessories', 'jewelry', 'handbags', 'scarves', 'hats', 'belts', 'sunglasses', 'shoes', 'boots', 'sandals',
+    'womens', 'mens', 'kids', 'plus size', 'petite', 'maternity', 'formal', 'casual', 'workwear', 'athleisure',
+    'new arrivals', 'sale', 'clearance', 'seasonal', 'limited edition', 'local designer', 'handmade', 'vintage', 'consignment', 'sustainable',
+    'gift wrapping', 'personal styling', 'alterations', 'loyalty program', 'gift card', 'online shop', 'shipping', 'returns', 'exchange', 'fitting room'
   ],
   'Jewelry Store': [
-    'beautiful pieces', 'quality craftsmanship', 'fine jewelry', 'authentic', 'certified', 'conflict-free', 'precious metals', 'gemstones', 'diamonds', 'custom designs',
-    'engagement rings', 'wedding bands', 'anniversary gifts', 'special occasions', 'everyday pieces', 'repairs', 'resizing', 'cleaning service', 'appraisals', 'insurance documentation',
-    'knowledgeable staff', 'patient', 'no pressure', 'educational', 'honest recommendations', 'fair pricing', 'transparent', 'financing options', 'layaway', 'trade-in',
-    'elegant showroom', 'secure', 'private viewing', 'comfortable', 'romantic atmosphere', 'gift wrapping', 'beautiful packaging', 'memorable experience', 'special treatment', 'VIP service',
-    'will return', 'highly recommend', 'found the one', 'perfect ring', 'she said yes', 'exceeded expectations', 'trusted jeweler', 'family purchases', 'generational', 'heirloom quality'
+    'jewelry', 'rings', 'necklaces', 'bracelets', 'earrings', 'watches', 'pendants', 'chains', 'charms', 'anklets',
+    'engagement ring', 'wedding band', 'anniversary band', 'promise ring', 'eternity band', 'mens ring', 'womens ring', 'custom ring', 'diamond ring', 'gemstone ring',
+    'gold', 'silver', 'platinum', 'white gold', 'rose gold', 'sterling silver', '14k', '18k', '10k', 'plated',
+    'diamond', 'ruby', 'sapphire', 'emerald', 'pearl', 'opal', 'birthstone', 'moissanite', 'lab grown', 'natural',
+    'repair', 'resize', 'cleaning', 'appraisal', 'custom design', 'engraving', 'financing', 'layaway', 'trade in', 'gift wrap'
   ],
   // Services
   'Dry Cleaner': [
-    'quality cleaning', 'stain removal experts', 'gentle on fabrics', 'proper care', 'professional pressing', 'crisp finish', 'no chemical smell', 'eco-friendly options', 'wedding gown specialist', 'leather and suede',
-    'quick turnaround', 'same-day service', 'next-day ready', 'reliable timing', 'convenient location', 'easy parking', 'drive-through', 'delivery service', 'pickup available', 'flexible hours',
-    'fair prices', 'competitive rates', 'no surprises', 'itemized receipt', 'loyalty program', 'frequent customer discount', 'bulk pricing', 'corporate accounts', 'consistent quality', 'trustworthy',
-    'friendly staff', 'knows my preferences', 'attention to detail', 'handles delicates', 'alterations available', 'repairs', 'button replacement', 'organized system', 'never lost items', 'careful handling',
-    'will return', 'highly recommend', 'trusted for years', 'go-to cleaner', 'clothes look new', 'best dry cleaner', 'reliable service', 'peace of mind', 'always satisfied', 'wouldn\'t go anywhere else'
+    'dry cleaning', 'laundry', 'wash and fold', 'shirts', 'pants', 'suits', 'dresses', 'coats', 'jackets', 'sweaters',
+    'stain removal', 'spot treatment', 'pressing', 'ironing', 'starching', 'hand wash', 'delicates', 'silk', 'wool', 'cashmere',
+    'alterations', 'tailoring', 'hemming', 'taking in', 'letting out', 'zipper repair', 'button replacement', 'patching', 'relining', 'resizing',
+    'wedding gown', 'prom dress', 'formal wear', 'uniforms', 'linens', 'comforters', 'curtains', 'rugs', 'leather', 'suede',
+    'same day', 'next day', 'rush', 'pickup', 'delivery', 'drop off', 'drive thru', 'coupons', 'punch card', 'monthly account'
   ],
   'Plumber': [
-    'prompt response', 'arrived on time', 'professional', 'licensed', 'insured', 'experienced', 'knowledgeable', 'diagnosed quickly', 'fixed right first time', 'quality work',
-    'fair pricing', 'upfront quotes', 'no hidden fees', 'explained costs', 'competitive rates', 'honest assessment', 'didn\'t upsell', 'offered options', 'worked within budget', 'transparent',
-    'clean work', 'respected my home', 'wore shoe covers', 'cleaned up after', 'no mess', 'efficient', 'fast service', 'solved the problem', 'lasting repair', 'warranty on work',
-    'friendly', 'courteous', 'explained everything', 'answered questions', 'gave maintenance tips', 'emergency service', '24/7 available', 'weekend service', 'reliable', 'trustworthy',
-    'will call again', 'highly recommend', 'saved the day', 'lifesaver', 'go-to plumber', 'found my plumber', 'trusted professional', 'stress-free experience', 'excellent service', 'best plumber'
+    'plumber', 'plumbing', 'leak', 'clog', 'drain', 'pipe', 'faucet', 'toilet', 'sink', 'shower',
+    'water heater', 'tankless', 'garbage disposal', 'sump pump', 'water softener', 'filtration', 'pressure', 'main line', 'sewer', 'septic',
+    'repair', 'replacement', 'installation', 'maintenance', 'inspection', 'emergency', '24 hour', 'same day', 'weekend', 'after hours',
+    'estimate', 'free estimate', 'quote', 'flat rate', 'hourly', 'licensed', 'insured', 'bonded', 'warranty', 'guarantee',
+    'residential', 'commercial', 'new construction', 'remodel', 'bathroom', 'kitchen', 'laundry', 'basement', 'outdoor', 'sprinkler'
   ],
   'Electrician': [
-    'licensed', 'certified', 'experienced', 'knowledgeable', 'code compliant', 'safety focused', 'proper permits', 'quality work', 'neat wiring', 'professional installation',
-    'prompt service', 'arrived on time', 'efficient', 'diagnosed quickly', 'fixed correctly', 'lasting repairs', 'thorough inspection', 'preventive recommendations', 'upgrade advice', 'future-proofing',
-    'fair pricing', 'upfront quotes', 'no surprises', 'competitive rates', 'explained costs', 'worked within budget', 'honest assessment', 'transparent billing', 'warranty provided', 'guaranteed work',
-    'professional', 'clean work area', 'respected property', 'courteous', 'explained everything', 'answered questions', 'reliable', 'trustworthy', 'emergency service', 'responsive',
-    'will call again', 'highly recommend', 'found my electrician', 'trusted professional', 'peace of mind', 'safe home', 'excellent work', 'go-to electrician', 'best in area', 'wouldn\'t use anyone else'
+    'electrician', 'electrical', 'wiring', 'outlet', 'switch', 'circuit', 'breaker', 'panel', 'fuse', 'junction box',
+    'lighting', 'ceiling fan', 'chandelier', 'recessed lighting', 'LED', 'dimmer', 'motion sensor', 'outdoor lighting', 'landscape lighting', 'security lighting',
+    'repair', 'installation', 'upgrade', 'replacement', 'troubleshooting', 'inspection', 'code compliance', 'permit', 'rewire', 'whole house',
+    'EV charger', 'generator', 'surge protector', 'smart home', 'thermostat', 'smoke detector', 'carbon monoxide', 'doorbell', 'intercom', 'security',
+    'emergency', '24 hour', 'same day', 'estimate', 'free estimate', 'licensed', 'insured', 'residential', 'commercial', 'industrial'
   ],
   // Professional Services
   'Dental Office': [
-    'gentle', 'painless', 'thorough exam', 'modern equipment', 'digital X-rays', 'comfortable chairs', 'clean facility', 'sterile environment', 'skilled dentist', 'experienced team',
-    'preventive care', 'cleanings', 'fillings', 'crowns', 'root canals', 'extractions', 'cosmetic dentistry', 'whitening', 'veneers', 'Invisalign',
-    'friendly staff', 'welcoming', 'calming atmosphere', 'reduced anxiety', 'patient with kids', 'explains procedures', 'no surprises', 'transparent pricing', 'insurance accepted', 'payment plans',
-    'convenient scheduling', 'minimal wait', 'on time', 'reminder system', 'follow-up care', 'emergency appointments', 'Saturday hours', 'family-friendly', 'all ages', 'comprehensive care',
-    'will return', 'highly recommend', 'found my dentist', 'no longer afraid', 'actually enjoy visits', 'healthy smile', 'trusted provider', 'whole family goes', 'best dental experience', 'life-changing'
+    'dentist', 'dental', 'teeth', 'cleaning', 'checkup', 'exam', 'xray', 'filling', 'cavity', 'crown',
+    'root canal', 'extraction', 'wisdom teeth', 'implant', 'bridge', 'dentures', 'veneer', 'bonding', 'whitening', 'bleaching',
+    'invisalign', 'braces', 'retainer', 'orthodontics', 'periodontal', 'gum', 'deep cleaning', 'scaling', 'fluoride', 'sealant',
+    'emergency', 'same day', 'walk in', 'appointment', 'new patient', 'accepting patients', 'insurance', 'delta dental', 'PPO', 'payment plan',
+    'family dentist', 'pediatric', 'kids', 'adult', 'senior', 'cosmetic', 'sedation', 'nitrous', 'gentle', 'painless'
   ],
   'Veterinarian': [
-    'caring', 'compassionate', 'gentle with pets', 'patient', 'knowledgeable', 'experienced', 'thorough exam', 'accurate diagnosis', 'effective treatment', 'skilled',
-    'preventive care', 'vaccinations', 'dental cleaning', 'surgery', 'emergency care', 'senior pet care', 'nutrition advice', 'behavior guidance', 'quality medications', 'follow-up care',
-    'loves animals', 'calming presence', 'pet feels comfortable', 'handles nervous pets', 'takes time', 'not rushed', 'explains everything', 'answers questions', 'honest recommendations', 'no unnecessary treatments',
-    'clean facility', 'modern equipment', 'friendly staff', 'easy scheduling', 'reasonable prices', 'transparent costs', 'payment options', 'insurance accepted', 'convenient location', 'emergency hours',
-    'will return', 'highly recommend', 'found our vet', 'trust completely', 'pets love them', 'peace of mind', 'excellent care', 'like family', 'best vet ever', 'couldn\'t ask for better'
+    'vet', 'veterinarian', 'animal hospital', 'pet clinic', 'dog', 'cat', 'puppy', 'kitten', 'exotic', 'bird',
+    'checkup', 'exam', 'vaccines', 'shots', 'rabies', 'distemper', 'parvo', 'microchip', 'spay', 'neuter',
+    'sick visit', 'emergency', 'urgent care', '24 hour', 'after hours', 'weekend', 'surgery', 'dental', 'xray', 'ultrasound',
+    'prescription', 'medication', 'flea', 'tick', 'heartworm', 'deworming', 'allergy', 'skin', 'ear infection', 'senior pet',
+    'boarding', 'grooming', 'nail trim', 'appointment', 'walk in', 'new patient', 'insurance', 'payment plan', 'wellness plan', 'estimate'
   ],
   // Hospitality
   'Hotel': [
-    'comfortable beds', 'clean rooms', 'spacious', 'quiet', 'good sleep', 'quality linens', 'fluffy pillows', 'blackout curtains', 'climate control', 'well-appointed',
-    'great location', 'convenient', 'walkable', 'near attractions', 'easy parking', 'safe neighborhood', 'accessible', 'beautiful views', 'pool', 'fitness center',
-    'friendly staff', 'helpful concierge', 'quick check-in', 'responsive', 'accommodating', 'went above and beyond', 'remembered preferences', 'professional service', 'attentive', 'welcoming',
-    'delicious breakfast', 'good restaurant', 'room service', 'bar lounge', 'business center', 'meeting rooms', 'WiFi included', 'amenities', 'toiletries', 'robes and slippers',
-    'will return', 'highly recommend', 'exceeded expectations', 'felt like home', 'relaxing stay', 'perfect trip', 'great value', 'worth the price', 'memorable experience', 'best hotel'
+    'hotel', 'room', 'suite', 'king', 'queen', 'double', 'single', 'adjoining', 'connecting', 'accessible',
+    'check in', 'check out', 'late checkout', 'early check in', 'front desk', 'concierge', 'bellhop', 'valet', 'parking', 'shuttle',
+    'wifi', 'breakfast', 'continental', 'hot breakfast', 'room service', 'restaurant', 'bar', 'lounge', 'coffee', 'snacks',
+    'pool', 'gym', 'fitness center', 'spa', 'hot tub', 'sauna', 'business center', 'meeting room', 'conference', 'event space',
+    'pet friendly', 'smoking', 'non smoking', 'view', 'balcony', 'mini fridge', 'microwave', 'kitchenette', 'laundry', 'dry cleaning'
   ],
   // Education
   'Tutoring Center': [
-    'effective teaching', 'patient instructors', 'knowledgeable tutors', 'subject expertise', 'personalized approach', 'customized curriculum', 'one-on-one attention', 'small groups', 'focused learning', 'clear explanations',
-    'improved grades', 'better understanding', 'confidence building', 'test prep', 'SAT/ACT', 'homework help', 'study skills', 'learning strategies', 'catch-up support', 'advanced enrichment',
-    'progress tracking', 'regular updates', 'parent communication', 'flexible scheduling', 'convenient location', 'online options', 'reasonable rates', 'packages available', 'trial session', 'no contracts',
-    'supportive environment', 'encouraging', 'motivating', 'stress-free', 'safe space', 'positive reinforcement', 'celebrates success', 'builds confidence', 'addresses weaknesses', 'develops strengths',
-    'will return', 'highly recommend', 'grades improved', 'confidence soared', 'found their tutor', 'stress relief', 'worth the investment', 'life-changing', 'couldn\'t do without', 'best decision'
+    'tutoring', 'tutor', 'homework help', 'test prep', 'SAT', 'ACT', 'GRE', 'GMAT', 'LSAT', 'MCAT',
+    'math', 'algebra', 'geometry', 'calculus', 'statistics', 'science', 'biology', 'chemistry', 'physics', 'english',
+    'reading', 'writing', 'essay', 'grammar', 'vocabulary', 'spanish', 'french', 'foreign language', 'history', 'social studies',
+    'elementary', 'middle school', 'high school', 'college', 'one on one', 'small group', 'online', 'in person', 'after school', 'summer',
+    'assessment', 'progress report', 'hourly rate', 'package', 'flexible schedule', 'certified', 'experienced', 'background check', 'free consultation', 'trial session'
   ],
   // Liquor & Beverage Retail
   'Liquor Store': [
-    'great selection', 'wide variety', 'craft beer', 'local wines', 'premium spirits', 'rare finds', 'imported options', 'domestic favorites', 'competitive prices', 'good deals',
-    'knowledgeable staff', 'helpful recommendations', 'pairing suggestions', 'special orders', 'gift sets', 'mixers available', 'accessories', 'ice cold beer', 'chilled wines', 'well-organized',
-    'clean store', 'easy to navigate', 'clearly labeled', 'good lighting', 'convenient location', 'parking available', 'friendly service', 'quick checkout', 'loyalty program', 'sale items',
-    'party supplies', 'keg orders', 'delivery available', 'curbside pickup', 'late hours', 'weekend hours', 'local business', 'community staple', 'trusted', 'reliable',
-    'will return', 'highly recommend', 'go-to spot', 'best selection', 'fair prices', 'always find what I need', 'great for gifts', 'party headquarters', 'favorite liquor store', 'wouldn\'t shop anywhere else'
+    'wine', 'beer', 'spirits', 'liquor', 'vodka', 'whiskey', 'bourbon', 'scotch', 'tequila', 'rum',
+    'gin', 'brandy', 'cognac', 'mezcal', 'sake', 'soju', 'champagne', 'prosecco', 'vermouth', 'aperitif',
+    'red wine', 'white wine', 'rosé', 'sparkling', 'pinot', 'cabernet', 'chardonnay', 'merlot', 'riesling', 'moscato',
+    'craft beer', 'domestic beer', 'imported beer', 'IPA', 'lager', 'stout', 'seltzer', 'cider', 'malt', 'coolers',
+    'mixers', 'ice', 'cups', 'kegs', 'mini bottles', 'handles', 'fifths', 'pints', 'cold beer', 'delivery'
   ],
   'Wine Shop': [
-    'curated selection', 'quality wines', 'knowledgeable sommelier', 'expert recommendations', 'rare vintages', 'local wineries', 'imported wines', 'organic options', 'natural wines', 'biodynamic',
-    'wine tastings', 'educational events', 'wine club', 'food pairings', 'gift wrapping', 'corporate gifts', 'special occasions', 'cellar worthy', 'everyday wines', 'hidden gems',
-    'passionate staff', 'personalized service', 'remembers preferences', 'budget-friendly options', 'premium selections', 'beautiful store', 'inviting atmosphere', 'temperature controlled', 'proper storage', 'quality assured',
-    'fair prices', 'competitive', 'value finds', 'splurge worthy', 'special orders', 'delivery available', 'convenient location', 'easy parking', 'great hours', 'local business',
-    'will return', 'highly recommend', 'found my wine shop', 'elevated my palate', 'great discoveries', 'trusted advice', 'go-to for gifts', 'wine lover\'s paradise', 'best wine shop', 'wouldn\'t go anywhere else'
+    'wine', 'red wine', 'white wine', 'rosé', 'sparkling', 'champagne', 'prosecco', 'cava', 'brut', 'dessert wine',
+    'cabernet', 'merlot', 'pinot noir', 'syrah', 'malbec', 'zinfandel', 'chardonnay', 'sauvignon blanc', 'pinot grigio', 'riesling',
+    'France', 'Italy', 'Spain', 'California', 'Napa', 'Sonoma', 'Oregon', 'Washington', 'Argentina', 'Australia',
+    'vintage', 'reserve', 'organic', 'biodynamic', 'natural wine', 'low sulfite', 'vegan wine', 'box wine', 'magnum', 'half bottle',
+    'tasting', 'wine club', 'gift basket', 'gift box', 'corporate gifts', 'wedding', 'special occasion', 'food pairing', 'cheese', 'charcuterie'
   ],
   'Grocery Store': [
-    'fresh produce', 'quality meats', 'good selection', 'organic options', 'local products', 'competitive prices', 'clean store', 'well-stocked', 'organized aisles', 'easy to find items',
-    'friendly staff', 'helpful', 'quick checkout', 'self-checkout', 'good deli', 'fresh bakery', 'prepared foods', 'hot bar', 'salad bar', 'pharmacy',
-    'curbside pickup', 'delivery available', 'app ordering', 'digital coupons', 'loyalty program', 'weekly sales', 'good deals', 'price matching', 'BOGO offers', 'bulk options',
-    'convenient location', 'good hours', 'parking available', 'clean carts', 'clean restrooms', 'wide aisles', 'not crowded', 'family-friendly', 'community staple', 'local',
-    'will return', 'highly recommend', 'go-to grocery', 'one-stop shop', 'quality and value', 'always fresh', 'reliable', 'consistent', 'best grocery store', 'shop here weekly'
+    'groceries', 'produce', 'meat', 'seafood', 'deli', 'bakery', 'dairy', 'eggs', 'cheese', 'milk',
+    'bread', 'cereal', 'pasta', 'rice', 'canned goods', 'frozen', 'snacks', 'chips', 'candy', 'drinks',
+    'organic', 'natural', 'gluten free', 'vegan', 'kosher', 'halal', 'local', 'farm fresh', 'non-GMO', 'bulk',
+    'pharmacy', 'household', 'cleaning', 'paper goods', 'pet food', 'baby', 'health', 'beauty', 'vitamins', 'supplements',
+    'coupons', 'weekly ad', 'sale', 'BOGO', 'rewards', 'pickup', 'delivery', 'instacart', 'online order', 'curbside'
   ],
   'Convenience Store': [
-    'quick stop', 'grab and go', 'open late', '24/7', 'convenient location', 'easy parking', 'fast service', 'friendly staff', 'clean store', 'well-stocked',
-    'essentials available', 'snacks', 'drinks', 'hot food', 'fresh coffee', 'lottery tickets', 'ATM', 'phone chargers', 'toiletries', 'medicine',
-    'fair prices', 'good deals', 'loyalty program', 'fuel station', 'car wash', 'air pump', 'ice', 'propane', 'everyday items', 'emergency supplies',
-    'safe location', 'well-lit', 'security cameras', 'clean restrooms', 'quick in and out', 'no long lines', 'efficient', 'reliable', 'community spot', 'local',
-    'will return', 'highly recommend', 'lifesaver', 'always open', 'dependable', 'go-to stop', 'convenient', 'quick and easy', 'best convenience store', 'neighborhood staple'
+    'gas', 'fuel', 'snacks', 'drinks', 'soda', 'energy drinks', 'coffee', 'slurpee', 'fountain drink', 'water',
+    'chips', 'candy', 'gum', 'cigarettes', 'tobacco', 'lottery', 'lotto', 'scratch offs', 'powerball', 'mega millions',
+    'ATM', 'cash back', 'money order', 'prepaid cards', 'gift cards', 'phone cards', 'chargers', 'batteries', 'ice', 'propane',
+    'hot dog', 'pizza', 'roller grill', 'breakfast sandwich', 'taquitos', 'nachos', 'fountain drinks', 'ice cream', 'donuts', 'pastries',
+    '24 hours', 'open late', 'quick stop', 'drive thru', 'car wash', 'air pump', 'vacuum', 'restroom', 'parking', 'EBT'
   ],
   'Smoke Shop': [
-    'great selection', 'quality products', 'premium brands', 'variety', 'knowledgeable staff', 'helpful recommendations', 'fair prices', 'competitive', 'clean store', 'well-organized',
-    'cigars', 'cigarettes', 'tobacco', 'rolling papers', 'pipes', 'hookahs', 'accessories', 'lighters', 'cases', 'humidors',
-    'friendly service', 'no judgment', 'welcoming', 'relaxed atmosphere', 'quick checkout', 'loyalty program', 'deals available', 'bulk pricing', 'special orders', 'rare finds',
-    'convenient location', 'good hours', 'easy parking', 'local business', 'community shop', 'established', 'trusted', 'reliable', 'consistent quality', 'good inventory',
-    'will return', 'highly recommend', 'go-to shop', 'best selection', 'fair prices', 'always stocked', 'friendly staff', 'quick service', 'favorite smoke shop', 'wouldn\'t go anywhere else'
+    'cigarettes', 'tobacco', 'cigars', 'cigarillos', 'rolling tobacco', 'pipe tobacco', 'chewing tobacco', 'snuff', 'nicotine', 'menthol',
+    'papers', 'rolling papers', 'wraps', 'cones', 'filters', 'tips', 'grinder', 'tray', 'lighter', 'torch',
+    'pipe', 'glass pipe', 'water pipe', 'bong', 'hookah', 'shisha', 'vape', 'disposable vape', 'coils', 'juice',
+    'CBD', 'delta 8', 'kratom', 'incense', 'candles', 'tapestries', 'posters', 'accessories', 'cleaning supplies', 'cases',
+    'cheap cigarettes', 'carton', 'pack', 'single', 'discount', 'deals', 'rewards', 'ID required', '21+', 'cash'
   ],
   'Vape Shop': [
-    'great selection', 'quality products', 'latest devices', 'premium e-liquids', 'variety of flavors', 'knowledgeable staff', 'helpful', 'patient with beginners', 'expert advice', 'troubleshooting help',
-    'mods', 'pods', 'disposables', 'coils', 'batteries', 'accessories', 'custom builds', 'starter kits', 'nicotine options', 'CBD products',
-    'try before you buy', 'flavor sampling', 'fair prices', 'competitive', 'deals available', 'loyalty program', 'rewards', 'new arrivals', 'trending products', 'quality assured',
-    'clean store', 'modern', 'welcoming atmosphere', 'no pressure', 'educational', 'friendly service', 'quick checkout', 'convenient location', 'good hours', 'local business',
-    'will return', 'highly recommend', 'found my vape shop', 'best selection', 'knowledgeable team', 'always helpful', 'fair prices', 'quality products', 'go-to shop', 'loyal customer'
+    'vape', 'vaporizer', 'e-cigarette', 'mod', 'box mod', 'pod system', 'disposable vape', 'pen', 'starter kit', 'advanced kit',
+    'e-liquid', 'vape juice', 'nicotine salt', 'freebase', '0mg', '3mg', '6mg', '12mg', '50mg', 'nicotine free',
+    'coil', 'pod', 'tank', 'atomizer', 'battery', '18650', '21700', 'charger', 'drip tip', 'cotton',
+    'fruit', 'dessert', 'menthol', 'tobacco flavor', 'candy', 'beverage', 'custard', 'cereal', 'mint', 'ice',
+    'SMOK', 'Vaporesso', 'GeekVape', 'Voopoo', 'Lost Vape', 'Elf Bar', 'Juul', 'puff bar', 'Hyde', 'Fume'
   ],
   'Dispensary': [
-    'quality products', 'tested', 'lab certified', 'safe', 'variety', 'flower', 'edibles', 'concentrates', 'topicals', 'tinctures',
-    'knowledgeable budtenders', 'helpful recommendations', 'patient', 'educational', 'dosage guidance', 'strain information', 'effects explained', 'medical expertise', 'personalized service', 'no pressure',
-    'clean facility', 'professional', 'welcoming', 'comfortable', 'discreet', 'secure', 'compliant', 'licensed', 'reputable', 'established',
-    'fair prices', 'deals available', 'first-time discounts', 'loyalty program', 'daily specials', 'online ordering', 'express pickup', 'delivery available', 'convenient location', 'good hours',
-    'will return', 'highly recommend', 'trusted dispensary', 'quality assured', 'consistent products', 'knowledgeable staff', 'great experience', 'comfortable atmosphere', 'go-to spot', 'best dispensary'
+    'cannabis', 'marijuana', 'weed', 'flower', 'bud', 'pre-roll', 'joint', 'blunt', 'eighth', 'quarter',
+    'edibles', 'gummies', 'chocolate', 'cookies', 'brownies', 'drinks', 'tincture', 'oil', 'capsules', 'tablets',
+    'concentrate', 'wax', 'shatter', 'live resin', 'rosin', 'distillate', 'cartridge', 'vape cart', 'dab', 'hash',
+    'indica', 'sativa', 'hybrid', 'THC', 'CBD', 'CBN', 'strain', 'terpenes', 'potency', 'lab tested',
+    'medical', 'recreational', '21+', 'ID required', 'cash only', 'ATM', 'first time discount', 'daily deals', 'loyalty', 'online order'
   ],
   // Pet Services
   'Pet Groomer': [
-    'gentle handling', 'patient with pets', 'skilled groomers', 'professional', 'experienced', 'breed knowledge', 'proper techniques', 'quality cuts', 'beautiful results', 'attention to detail',
-    'bath and brush', 'haircuts', 'nail trimming', 'ear cleaning', 'teeth brushing', 'de-shedding', 'flea treatment', 'medicated baths', 'puppy grooming', 'senior pet care',
-    'clean facility', 'safe environment', 'proper sanitation', 'quality products', 'hypoallergenic options', 'comfortable', 'calming atmosphere', 'treats for pets', 'photos provided', 'updates during service',
-    'fair prices', 'packages available', 'convenient scheduling', 'online booking', 'reminder service', 'flexible hours', 'walk-ins welcome', 'quick turnaround', 'reliable', 'consistent',
-    'will return', 'highly recommend', 'pet loves it', 'looks amazing', 'stress-free', 'found our groomer', 'trusted', 'gentle care', 'best groomer', 'wouldn\'t go anywhere else'
+    'grooming', 'dog grooming', 'cat grooming', 'bath', 'haircut', 'trim', 'shave', 'brush out', 'de-mat', 'de-shed',
+    'nail trim', 'nail grind', 'ear cleaning', 'teeth brushing', 'anal glands', 'flea bath', 'medicated bath', 'oatmeal bath', 'whitening', 'conditioning',
+    'breed cut', 'puppy cut', 'teddy bear cut', 'lion cut', 'sanitary trim', 'face trim', 'paw trim', 'full groom', 'bath only', 'walk in',
+    'small dog', 'large dog', 'puppy', 'senior dog', 'anxious dog', 'aggressive dog', 'double coat', 'long hair', 'short hair', 'matted',
+    'appointment', 'drop off', 'wait', 'mobile grooming', 'self wash', 'prices', 'packages', 'tips', 'same day', 'regular schedule'
   ],
   'Dog Trainer': [
-    'effective methods', 'positive reinforcement', 'patient', 'knowledgeable', 'experienced', 'certified', 'behavior expertise', 'customized training', 'results-driven', 'clear communication',
-    'obedience training', 'puppy classes', 'behavior modification', 'aggression help', 'anxiety issues', 'leash training', 'socialization', 'tricks', 'agility', 'therapy dog prep',
-    'private sessions', 'group classes', 'board and train', 'in-home training', 'flexible scheduling', 'follow-up support', 'homework provided', 'progress tracking', 'video resources', 'lifetime support',
-    'clean facility', 'safe environment', 'good with all breeds', 'good with all sizes', 'gentle approach', 'builds confidence', 'strengthens bond', 'educational for owners', 'realistic expectations', 'honest assessment',
-    'will return', 'highly recommend', 'transformed our dog', 'life-changing', 'worth every penny', 'found our trainer', 'amazing results', 'patient and kind', 'best decision', 'couldn\'t be happier'
+    'dog training', 'puppy training', 'obedience', 'basic commands', 'sit', 'stay', 'come', 'heel', 'down', 'leave it',
+    'potty training', 'house training', 'crate training', 'leash training', 'loose leash', 'recall', 'off leash', 'e-collar', 'prong collar', 'clicker',
+    'behavior', 'aggression', 'reactivity', 'barking', 'jumping', 'biting', 'chewing', 'separation anxiety', 'fear', 'socialization',
+    'private lesson', 'group class', 'board and train', 'in home', 'virtual', 'puppy class', 'advanced', 'CGC', 'therapy dog', 'service dog',
+    'positive reinforcement', 'balanced training', 'certified', 'CPDT', 'experience', 'references', 'guarantee', 'follow up', 'pricing', 'packages'
   ],
   'Pet Boarding': [
-    'safe facility', 'secure', 'clean', 'spacious', 'comfortable', 'climate controlled', 'proper supervision', '24/7 staff', 'veterinary access', 'emergency protocols',
-    'individual attention', 'playtime', 'socialization', 'exercise', 'walks', 'cuddle time', 'feeding schedule', 'medication administration', 'special needs care', 'senior pet care',
-    'photo updates', 'video updates', 'webcam access', 'daily reports', 'responsive communication', 'peace of mind', 'happy pets', 'tail wagging pickup', 'well-rested', 'well-cared for',
-    'fair prices', 'packages available', 'long-term discounts', 'vaccination required', 'meet and greet', 'trial stay', 'flexible drop-off', 'flexible pickup', 'convenient location', 'easy booking',
-    'will return', 'highly recommend', 'pet was happy', 'stress-free vacation', 'trusted facility', 'like a second home', 'amazing staff', 'peace of mind', 'best boarding', 'only place we use'
+    'boarding', 'dog boarding', 'cat boarding', 'overnight', 'weekend', 'holiday', 'long term', 'daycare', 'dog daycare', 'play group',
+    'kennel', 'suite', 'private room', 'cage free', 'indoor', 'outdoor', 'play yard', 'walks', 'feeding', 'medication',
+    'webcam', 'updates', 'photos', 'report card', 'pickup', 'drop off', 'late pickup', 'early drop off', 'flexible', 'hours',
+    'vaccines required', 'temperament test', 'meet and greet', 'tour', 'small dog', 'large dog', 'puppy', 'senior', 'special needs', 'aggressive',
+    'pricing', 'per night', 'package', 'discount', 'loyalty', 'reservation', 'deposit', 'cancellation', 'holiday rates', 'add ons'
   ],
   'Daycare': [
-    'safe environment', 'clean facility', 'licensed', 'certified staff', 'background checked', 'proper ratios', 'age-appropriate', 'structured activities', 'learning curriculum', 'developmental focus',
-    'nurturing caregivers', 'loving attention', 'patient', 'experienced', 'good communication', 'daily reports', 'photos shared', 'app updates', 'parent involvement', 'open door policy',
-    'healthy meals', 'snacks provided', 'nap time', 'outdoor play', 'indoor activities', 'arts and crafts', 'music', 'reading', 'socialization', 'school readiness',
-    'flexible hours', 'convenient location', 'easy drop-off', 'secure entry', 'parking available', 'reasonable rates', 'sibling discounts', 'part-time options', 'full-time care', 'summer programs',
-    'will return', 'highly recommend', 'child thrives', 'loves going', 'peace of mind', 'found our daycare', 'like family', 'excellent care', 'best decision', 'couldn\'t be happier'
+    'daycare', 'childcare', 'preschool', 'pre-K', 'infant', 'toddler', 'before school', 'after school', 'full day', 'half day',
+    'drop in', 'part time', 'full time', 'flexible schedule', 'summer camp', 'holiday care', 'sick care', 'backup care', 'emergency care', 'overnight',
+    'curriculum', 'learning', 'play based', 'Montessori', 'Reggio', 'STEM', 'language', 'music', 'art', 'outdoor play',
+    'meals', 'snacks', 'diapers', 'potty training', 'nap', 'nap room', 'playground', 'security', 'cameras', 'app',
+    'tuition', 'rates', 'waitlist', 'enrollment', 'registration', 'tour', 'licensed', 'accredited', 'ratio', 'background check'
   ],
   // Repair Services
   'Phone Repair': [
-    'quick service', 'same-day repair', 'while you wait', 'skilled technicians', 'quality parts', 'warranty on repairs', 'screen replacement', 'battery replacement', 'charging port', 'water damage',
-    'cracked screen', 'broken glass', 'camera repair', 'speaker issues', 'microphone fix', 'button repair', 'software issues', 'data recovery', 'diagnostics', 'all brands',
-    'fair prices', 'competitive rates', 'free estimates', 'no fix no fee', 'transparent pricing', 'affordable', 'quality work', 'lasting repairs', 'OEM options', 'aftermarket options',
-    'convenient location', 'walk-ins welcome', 'appointment available', 'friendly staff', 'knowledgeable', 'honest assessment', 'no upselling', 'mail-in service', 'corporate accounts', 'bulk repairs',
-    'will return', 'highly recommend', 'saved my phone', 'lifesaver', 'quick and affordable', 'works perfectly', 'trusted repair shop', 'go-to place', 'best phone repair', 'excellent service'
+    'screen repair', 'cracked screen', 'broken screen', 'glass replacement', 'LCD', 'digitizer', 'touch screen', 'display', 'OLED', 'screen protector',
+    'battery', 'battery replacement', 'charging port', 'lightning port', 'USB-C', 'power button', 'volume button', 'home button', 'face ID', 'touch ID',
+    'water damage', 'liquid damage', 'speaker', 'microphone', 'camera', 'back glass', 'housing', 'frame', 'antenna', 'wifi',
+    'iPhone', 'Samsung', 'Google Pixel', 'Android', 'tablet', 'iPad', 'Apple Watch', 'data recovery', 'transfer', 'backup',
+    'same day', 'while you wait', 'walk in', 'appointment', 'mail in', 'warranty', 'OEM parts', 'aftermarket', 'price', 'estimate'
   ],
   'Computer Repair': [
-    'skilled technicians', 'experienced', 'certified', 'diagnostics', 'troubleshooting', 'virus removal', 'malware cleanup', 'speed optimization', 'hardware repair', 'software issues',
-    'screen replacement', 'keyboard repair', 'battery replacement', 'data recovery', 'backup services', 'upgrades', 'RAM', 'SSD', 'custom builds', 'networking',
-    'PC and Mac', 'laptops', 'desktops', 'all brands', 'quick turnaround', 'same-day service', 'while you wait', 'pickup and delivery', 'remote support', 'on-site service',
-    'fair prices', 'free estimates', 'transparent quotes', 'no fix no fee', 'warranty on work', 'quality parts', 'honest assessment', 'explained clearly', 'patient', 'educational',
-    'will return', 'highly recommend', 'fixed the problem', 'runs like new', 'saved my data', 'knowledgeable', 'trustworthy', 'fair and honest', 'best computer repair', 'go-to tech support'
+    'computer repair', 'laptop repair', 'desktop repair', 'PC', 'Mac', 'Windows', 'Apple', 'Chromebook', 'iMac', 'MacBook',
+    'virus removal', 'malware', 'spyware', 'ransomware', 'slow computer', 'speed up', 'tune up', 'optimization', 'cleanup', 'startup',
+    'screen replacement', 'keyboard', 'trackpad', 'battery', 'charger', 'power jack', 'motherboard', 'RAM', 'memory upgrade', 'SSD upgrade',
+    'data recovery', 'hard drive', 'backup', 'transfer', 'file recovery', 'deleted files', 'crashed', 'wont turn on', 'blue screen', 'black screen',
+    'wifi', 'internet', 'network', 'printer', 'setup', 'software install', 'operating system', 'Windows install', 'same day', 'on site'
   ],
   // Other
   'Other': [
-    'professional', 'reliable', 'trustworthy', 'experienced', 'knowledgeable', 'skilled', 'attention to detail', 'quality service', 'exceeded expectations', 'went above and beyond',
-    'friendly', 'courteous', 'responsive', 'good communication', 'punctual', 'on time', 'efficient', 'thorough', 'careful', 'respectful',
-    'fair pricing', 'transparent', 'no hidden fees', 'good value', 'competitive rates', 'honest', 'upfront', 'explained everything', 'no surprises', 'worked within budget',
-    'convenient', 'flexible scheduling', 'easy to work with', 'accommodating', 'problem solver', 'creative solutions', 'quick turnaround', 'available when needed', 'follow-up', 'stands behind work',
-    'will use again', 'highly recommend', 'found my go-to', 'trusted provider', 'excellent experience', 'couldn\'t be happier', 'stress-free', 'peace of mind', 'best in business', 'wouldn\'t go anywhere else'
+    'service', 'quality', 'professional', 'experienced', 'reliable', 'fast', 'affordable', 'local', 'near me', 'open now',
+    'appointment', 'walk in', 'same day', 'emergency', 'weekend', 'evening', 'hours', 'location', 'parking', 'accessible',
+    'price', 'cost', 'estimate', 'quote', 'free estimate', 'consultation', 'discount', 'coupon', 'deal', 'special',
+    'reviews', 'rated', 'recommended', 'trusted', 'licensed', 'insured', 'bonded', 'certified', 'warranty', 'guarantee',
+    'cash', 'card', 'financing', 'payment plan', 'invoice', 'receipt', 'contact', 'phone', 'email', 'website'
   ],
 };
 
@@ -1266,9 +1194,9 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Google Review URL
-                </label>
+              <label className="block text-sm font-medium text-gray-700">
+                Google Review URL
+              </label>
                 {googleAutoFilled && (
                   <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                     ✓ Auto-filled
@@ -1319,9 +1247,9 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Yelp Review URL
-                </label>
+              <label className="block text-sm font-medium text-gray-700">
+                Yelp Review URL
+              </label>
                 {yelpAutoFilled && (
                   <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                     ✓ Auto-filled

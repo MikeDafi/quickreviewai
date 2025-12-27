@@ -10,7 +10,7 @@ interface QRCodeModalProps {
 
 export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
   const [copied, setCopied] = useState(false);
-  const landingUrl = `${window.location.origin}/review/${store.id}`;
+  const landingUrl = `${window.location.origin}/r/${store.id}`;
 
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(landingUrl);

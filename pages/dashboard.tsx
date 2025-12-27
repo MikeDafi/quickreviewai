@@ -291,7 +291,7 @@ export default function Dashboard() {
               </button>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-4">
               {stores.map(store => (
                 <StoreCard
                   key={store.id}

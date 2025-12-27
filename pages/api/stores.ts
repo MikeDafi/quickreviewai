@@ -38,9 +38,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
 
         // Automatically create a landing page for the store
-        await createLandingPage(store.id)
+        const landingPage = await createLandingPage(store.id)
 
-        return res.status(201).json({ store })
+        return res.status(201).json({ store: { ...store, landing_page_id: landingPage.id } })
       }
 
       case 'PUT': {
