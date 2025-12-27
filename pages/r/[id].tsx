@@ -248,111 +248,145 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Review Card */}
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-600">AI-Generated Review</span>
-                <div className="flex gap-1">
+          {/* Review Card - or Scan Limit Message */}
+          {scanLimitReached ? (
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">📝</span>
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  Share Your Experience!
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  We&apos;d love to hear about your visit. Click below to leave a review!
+                </p>
+                <div className="flex gap-1 justify-center mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <svg key={i} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
                       <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                     </svg>
                   ))}
                 </div>
               </div>
-              
-              <div className="relative">
-                {generating && (
-                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
-                    <div className="flex items-center gap-2 text-emerald-600">
-                      <RefreshCw className="w-5 h-5 animate-spin" />
-                      <span className="text-sm font-medium">Generating...</span>
-                    </div>
-                  </div>
-                )}
-                <p className={`text-gray-800 leading-relaxed ${generating ? 'opacity-30' : ''}`}>
-                {review}
-              </p>
-              </div>
             </div>
-
-            <button
-              onClick={handleCopy}
-              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-5 h-5" />
-                  Copy Review
-                </>
-              )}
-            </button>
-
-            {!isFreePlanLimit && !isDemoLimit && (
-            <button
-              onClick={regenerateReview}
-              disabled={generating || !!rateLimitError}
-              className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
-                rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-              Generate Another
-            </button>
-            )}
-            
-            {rateLimitError && !isFreePlanLimit && (
-              <p className="text-center text-sm text-red-500 mt-2">
-                {rateLimitError}
-              </p>
-            )}
-            
-            {isDemoLimit && (
-              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                <p className="text-sm text-blue-800 mb-2">
-                  🎯 You&apos;ve seen how it works!
-                </p>
-                <div className="text-xs text-blue-600 space-y-1">
-                  <p><strong>Demo:</strong> 1 regeneration</p>
-                  <p><strong>Free plan:</strong> 0 regenerations</p>
-                  <p><strong>Pro plan:</strong> Unlimited regenerations</p>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-gray-600">AI-Generated Review</span>
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                    ))}
+                  </div>
                 </div>
-                <a 
-                  href="/login" 
-                  className="inline-block mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Get Started Free →
-                </a>
-              </div>
-            )}
-            
-            {isFreePlanLimit && (
-              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
-                <p className="text-sm text-amber-800 mb-1">
-                  ✨ Want more review options?
+                
+                <div className="relative">
+                  {generating && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                      <div className="flex items-center gap-2 text-emerald-600">
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                        <span className="text-sm font-medium">Generating...</span>
+                      </div>
+                    </div>
+                  )}
+                  <p className={`text-gray-800 leading-relaxed ${generating ? 'opacity-30' : ''}`}>
+                  {review}
                 </p>
-                <p className="text-xs text-amber-600">
-                  This store is on the Free plan. Pro users get unlimited regenerations!
-                </p>
+                </div>
               </div>
-            )}
-          </div>
+
+              <button
+                onClick={handleCopy}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40"
+              >
+                {(copied || autoCopied) ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5" />
+                    Copy Review
+                  </>
+                )}
+              </button>
+
+              {!isFreePlanLimit && !isDemoLimit && (
+              <button
+                onClick={regenerateReview}
+                disabled={generating || !!rateLimitError}
+                className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                  rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                Generate Another
+              </button>
+              )}
+              
+              {rateLimitError && !isFreePlanLimit && (
+                <p className="text-center text-sm text-red-500 mt-2">
+                  {rateLimitError}
+                </p>
+              )}
+              
+              {isDemoLimit && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                  <p className="text-sm text-blue-800 mb-2">
+                    🎯 You&apos;ve seen how it works!
+                  </p>
+                  <div className="text-xs text-blue-600 space-y-1">
+                    <p><strong>Demo:</strong> 1 regeneration</p>
+                    <p><strong>Free plan:</strong> 0 regenerations</p>
+                    <p><strong>Pro plan:</strong> Unlimited regenerations</p>
+                  </div>
+                  <a 
+                    href="/login" 
+                    className="inline-block mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Get Started Free →
+                  </a>
+                </div>
+              )}
+              
+              {isFreePlanLimit && (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                  <p className="text-sm text-amber-800 mb-1">
+                    ✨ Want more review options?
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    This store is on the Free plan. Pro users get unlimited regenerations!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Platform Buttons */}
           <div className="space-y-3 mb-8">
+            {/* Show message if no review platforms configured */}
+            {!data.google_url && !data.yelp_url && (
+              <div className="text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <p className="text-gray-600 text-sm">No review platforms configured for this store.</p>
+              </div>
+            )}
+
             {data.google_url && (
               <a
                 href={data.google_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackClick('google')}
-                className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
+                className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
+                  autoCopied 
+                    ? 'border-blue-400 shadow-lg shadow-blue-200 animate-bounce-gentle ring-2 ring-blue-200' 
+                    : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                }`}
               >
                 <svg className="w-6 h-6" viewBox="0 0 24 24">
                   <path
@@ -372,8 +406,10 @@ export default function LandingPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span className="text-gray-700 font-medium">Post on Google</span>
-                <ExternalLink className="w-4 h-4 text-gray-400 ml-auto" />
+                <span className={`font-medium ${autoCopied ? 'text-blue-700' : 'text-gray-700'}`}>
+                  Paste on Google Review
+                </span>
+                <ExternalLink className={`w-4 h-4 ml-auto ${autoCopied ? 'text-blue-400' : 'text-gray-400'}`} />
               </a>
             )}
 
@@ -383,13 +419,19 @@ export default function LandingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackClick('yelp')}
-                className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
+                className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
+                  autoCopied 
+                    ? 'border-red-400 shadow-lg shadow-red-200 animate-bounce-gentle ring-2 ring-red-200' 
+                    : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                }`}
               >
                 <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M21.111 18.226c-.141.969-2.119 3.483-3.029 3.847-.311.124-.611.094-.85-.09-.154-.12-.314-.365-2.447-3.827l-.633-1.032c-.244-.37-.199-.857.104-1.229.297-.37.756-.478 1.158-.274l1.099.534c3.334 1.62 3.463 1.725 3.553 1.846.219.292.247.657.045 1.225zM18.093 9.944c-.318.396-.79.544-1.197.377l-1.143-.478c-3.521-1.478-3.638-1.562-3.749-1.67-.274-.265-.345-.633-.2-1.22.237-.956 2.454-3.334 3.392-3.636.321-.102.626-.055.856.127.148.116.33.351 2.768 3.66l.723.989c.259.35.243.847-.026 1.231-.181.25-.411.502-1.424.62zM9.839 9.633c.307.395.323.888.041 1.253-.28.36-.729.508-1.134.362L7.6 10.78c-3.442-1.617-3.567-1.713-3.671-1.831-.253-.281-.298-.65-.127-1.221.284-.95 2.598-3.241 3.553-3.499.326-.087.629-.022.848.18.142.127.312.387 2.588 3.888l.69 1.05c.108.178.237.293.358.286zM8.473 15.587c.074.403-.091.802-.434 1.012-.263.166-.539.17-.842.013-.141-.073-.321-.234-2.934-3.537l-.797-1.024c-.283-.343-.295-.82-.031-1.212.265-.396.71-.568 1.124-.428l1.14.42c3.455 1.269 3.579 1.345 3.696 1.459.295.265.389.632.297 1.212l-.219 2.085zM13.548 16.46l.186 2.084c.045.512-.15.917-.515 1.075-.271.118-.538.099-.812-.056-.144-.081-.345-.26-3.215-3.327l-.871-.931c-.31-.318-.374-.796-.161-1.208.21-.407.635-.623 1.072-.541l1.193.211c3.631.657 3.77.708 3.9.814.32.258.434.621.35 1.212-.06.48-.127.667-.127.667z" />
                 </svg>
-                <span className="text-gray-700 font-medium">Post on Yelp</span>
-                <ExternalLink className="w-4 h-4 text-gray-400 ml-auto" />
+                <span className={`font-medium ${autoCopied ? 'text-red-700' : 'text-gray-700'}`}>
+                  Paste on Yelp Review
+                </span>
+                <ExternalLink className={`w-4 h-4 ml-auto ${autoCopied ? 'text-red-400' : 'text-gray-400'}`} />
               </a>
             )}
           </div>
