@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const YELP_API_KEY = process.env.YELP_API_KEY
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY

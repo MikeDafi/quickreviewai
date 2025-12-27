@@ -108,16 +108,19 @@ export async function upsertUser(user: { id: string; email: string; name?: strin
   return rows[0]
 }
 
-// Get stores for a user with analytics
+// Get stores for a user with analytics (optimized with JOINs instead of subqueries)
 export async function getStores(userId: string) {
   const { rows } = await sql`
-    SELECT s.*, 
-      (SELECT COUNT(*) FROM landing_pages WHERE store_id = s.id) as landing_page_count,
-      (SELECT id FROM landing_pages WHERE store_id = s.id ORDER BY created_at LIMIT 1) as landing_page_id,
-      COALESCE((SELECT SUM(view_count) FROM landing_pages WHERE store_id = s.id), 0)::int as view_count,
-      COALESCE((SELECT SUM(copy_count) FROM landing_pages WHERE store_id = s.id), 0)::int as copy_count
-    FROM stores s 
+    SELECT 
+      s.*,
+      COUNT(lp.id)::int as landing_page_count,
+      MIN(lp.id) as landing_page_id,
+      COALESCE(SUM(lp.view_count), 0)::int as view_count,
+      COALESCE(SUM(lp.copy_count), 0)::int as copy_count
+    FROM stores s
+    LEFT JOIN landing_pages lp ON lp.store_id = s.id
     WHERE s.user_id = ${userId}
+    GROUP BY s.id
     ORDER BY s.created_at DESC
   `
   return rows
