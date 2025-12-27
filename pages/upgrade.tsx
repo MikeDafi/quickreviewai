@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Sparkles, Check, ArrowLeft, Loader2, XCircle } from 'lucide-react';
+import { SubscriptionTier } from '@/lib/constants';
 
 export default function Upgrade() {
   const { data: session, status } = useSession();
@@ -23,11 +24,11 @@ export default function Upgrade() {
   useEffect(() => {
     if (session && !cancelled && !hasTriggeredCheckout.current) {
       hasTriggeredCheckout.current = true;
-      handleUpgrade('pro');
+      handleUpgrade(SubscriptionTier.PRO);
     }
   }, [session, cancelled]);
 
-  const handleUpgrade = async (plan: 'pro' | 'business') => {
+  const handleUpgrade = async (plan: SubscriptionTier.PRO | SubscriptionTier.BUSINESS) => {
     setLoading(true);
     setError('');
 

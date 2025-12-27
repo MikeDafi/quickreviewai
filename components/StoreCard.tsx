@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare } from 'lucide-react';
 import { Store } from '@/lib/types';
+import { SubscriptionTier } from '@/lib/constants';
 
 interface StoreCardProps {
   store: Store;
-  tier: 'free' | 'pro';
+  tier: SubscriptionTier;
   onEdit: (store: Store) => void;
   onDelete: (id: string) => void;
   onShowQR: (store: Store) => void;
@@ -129,7 +130,7 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
       )}
 
       {/* Review Expectations Row - Pro Only */}
-      {tier === 'pro' && store.reviewExpectations && store.reviewExpectations.length > 0 && (
+      {tier === SubscriptionTier.PRO && store.reviewExpectations && store.reviewExpectations.length > 0 && (
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
             <MessageSquare className="w-4 h-4 text-purple-500" />
