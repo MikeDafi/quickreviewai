@@ -237,11 +237,14 @@ export default function Dashboard() {
               </div>
               <div className="text-2xl font-bold text-gray-900 capitalize">{stats.tier}</div>
               {stats.tier === 'free' && (
-                <div className="mt-2 space-y-1">
-                  <p className="text-xs text-gray-500">
+                <div className="mt-3">
+                  <p className="text-xs text-gray-500 mb-2">
                     {stores.length}/1 store • 15 scans/mo
                   </p>
-                  <Link href="/upgrade" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link 
+                    href="/upgrade" 
+                    className="inline-block px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                  >
                     Upgrade to Pro →
                   </Link>
                 </div>

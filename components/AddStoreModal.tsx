@@ -65,22 +65,118 @@ const REVIEW_EXPECTATIONS = [
 ];
 
 const keywordSuggestions: Record<string, string[]> = {
+  // Food & Beverage
   'Restaurant': ['delicious', 'authentic', 'family-friendly', 'fresh ingredients', 'cozy atmosphere'],
-  'Salon': ['professional', 'relaxing', 'modern', 'skilled stylists', 'luxurious'],
-  'Auto Shop': ['reliable', 'trustworthy', 'quick service', 'honest pricing', 'expert mechanics'],
   'Cafe': ['cozy', 'artisanal', 'fresh', 'friendly service', 'best coffee'],
-  'Gym': ['motivating', 'clean', 'professional trainers', 'state-of-the-art', 'welcoming'],
+  'Bar': ['great drinks', 'fun atmosphere', 'friendly bartenders', 'good vibes', 'nice selection'],
+  'Bakery': ['fresh-baked', 'delicious pastries', 'wonderful aroma', 'quality ingredients', 'friendly staff'],
+  'Food Truck': ['quick service', 'fresh ingredients', 'unique flavors', 'great value', 'friendly'],
+  'Pizzeria': ['authentic', 'fresh ingredients', 'perfect crust', 'generous portions', 'family-friendly'],
+  'Sushi Bar': ['fresh fish', 'skilled chefs', 'beautiful presentation', 'authentic', 'great selection'],
+  'Ice Cream Shop': ['delicious flavors', 'creamy', 'friendly staff', 'great portions', 'fun atmosphere'],
+  'Brewery': ['craft beer', 'great selection', 'knowledgeable staff', 'fun atmosphere', 'fresh brews'],
+  'Winery': ['excellent wines', 'beautiful setting', 'knowledgeable staff', 'great tastings', 'relaxing'],
+  'Juice Bar': ['fresh ingredients', 'healthy options', 'quick service', 'great taste', 'clean'],
+  'Deli': ['fresh cuts', 'quality ingredients', 'friendly service', 'great sandwiches', 'quick'],
+  // Health & Beauty
+  'Salon': ['professional', 'relaxing', 'modern', 'skilled stylists', 'luxurious'],
+  'Barbershop': ['skilled barbers', 'clean', 'friendly atmosphere', 'precise cuts', 'good conversation'],
   'Spa': ['relaxing', 'rejuvenating', 'professional', 'tranquil', 'top-notch service'],
+  'Nail Salon': ['clean', 'skilled technicians', 'relaxing', 'great designs', 'friendly staff'],
+  'Med Spa': ['professional', 'modern equipment', 'knowledgeable staff', 'great results', 'clean'],
+  'Massage Therapy': ['relaxing', 'skilled therapists', 'clean', 'therapeutic', 'stress relief'],
+  'Tattoo Parlor': ['skilled artists', 'clean', 'professional', 'creative designs', 'sterile environment'],
+  'Tanning Salon': ['clean', 'great equipment', 'friendly staff', 'even tan', 'comfortable'],
+  'Skincare Clinic': ['professional', 'great results', 'knowledgeable staff', 'modern treatments', 'clean'],
+  // Automotive
+  'Auto Shop': ['reliable', 'trustworthy', 'quick service', 'honest pricing', 'expert mechanics'],
+  'Car Wash': ['thorough', 'quick service', 'good value', 'attention to detail', 'convenient'],
+  'Auto Detailing': ['meticulous', 'attention to detail', 'professional', 'great results', 'worth every penny'],
+  'Tire Shop': ['quick service', 'fair pricing', 'knowledgeable staff', 'quality tires', 'reliable'],
+  'Body Shop': ['quality work', 'professional', 'fair estimates', 'timely', 'great results'],
+  'Oil Change': ['quick service', 'convenient', 'fair pricing', 'professional', 'thorough inspection'],
+  'Car Dealership': ['no pressure', 'knowledgeable staff', 'great selection', 'fair pricing', 'professional'],
+  // Fitness & Recreation
+  'Gym': ['motivating', 'clean', 'professional trainers', 'state-of-the-art', 'welcoming'],
+  'Yoga Studio': ['peaceful', 'skilled instructors', 'clean', 'welcoming', 'transformative'],
+  'Pilates Studio': ['professional instructors', 'clean', 'challenging workouts', 'supportive', 'results-driven'],
+  'CrossFit': ['motivating', 'great community', 'skilled coaches', 'challenging', 'supportive'],
+  'Martial Arts': ['skilled instructors', 'disciplined', 'safe environment', 'great for all levels', 'respectful'],
+  'Dance Studio': ['talented instructors', 'fun atmosphere', 'welcoming', 'great music', 'supportive'],
+  'Golf Course': ['well-maintained', 'beautiful scenery', 'friendly staff', 'great facilities', 'challenging course'],
+  'Bowling Alley': ['fun atmosphere', 'clean lanes', 'friendly staff', 'great for families', 'good food'],
+  // Retail
+  'Retail Store': ['great selection', 'helpful staff', 'fair prices', 'clean', 'well-organized'],
+  'Boutique': ['unique selection', 'personalized service', 'quality items', 'stylish', 'curated'],
+  'Jewelry Store': ['beautiful pieces', 'knowledgeable staff', 'quality craftsmanship', 'great value', 'elegant'],
+  'Florist': ['beautiful arrangements', 'fresh flowers', 'creative', 'reliable delivery', 'friendly'],
+  'Pet Store': ['healthy animals', 'knowledgeable staff', 'clean', 'great selection', 'helpful'],
+  'Bookstore': ['great selection', 'cozy atmosphere', 'knowledgeable staff', 'well-organized', 'hidden gems'],
+  'Gift Shop': ['unique finds', 'friendly staff', 'great selection', 'perfect gifts', 'charming'],
+  'Furniture Store': ['quality furniture', 'helpful staff', 'great selection', 'fair prices', 'good delivery'],
+  'Electronics Store': ['knowledgeable staff', 'great selection', 'competitive prices', 'helpful', 'latest tech'],
+  // Services
+  'Dry Cleaner': ['quality cleaning', 'quick turnaround', 'friendly staff', 'reliable', 'fair prices'],
+  'Laundromat': ['clean', 'well-maintained', 'convenient', 'affordable', 'friendly atmosphere'],
+  'Tailor': ['skilled craftsmanship', 'attention to detail', 'perfect fit', 'reasonable prices', 'quick service'],
+  'Locksmith': ['quick response', 'professional', 'fair pricing', 'reliable', 'skilled'],
+  'Moving Company': ['careful handling', 'professional', 'punctual', 'efficient', 'fair pricing'],
+  'Storage Facility': ['clean', 'secure', 'convenient access', 'fair prices', 'well-maintained'],
+  'Printing Shop': ['quality prints', 'quick turnaround', 'helpful staff', 'fair prices', 'professional'],
+  // Professional Services
+  'Law Firm': ['professional', 'knowledgeable', 'responsive', 'thorough', 'great results'],
+  'Accounting Firm': ['accurate', 'professional', 'thorough', 'responsive', 'trustworthy'],
+  'Insurance Agency': ['helpful', 'knowledgeable', 'responsive', 'great coverage', 'fair rates'],
+  'Real Estate Agency': ['knowledgeable', 'responsive', 'professional', 'patient', 'great negotiators'],
+  'Marketing Agency': ['creative', 'results-driven', 'professional', 'responsive', 'innovative'],
+  'Photography Studio': ['talented', 'creative', 'professional', 'great eye', 'wonderful memories'],
+  'Consulting Firm': ['expert advice', 'professional', 'thorough analysis', 'responsive', 'results-focused'],
+  // Healthcare
   'Dental Office': ['gentle', 'thorough', 'modern equipment', 'friendly staff', 'painless'],
+  'Chiropractor': ['professional', 'effective treatment', 'caring', 'knowledgeable', 'great results'],
+  'Optometrist': ['thorough exam', 'professional', 'great selection', 'knowledgeable', 'patient'],
   'Veterinarian': ['caring', 'knowledgeable', 'gentle with pets', 'thorough', 'compassionate'],
+  'Physical Therapy': ['professional', 'effective treatment', 'supportive', 'knowledgeable', 'great results'],
+  'Urgent Care': ['quick service', 'professional', 'thorough', 'convenient', 'caring staff'],
+  'Pharmacy': ['friendly staff', 'quick service', 'helpful', 'knowledgeable', 'convenient'],
+  // Home Services
   'Plumber': ['prompt', 'professional', 'fair pricing', 'clean work', 'reliable'],
+  'Electrician': ['professional', 'safe work', 'fair pricing', 'reliable', 'knowledgeable'],
+  'HVAC': ['prompt service', 'professional', 'fair pricing', 'knowledgeable', 'reliable'],
+  'Landscaping': ['beautiful work', 'professional', 'reliable', 'creative', 'attention to detail'],
+  'Cleaning Service': ['thorough', 'reliable', 'trustworthy', 'professional', 'attention to detail'],
+  'Pest Control': ['effective', 'professional', 'thorough', 'reliable', 'knowledgeable'],
+  'Roofing': ['quality work', 'professional', 'fair pricing', 'reliable', 'thorough'],
+  'Painting': ['clean work', 'professional', 'attention to detail', 'fair pricing', 'beautiful results'],
+  // Entertainment
+  'Movie Theater': ['great sound', 'comfortable seats', 'clean', 'friendly staff', 'good snacks'],
+  'Arcade': ['fun games', 'well-maintained', 'friendly staff', 'great for families', 'good variety'],
+  'Escape Room': ['challenging puzzles', 'fun experience', 'great staff', 'immersive', 'well-designed'],
+  'Comedy Club': ['hilarious shows', 'great atmosphere', 'good drinks', 'friendly staff', 'fun night out'],
+  'Music Venue': ['great sound', 'awesome atmosphere', 'good sightlines', 'friendly staff', 'memorable shows'],
+  // Hospitality
   'Hotel': ['comfortable', 'clean rooms', 'great location', 'friendly staff', 'amenities'],
+  'Bed & Breakfast': ['charming', 'delicious breakfast', 'cozy', 'friendly hosts', 'clean'],
+  'Vacation Rental': ['clean', 'great location', 'well-equipped', 'comfortable', 'responsive host'],
+  // Education
+  'Tutoring Center': ['effective', 'patient instructors', 'improved grades', 'supportive', 'personalized'],
+  'Music School': ['talented instructors', 'patient', 'fun lessons', 'great progress', 'encouraging'],
+  'Driving School': ['patient instructors', 'thorough', 'safe', 'professional', 'passed first time'],
+  'Language School': ['effective methods', 'native speakers', 'patient teachers', 'fun classes', 'great progress'],
+  // Other
+  'Other': ['professional', 'friendly', 'quality service', 'reliable', 'great experience'],
 };
+
+const MAX_BUSINESS_TYPES = 3;
 
 export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalProps) {
   const [name, setName] = useState(store?.name || '');
-  const [businessType, setBusinessType] = useState(store?.businessType || '');
-  const [businessTypeInput, setBusinessTypeInput] = useState(store?.businessType || '');
+  // Parse existing business types from comma-separated string
+  const initialBusinessTypes = store?.businessType 
+    ? store.businessType.split(',').map(t => t.trim()).filter(Boolean)
+    : [];
+  const [businessTypes, setBusinessTypes] = useState<string[]>(initialBusinessTypes);
+  const [businessTypeInput, setBusinessTypeInput] = useState('');
   const [showBusinessTypeDropdown, setShowBusinessTypeDropdown] = useState(false);
   const [keywords, setKeywords] = useState<string[]>(store?.keywords || []);
   const [keywordInput, setKeywordInput] = useState('');
@@ -93,14 +189,16 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   
   const businessTypeRef = useRef<HTMLDivElement>(null);
 
-  const currentKeywordSuggestions = businessType ? keywordSuggestions[businessType] || keywordSuggestions['Restaurant'] || [] : [];
+  // Get combined keyword suggestions from all selected business types
+  const currentKeywordSuggestions = businessTypes.length > 0
+    ? [...new Set(businessTypes.flatMap(type => keywordSuggestions[type] || []))]
+    : [];
   
-  // Filter business types based on input
-  const filteredBusinessTypes = businessTypeInput
-    ? BUSINESS_TYPES.filter(type => 
-        type.toLowerCase().includes(businessTypeInput.toLowerCase())
-      )
-    : BUSINESS_TYPES;
+  // Filter business types based on input, excluding already selected ones
+  const filteredBusinessTypes = BUSINESS_TYPES.filter(type => 
+    !businessTypes.includes(type) &&
+    (!businessTypeInput || type.toLowerCase().includes(businessTypeInput.toLowerCase()))
+  );
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -114,8 +212,12 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   }, []);
 
   const handleBusinessTypeSelect = (type: string) => {
-    setBusinessType(type);
-    setBusinessTypeInput(type);
+    if (businessTypes.length >= MAX_BUSINESS_TYPES) return;
+    if (businessTypes.includes(type)) return;
+    
+    const newBusinessTypes = [...businessTypes, type];
+    setBusinessTypes(newBusinessTypes);
+    setBusinessTypeInput('');
     setShowBusinessTypeDropdown(false);
     
     // Auto-prefill keywords from suggestions for this business type
@@ -123,22 +225,42 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     if (suggestedKeywords.length > 0 && keywords.length === 0) {
       // Only prefill if no keywords are set yet
       setKeywords(suggestedKeywords);
+    } else if (suggestedKeywords.length > 0) {
+      // Add new unique keywords from this business type
+      const newKeywords = suggestedKeywords.filter(k => !keywords.includes(k));
+      if (newKeywords.length > 0) {
+        setKeywords([...keywords, ...newKeywords]);
+      }
     }
+  };
+  
+  const removeBusinessType = (type: string) => {
+    setBusinessTypes(businessTypes.filter(t => t !== type));
   };
   
   const handleBusinessTypeInputChange = (value: string) => {
     setBusinessTypeInput(value);
     setShowBusinessTypeDropdown(true);
-    
-    // If typed value matches a business type exactly, select it
-    const exactMatch = BUSINESS_TYPES.find(
-      type => type.toLowerCase() === value.toLowerCase()
-    );
-    if (exactMatch) {
-      setBusinessType(exactMatch);
-    } else if (value && !BUSINESS_TYPES.some(t => t.toLowerCase() === value.toLowerCase())) {
-      // Allow custom business type
-      setBusinessType(value);
+  };
+  
+  const handleBusinessTypeKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // If there's a typed value that's not in the list, allow custom type
+      if (businessTypeInput.trim() && businessTypes.length < MAX_BUSINESS_TYPES) {
+        const exactMatch = BUSINESS_TYPES.find(
+          type => type.toLowerCase() === businessTypeInput.toLowerCase()
+        );
+        if (exactMatch && !businessTypes.includes(exactMatch)) {
+          handleBusinessTypeSelect(exactMatch);
+        } else if (!exactMatch && !businessTypes.includes(businessTypeInput.trim())) {
+          // Custom business type
+          const newBusinessTypes = [...businessTypes, businessTypeInput.trim()];
+          setBusinessTypes(newBusinessTypes);
+          setBusinessTypeInput('');
+          setShowBusinessTypeDropdown(false);
+        }
+      }
     }
   };
 
@@ -187,7 +309,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     
     const storeData = {
       name,
-      businessType,
+      businessType: businessTypes.join(', '), // Store as comma-separated string
       keywords,
       reviewExpectations: expectations,
       googleUrl: googleUrl || undefined,
@@ -235,38 +357,61 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
           {/* Business Type */}
           <div ref={businessTypeRef} className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Business Type *
+              Business Type(s) * <span className="font-normal text-gray-500">(up to {MAX_BUSINESS_TYPES})</span>
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={businessTypeInput}
-                onChange={(e) => handleBusinessTypeInputChange(e.target.value)}
-                onFocus={() => setShowBusinessTypeDropdown(true)}
-                placeholder="Type or select your business type..."
-                required
-                className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
-              />
-              <button
-                type="button"
-                onClick={() => setShowBusinessTypeDropdown(!showBusinessTypeDropdown)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <ChevronDown className={`w-5 h-5 transition-transform ${showBusinessTypeDropdown ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
+            
+            {/* Selected Business Types Tags */}
+            {businessTypes.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {businessTypes.map((type) => (
+                  <span
+                    key={type}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-100 text-emerald-800 text-sm rounded-full"
+                  >
+                    {type}
+                    <button
+                      type="button"
+                      onClick={() => removeBusinessType(type)}
+                      className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-200"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            {/* Input for adding more */}
+            {businessTypes.length < MAX_BUSINESS_TYPES && (
+              <div className="relative">
+                <input
+                  type="text"
+                  value={businessTypeInput}
+                  onChange={(e) => handleBusinessTypeInputChange(e.target.value)}
+                  onKeyDown={handleBusinessTypeKeyDown}
+                  onFocus={() => setShowBusinessTypeDropdown(true)}
+                  placeholder={businessTypes.length === 0 ? "Type or select your business type..." : "Add another business type..."}
+                  className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowBusinessTypeDropdown(!showBusinessTypeDropdown)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showBusinessTypeDropdown ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+            )}
             
             {/* Dropdown List */}
-            {showBusinessTypeDropdown && filteredBusinessTypes.length > 0 && (
+            {showBusinessTypeDropdown && filteredBusinessTypes.length > 0 && businessTypes.length < MAX_BUSINESS_TYPES && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {filteredBusinessTypes.map(type => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => handleBusinessTypeSelect(type)}
-                    className={`w-full px-4 py-2 text-left hover:bg-emerald-50 transition-colors ${
-                      businessType === type ? 'bg-emerald-100 text-emerald-700' : 'text-gray-700'
-                    }`}
+                    className="w-full px-4 py-2 text-left hover:bg-emerald-50 transition-colors text-gray-700"
                   >
                     {type}
                   </button>
@@ -277,9 +422,16 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             {/* Custom type hint */}
             {businessTypeInput && !BUSINESS_TYPES.some(t => t.toLowerCase() === businessTypeInput.toLowerCase()) && (
               <p className="text-xs text-gray-500 mt-1">
-                Using custom business type: &quot;{businessTypeInput}&quot;
+                Press Enter to add custom type: &quot;{businessTypeInput}&quot;
               </p>
             )}
+            
+            {/* Hidden required input for form validation */}
+            <input 
+              type="hidden" 
+              value={businessTypes.length > 0 ? businessTypes.join(',') : ''} 
+              required 
+            />
           </div>
 
           {/* Review Expectations */}
@@ -314,7 +466,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               <label className="block text-sm font-medium text-gray-700">
                 Keywords
               </label>
-              {businessType && currentKeywordSuggestions.length > 0 && (
+              {businessTypes.length > 0 && currentKeywordSuggestions.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setShowKeywordSuggestions(!showKeywordSuggestions)}
@@ -479,7 +631,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </button>
             <button
               type="submit"
-              disabled={!name || !businessType}
+              disabled={!name || businessTypes.length === 0}
               className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {store ? 'Save Changes' : 'Add Store'}

@@ -52,7 +52,12 @@ async function generateReview(landing: LandingWithStore): Promise<string> {
     ? landing.review_expectations.join(', ')
     : ''
 
-  const prompt = `Generate a genuine, authentic 2-3 sentence positive review for a ${landing.business_type || 'business'} called "${landing.store_name}".
+  // Handle multiple business types (comma-separated)
+  const businessTypeDisplay = landing.business_type 
+    ? landing.business_type.split(',').map(t => t.trim()).join(' / ')
+    : 'business'
+    
+  const prompt = `Generate a genuine, authentic 2-3 sentence positive review for a ${businessTypeDisplay} called "${landing.store_name}".
 
 Requirements:
 - Include these keywords/aspects naturally: ${keywordsStr}

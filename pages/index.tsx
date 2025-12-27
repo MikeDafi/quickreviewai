@@ -99,7 +99,9 @@ export default function Home() {
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 sm:p-8 lg:p-12">
               <h3 className="text-2xl font-semibold text-center mb-4 text-gray-900">See It In Action</h3>
               <div className="flex justify-center mb-8">
-                <ChevronDown className="w-8 h-8 text-emerald-600 animate-bounce" />
+                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md animate-bounce">
+                  <span className="text-white text-lg">↓</span>
+                </div>
               </div>
               
               <div className="max-w-5xl mx-auto">
@@ -293,7 +295,6 @@ export default function Home() {
                   'Unlimited QR scans',
                   'All platforms',
                   'Priority support',
-                  'Custom branding',
                   'Analytics dashboard'
                 ]}
                 buttonText="Start Pro Trial"

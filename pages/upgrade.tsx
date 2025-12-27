@@ -84,7 +84,6 @@ export default function Upgrade() {
     'Unlimited QR scans',
     'All review platforms',
     'Priority support',
-    'Custom branding',
     'Analytics dashboard',
   ];
 
@@ -180,7 +179,7 @@ export default function Upgrade() {
               Back to Dashboard
             </Link>
             <p className="text-xs text-gray-500">
-              Questions? Contact us at support@quickreviewai.com
+              Questions? Contact us at quickreviewai@gmail.com
             </p>
           </div>
         </div>
