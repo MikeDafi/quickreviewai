@@ -2,6 +2,37 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { sql, isNewBillingPeriod, resetBillingPeriod } from '@/lib/db'
+import { kv } from '@vercel/kv'
+
+// Sync pending view counts from KV to DB for a user's landing pages
+async function syncUserViewCounts(userId: string) {
+  try {
+    // Get all landing page IDs for this user
+    const { rows: landingPages } = await sql`
+      SELECT lp.id 
+      FROM landing_pages lp
+      JOIN stores s ON lp.store_id = s.id
+      WHERE s.user_id = ${userId}
+    `
+    
+    // Sync each landing page's pending views
+    for (const lp of landingPages) {
+      const key = `views:${lp.id}`
+      const count = await kv.getdel<number>(key)
+      
+      if (count && count > 0) {
+        await sql`
+          UPDATE landing_pages 
+          SET view_count = view_count + ${count} 
+          WHERE id = ${lp.id}
+        `
+      }
+    }
+  } catch (error) {
+    console.error('Failed to sync view counts:', error)
+    // Non-blocking - continue even if sync fails
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -18,6 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = session.user.id
 
   try {
+    // Sync any pending view counts from KV before fetching stats
+    await syncUserViewCounts(userId)
+    
     // Combined query: get user info + store stats in one query
     const { rows } = await sql`
       SELECT 
