@@ -630,6 +630,51 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
   const [showGoogleHelp, setShowGoogleHelp] = useState(false);
   const [showYelpHelp, setShowYelpHelp] = useState(false);
+  const [googleUrlError, setGoogleUrlError] = useState('');
+  const [yelpUrlError, setYelpUrlError] = useState('');
+
+  // URL validation - only allow safe http/https URLs
+  const validateUrl = (url: string): { valid: boolean; error: string } => {
+    if (!url) return { valid: true, error: '' };
+    
+    const trimmed = url.trim();
+    
+    // Check for valid protocol
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      return { valid: false, error: 'URL must start with http:// or https://' };
+    }
+    
+    // Block dangerous patterns
+    if (/javascript:|data:|vbscript:|file:/i.test(trimmed)) {
+      return { valid: false, error: 'Invalid URL format' };
+    }
+    
+    // Check for script injection attempts
+    if (/<script|onclick|onerror|onload/i.test(trimmed)) {
+      return { valid: false, error: 'Invalid URL format' };
+    }
+    
+    // Basic URL format validation
+    try {
+      new URL(trimmed);
+    } catch {
+      return { valid: false, error: 'Invalid URL format' };
+    }
+    
+    return { valid: true, error: '' };
+  };
+
+  const handleGoogleUrlChange = (value: string) => {
+    setGoogleUrl(value);
+    const validation = validateUrl(value);
+    setGoogleUrlError(validation.error);
+  };
+
+  const handleYelpUrlChange = (value: string) => {
+    setYelpUrl(value);
+    const validation = validateUrl(value);
+    setYelpUrlError(validation.error);
+  };
 
   const businessTypeRef = useRef<HTMLDivElement>(null);
 
@@ -1055,10 +1100,18 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             <input
               type="url"
               value={googleUrl}
-              onChange={(e) => setGoogleUrl(e.target.value)}
+              onChange={(e) => handleGoogleUrlChange(e.target.value)}
               placeholder="https://g.page/r/..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              maxLength={2000}
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+                googleUrlError 
+                  ? 'border-red-300 focus:ring-red-600' 
+                  : 'border-gray-300 focus:ring-emerald-600'
+              }`}
             />
+            {googleUrlError && (
+              <p className="text-xs text-red-500 mt-1">{googleUrlError}</p>
+            )}
           </div>
 
           {/* Yelp Review URL */}
@@ -1093,10 +1146,18 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             <input
               type="url"
               value={yelpUrl}
-              onChange={(e) => setYelpUrl(e.target.value)}
+              onChange={(e) => handleYelpUrlChange(e.target.value)}
               placeholder="https://www.yelp.com/biz/..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              maxLength={2000}
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+                yelpUrlError 
+                  ? 'border-red-300 focus:ring-red-600' 
+                  : 'border-gray-300 focus:ring-emerald-600'
+              }`}
             />
+            {yelpUrlError && (
+              <p className="text-xs text-red-500 mt-1">{yelpUrlError}</p>
+            )}
           </div>
 
           {/* Submit Buttons */}
@@ -1110,7 +1171,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </button>
             <button
               type="submit"
-              disabled={!name || businessTypes.length === 0}
+              disabled={!name || businessTypes.length === 0 || !!googleUrlError || !!yelpUrlError}
               className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {store ? 'Save Changes' : 'Add Store'}

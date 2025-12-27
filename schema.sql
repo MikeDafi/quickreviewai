@@ -13,6 +13,7 @@ CREATE TABLE stores (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
+  address TEXT,
   business_type TEXT,
   keywords TEXT[],
   review_expectations TEXT[],

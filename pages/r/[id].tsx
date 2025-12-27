@@ -16,8 +16,8 @@ const DEMO_DATA: LandingData = {
   id: 'demo',
   store_name: "Tony's Pizza",
   business_type: 'Pizzeria',
-  google_url: 'https://g.page/review',
-  yelp_url: 'https://www.yelp.com/writeareview',
+  google_url: 'https://g.page/r/CYbhqyxqIqguEBM/review',
+  yelp_url: 'https://www.yelp.com/writeareview/biz/dx3-uI6A5bIXptySpOSaZg',
 };
 
 const DEMO_REVIEWS = [
@@ -36,7 +36,10 @@ export default function LandingPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [rateLimitError, setRateLimitError] = useState('');
+  const [isFreePlanLimit, setIsFreePlanLimit] = useState(false);
+  const [isDemoLimit, setIsDemoLimit] = useState(false);
   const [demoReviewIndex, setDemoReviewIndex] = useState(0);
+  const [demoRegenerateCount, setDemoRegenerateCount] = useState(0);
 
   const isDemo = id === 'demo';
 
@@ -76,20 +79,32 @@ export default function LandingPage() {
     setGenerating(true);
     setRateLimitError('');
     
-    // Handle demo case
+    // Handle demo case - allow only 1 regeneration
     if (isDemo) {
+      if (demoRegenerateCount >= 1) {
+        setIsDemoLimit(true);
+        setGenerating(false);
+        return;
+      }
       setTimeout(() => {
         const nextIndex = (demoReviewIndex + 1) % DEMO_REVIEWS.length;
         setDemoReviewIndex(nextIndex);
         setReview(DEMO_REVIEWS[nextIndex]);
+        setDemoRegenerateCount(prev => prev + 1);
         setGenerating(false);
-      }, 500);
+      }, 800);
       return;
     }
     
     try {
       const res = await fetch(`/api/generate?id=${id}&regenerate=true`);
       const result = await res.json();
+      
+      if (res.status === 403 && result.isPlanLimit) {
+        setIsFreePlanLimit(true);
+        setRateLimitError(result.message || 'Upgrade to Pro for unlimited regenerations!');
+        return;
+      }
       
       if (res.status === 429) {
         setRateLimitError(result.message || 'Too many regenerations. Please try again later.');
@@ -185,9 +200,19 @@ export default function LandingPage() {
                 </div>
               </div>
               
-              <p className="text-gray-800 leading-relaxed">
-                {review}
-              </p>
+              <div className="relative">
+                {generating && (
+                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                    <div className="flex items-center gap-2 text-emerald-600">
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      <span className="text-sm font-medium">Generating...</span>
+                    </div>
+                  </div>
+                )}
+                <p className={`text-gray-800 leading-relaxed ${generating ? 'opacity-30' : ''}`}>
+                  {review}
+                </p>
+              </div>
             </div>
 
             <button
@@ -207,21 +232,53 @@ export default function LandingPage() {
               )}
             </button>
 
-            <button
-              onClick={regenerateReview}
-              disabled={generating || !!rateLimitError}
-              className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
-                rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-              Generate Another
-            </button>
+            {!isFreePlanLimit && !isDemoLimit && (
+              <button
+                onClick={regenerateReview}
+                disabled={generating || !!rateLimitError}
+                className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 transition-colors ${
+                  rateLimitError ? 'text-red-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                Generate Another
+              </button>
+            )}
             
-            {rateLimitError && (
+            {rateLimitError && !isFreePlanLimit && (
               <p className="text-center text-sm text-red-500 mt-2">
                 {rateLimitError}
               </p>
+            )}
+            
+            {isDemoLimit && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                <p className="text-sm text-blue-800 mb-2">
+                  🎯 You&apos;ve seen how it works!
+                </p>
+                <div className="text-xs text-blue-600 space-y-1">
+                  <p><strong>Demo:</strong> 1 regeneration</p>
+                  <p><strong>Free plan:</strong> 0 regenerations</p>
+                  <p><strong>Pro plan:</strong> Unlimited regenerations</p>
+                </div>
+                <a 
+                  href="/login" 
+                  className="inline-block mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Get Started Free →
+                </a>
+              </div>
+            )}
+            
+            {isFreePlanLimit && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                <p className="text-sm text-amber-800 mb-1">
+                  ✨ Want more review options?
+                </p>
+                <p className="text-xs text-amber-600">
+                  This store is on the Free plan. Pro users get unlimited regenerations!
+                </p>
+              </div>
             )}
           </div>
 

@@ -41,42 +41,275 @@ interface LandingWithStore {
   review_expectations?: string[]
 }
 
+// Character personas for variety
+const CHARACTER_PERSONAS = [
+  // Regular customers
+  'a regular local customer who visits often',
+  'been coming here for years and finally writing a review',
+  'a loyal customer who keeps coming back every week',
+  'someone who lives nearby and walks here all the time',
+  
+  // First timers
+  'a first-time visitor who was pleasantly surprised',
+  'skeptical at first but totally converted now',
+  'finally tried this place after walking past it a hundred times',
+  'tourist visiting the area who stumbled upon this gem',
+  
+  // Professionals
+  'a busy professional who values efficiency and quality',
+  'work nearby and this has become my go-to spot',
+  'grabbed lunch here between meetings',
+  'remote worker who needed a change of scenery',
+  
+  // Parents and families
+  'a parent with young kids who appreciates kid-friendly places',
+  'brought the whole family including picky eaters',
+  'mom of three looking for places that work for everyone',
+  'grandparent taking grandkids out for a treat',
+  
+  // Age groups
+  'an older customer who appreciates good old-fashioned service',
+  'young adult who found this through TikTok actually',
+  'college student on a budget',
+  'retiree with time to enjoy the little things',
+  
+  // Social situations
+  'someone celebrating a special occasion',
+  'brought my date here and wanted to impress them',
+  'met up with old friends I hadn\'t seen in months',
+  'hosting out-of-town relatives',
+  'girls night out with my friends',
+  'guys trip and we needed fuel',
+  
+  // Personalities
+  'a non-native English speaker who moved here recently',
+  'someone who doesn\'t usually write reviews but felt compelled to',
+  'a skeptic who was won over despite low expectations',
+  'a foodie/enthusiast who knows quality when I see it',
+  'quiet introvert who appreciated the chill atmosphere',
+  'someone who\'s tried basically every place in town',
+  'picky eater who\'s hard to please',
+  'someone with dietary restrictions who usually struggles',
+  
+  // Situational
+  'someone in a rush who was impressed by speed',
+  'had a rough day and needed something to cheer me up',
+  'recovering from being sick and this hit the spot',
+  'jet-lagged traveler who needed exactly this',
+  'hungover and desperate for good food',
+  'pregnant and dealing with weird cravings',
+  'post-workout and starving',
+  'killing time before a movie nearby',
+  
+  // Referral types
+  'my coworker wouldn\'t stop talking about this place',
+  'my partner dragged me here and I\'m glad they did',
+  'saw this on Instagram and had to check it out',
+  'Yelp recommended this and for once it was right',
+  'read about this in a local blog',
+  
+  // Quirky/specific
+  'night owl who appreciates late hours',
+  'morning person who needs early options',
+  'someone who judges places by their bathroom cleanliness',
+  'former industry worker who knows what good service looks like',
+  'someone who\'s lived in 5 different cities and has high standards',
+]
+
+// Reasons for visiting
+const VISIT_REASONS = [
+  // Work related
+  'stopped by on my lunch break',
+  'came here after a long day at work',
+  'needed coffee before a big meeting',
+  'grabbed something quick between appointments',
+  'working remotely and needed to get out of the house',
+  'celebrating finally finishing a big project',
+  'stress eating after a rough day at the office',
+  
+  // Social
+  'my friend recommended this place months ago',
+  'came here for a birthday celebration',
+  'met up with friends I hadn\'t seen in forever',
+  'first date and wanted somewhere casual but good',
+  'anniversary dinner with my partner',
+  'catching up with an old college roommate',
+  'team lunch with coworkers',
+  'baby shower for my sister',
+  'post-funeral gathering needed comfort food',
+  
+  // Discovery
+  'found it while walking around the neighborhood',
+  'saw good reviews online and had to try it',
+  'drove past this place every day and finally stopped',
+  'Google maps said this was nearby when I was starving',
+  'the place I usually go to was closed so tried this instead',
+  'taking a different route home and spotted it',
+  'Uber driver recommended it actually',
+  
+  // Repeat visits
+  'been coming here for years honestly',
+  'this is probably my tenth time here',
+  'came back after a great first experience last month',
+  'dragged my family here because I couldn\'t stop talking about it',
+  'brought friends from out of town to show off the local spots',
+  
+  // Timing
+  'needed something quick before catching a flight',
+  'late night craving hit hard',
+  'early morning before everyone else woke up',
+  'rainy day and needed somewhere cozy',
+  'it was hot outside and needed AC and cold drinks',
+  'waiting for my car at the shop nearby',
+  'killing time before a doctor\'s appointment',
+  
+  // Circumstantial  
+  'treating myself after a long week',
+  'reward for hitting the gym this morning',
+  'comfort food after a breakup honestly',
+  'celebrating getting a new job',
+  'needed to get out of the house during renovations',
+  'first outing after being sick for a week',
+  'wanted to try something new instead of cooking',
+  'groceries looked sad so decided to eat out instead',
+  
+  // Family
+  'brought my family here for dinner',
+  'kids were begging to go somewhere',
+  'needed to entertain visiting in-laws',
+  'took my mom out for Mother\'s Day',
+  'dad was in town and wanted to show him around',
+  'family tradition every Sunday',
+  
+  // Specific needs
+  'needed a place with good wifi to work',
+  'looking for somewhere with outdoor seating',
+  'wanted to try their new menu items',
+  'heard they had vegan options finally',
+  'craving specifically what they make here',
+  'only place open this late that looked decent',
+]
+
+// Helper to pick random items from array
+function pickRandom<T>(arr: T[], count: number): T[] {
+  if (arr.length === 0) return []
+  const shuffled = [...arr].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, Math.min(count, arr.length))
+}
+
+// Helper to pick one random item
+function pickOne<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+// Example REAL human reviews to guide the model
+const EXAMPLE_HUMAN_REVIEWS = [
+  "Ok so I was skeptical but my coworker kept bugging me to try this place. Finally gave in last Tuesday and damn, she was right. Got the chicken sandwich and it was honestly really good. Nothing fancy but just solid food you know?",
+  "Came here with my bf for our anniversary. Wasn't sure what to expect but the waiter was super nice and helped us pick out wine. Food took a while but worth the wait imo",
+  "3rd time here this month lol. Can't stop thinking about their tacos. My kids are obsessed too which is rare because they're picky af. Parking kinda sucks but whatever",
+  "Finally a place that gets it right. I've tried like 5 other spots in the area and this one actually knows what they're doing. The owner remembered my name on my second visit which was cool",
+  "Not gonna lie, I almost didn't come in bc it looked empty but so glad I did. Super chill vibe, good music playing, and the coffee was strong without being bitter. New go-to for sure",
+  "My mom recommended this place and she's usually wrong about restaurants lmao but this time she nailed it. We shared a few dishes and everything was fresh. Waitress was a little slow but no big deal",
+  "Stopped in on a whim while waiting for my car at the shop next door. Pleasantly surprised! Nothing groundbreaking but everything was done well. The soup hit different on a cold day like today",
+  "Been meaning to try this spot forever. Finally made it last weekend with some friends. We got way too much food but no regrets. That dessert though... I'm still thinking about it",
+]
+
 async function generateReview(landing: LandingWithStore): Promise<string> {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
   
-  const keywordsStr = landing.keywords && landing.keywords.length > 0 
-    ? landing.keywords.join(', ') 
-    : 'quality service, great experience'
+  // Pick 1-2 random keywords
+  const keywordCount = Math.random() < 0.6 ? 1 : 2
+  const selectedKeywords = landing.keywords && landing.keywords.length > 0 
+    ? pickRandom(landing.keywords, keywordCount)
+    : ['good']
+  const keywordsStr = selectedKeywords.join(' and ')
 
-  const expectationsStr = landing.review_expectations && landing.review_expectations.length > 0
-    ? landing.review_expectations.join(', ')
-    : ''
+  // Pick 0-1 random expectations (sometimes none)
+  const expectationCount = Math.random() < 0.4 ? 0 : 1
+  const selectedExpectations = landing.review_expectations && landing.review_expectations.length > 0
+    ? pickRandom(landing.review_expectations, expectationCount)
+    : []
+  const expectationsStr = selectedExpectations.length > 0 ? selectedExpectations[0] : ''
+
+  // Random sentence count (real reviews are often short)
+  const sentenceCount = pickOne([2, 2, 3, 3, 3, 4, 5])
+
+  // Random character persona
+  const persona = pickOne(CHARACTER_PERSONAS)
+  
+  // Random visit reason
+  const visitReason = pickOne(VISIT_REASONS)
+
+  // Random quirks that real people have
+  const quirks = []
+  if (Math.random() < 0.3) quirks.push('use "lol", "lmao", or "haha" once')
+  if (Math.random() < 0.25) quirks.push('use "gonna", "kinda", "gotta", or "wanna"')
+  if (Math.random() < 0.2) quirks.push('include a minor typo like "teh", "definately", "resturant", or missing apostrophe')
+  if (Math.random() < 0.3) quirks.push('use "..." or "—" mid-thought')
+  if (Math.random() < 0.25) quirks.push('abbreviate something like "bf", "bc", "tbh", "imo", or "ngl"')
+  if (Math.random() < 0.2) quirks.push('start a sentence with "And" or "But" or "So"')
+  if (Math.random() < 0.15) quirks.push('use lowercase "i" instead of "I" once')
+
+  // Pick 2 example reviews to show
+  const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
 
   // Handle multiple business types (comma-separated)
   const businessTypeDisplay = landing.business_type 
     ? landing.business_type.split(',').map(t => t.trim()).join(' / ')
     : 'business'
     
-  const prompt = `Generate a genuine, authentic 2-3 sentence positive review for a ${businessTypeDisplay} called "${landing.store_name}".
+  const prompt = `Write a Google/Yelp review for "${landing.store_name}" (a ${businessTypeDisplay}).
 
-Requirements:
-- Include these keywords/aspects naturally: ${keywordsStr}
-${expectationsStr ? `- Focus on these qualities: ${expectationsStr}` : ''}
-- Sound like a real customer, not AI-generated
-- Be specific but not over-the-top
-- No hashtags or emojis
-- Warm and genuine tone
+YOU ARE: ${persona}
+CONTEXT: ${visitReason}
 
-Write only the review text, nothing else.`
+WORK IN NATURALLY: ${keywordsStr}${expectationsStr ? ` and mention ${expectationsStr}` : ''}
+
+LENGTH: ${sentenceCount} sentences. Keep it real, not a novel.
+
+HERE ARE REAL HUMAN REVIEWS FOR REFERENCE (match this vibe, NOT the content):
+"${exampleReviews[0]}"
+"${exampleReviews[1]}"
+
+CRITICAL - SOUND HUMAN BY:
+${quirks.length > 0 ? quirks.map(q => `• ${q}`).join('\n') : '• Write casually like texting a friend'}
+• Use contractions (don't, wasn't, couldn't, it's)
+• Be specific about ONE thing you liked, not everything
+• It's ok to mention something small that wasn't perfect
+• Write like you're telling a friend, not writing an essay
+• Real people ramble a bit and go off topic
+
+ABSOLUTE BANNED PHRASES (instant AI detection):
+❌ "I recently visited" / "I had the pleasure" / "I recently had the opportunity"
+❌ "exceptional" / "impeccable" / "delightful" / "exquisite" / "phenomenal"  
+❌ "exceeded expectations" / "went above and beyond" / "top-notch"
+❌ "I highly recommend" / "I would definitely recommend" / "I can't recommend enough"
+❌ "I will definitely be back" / "I'll be returning" / "can't wait to come back"
+❌ "friendly and attentive staff" / "warm and welcoming atmosphere"
+❌ "hidden gem" (overused) / "a must-try" / "a treat for the senses"
+❌ "from start to finish" / "from the moment we walked in"
+❌ Perfect punctuation and grammar throughout
+❌ Listing multiple compliments in a row
+❌ More than one exclamation point total
+❌ Starting with the business name
+
+Just write the review. No quotes. No "Here's a review:" preamble.`
 
   try {
-    const result = await model.generateContent(prompt)
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 1.4, // Even higher for more natural variation
+        topP: 0.95,
+        topK: 50,
+      },
+    })
     const response = result.response
-    return response.text().trim()
+    return response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
   } catch (error) {
     console.error('Gemini API error:', error)
     // Fallback review if API fails
-    return `Had a great experience at ${landing.store_name}. The service was excellent and I would definitely recommend them!`
+    return `Solid spot. Came here last week and was impressed with the ${selectedKeywords[0] || 'vibe'}. Would come back.`
   }
 }
 
@@ -125,8 +358,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (cacheValid && !regenerate) {
       review = landing.cached_review
     } else {
-      // Rate limit regenerations
+      // Check subscription tier for regeneration
       if (regenerate) {
+        // Get the store owner's subscription tier
+        const { rows: tierRows } = await sql`
+          SELECT u.subscription_tier 
+          FROM landing_pages lp
+          JOIN stores s ON lp.store_id = s.id
+          JOIN users u ON s.user_id = u.id
+          WHERE lp.id = ${id}
+        `
+        const userTier = tierRows[0]?.subscription_tier || 'free'
+        
+        // Free plan users cannot regenerate
+        if (userTier === 'free') {
+          return res.status(403).json({ 
+            error: 'Free plan limitation', 
+            message: 'Upgrade to Pro for unlimited review regenerations!',
+            isPlanLimit: true
+          })
+        }
+        
+        // Rate limit regenerations for paid users too
         const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
                    req.socket.remoteAddress || 
                    'unknown'
