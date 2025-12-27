@@ -1,9 +1,11 @@
 import { useState, KeyboardEvent, useRef, useEffect } from 'react';
-import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Search, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Search, Loader2, Lock } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface AddStoreModalProps {
   store?: Store;
+  tier?: 'free' | 'pro';
   onClose: () => void;
   onSave: (store: Store | Omit<Store, 'id'>) => void;
 }
@@ -1640,7 +1642,7 @@ function parseAddress(address: string): { street: string; city: string; state: s
   return { street: address, city: '', state: '', zip: '' };
 }
 
-export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalProps) {
+export default function AddStoreModal({ store, tier = 'free', onClose, onSave }: AddStoreModalProps) {
   const [name, setName] = useState(store?.name || '');
   
   // Parse existing address into parts
@@ -2126,25 +2128,44 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             />
           </div>
 
-          {/* Review Expectations */}
-          <div>
+          {/* Review Expectations - Pro Only */}
+          <div className={tier === 'free' ? 'relative' : ''}>
+            {tier === 'free' && (
+              <div className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] z-10 rounded-lg flex items-center justify-center">
+                <Link
+                  href="/upgrade"
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                >
+                  <Lock className="w-4 h-4" />
+                  Upgrade to Pro to customize review focus
+                </Link>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-              Review Expectations
-            </label>
-              <button
-                type="button"
-                onClick={() => {
-                  if (expectations.length === REVIEW_EXPECTATIONS.length) {
-                    setExpectations([]);
-                  } else {
-                    setExpectations([...REVIEW_EXPECTATIONS]);
-                  }
-                }}
-                className="text-xs text-emerald-600 hover:text-emerald-700"
-              >
-                {expectations.length === REVIEW_EXPECTATIONS.length ? 'Deselect All' : 'Select All'}
-              </button>
+              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                Review Expectations
+                {tier === 'free' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
+                    <Lock className="w-3 h-3" />
+                    Pro
+                  </span>
+                )}
+              </label>
+              {tier === 'pro' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (expectations.length === REVIEW_EXPECTATIONS.length) {
+                      setExpectations([]);
+                    } else {
+                      setExpectations([...REVIEW_EXPECTATIONS]);
+                    }
+                  }}
+                  className="text-xs text-emerald-600 hover:text-emerald-700"
+                >
+                  {expectations.length === REVIEW_EXPECTATIONS.length ? 'Deselect All' : 'Select All'}
+                </button>
+              )}
             </div>
             <p className="text-xs text-gray-500 mb-3">
               What should customers focus on in their review? <span className="text-gray-400">(AI will highlight one of these per generated review)</span>
@@ -2154,11 +2175,14 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 <button
                   key={exp}
                   type="button"
-                  onClick={() => toggleExpectation(exp)}
+                  onClick={() => tier === 'pro' && toggleExpectation(exp)}
+                  disabled={tier === 'free'}
                   className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
                     expectations.includes(exp)
                       ? 'bg-emerald-600 text-white border-emerald-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
+                      : tier === 'free'
+                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
                   }`}
                 >
                   {exp}

@@ -383,6 +383,7 @@ export default function Dashboard() {
         {/* Modals */}
         {isAddModalOpen && (
           <AddStoreModal
+            tier={stats.tier as 'free' | 'pro'}
             onClose={() => setIsAddModalOpen(false)}
             onSave={handleAddStore}
           />
@@ -391,6 +392,7 @@ export default function Dashboard() {
         {editingStore && (
           <AddStoreModal
             store={editingStore}
+            tier={stats.tier as 'free' | 'pro'}
             onClose={() => setEditingStore(null)}
             onSave={(store) => handleEditStore(store as Store)}
           />

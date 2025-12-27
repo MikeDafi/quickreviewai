@@ -31,6 +31,7 @@ export default function LandingPage() {
   const { id } = router.query;
   const [data, setData] = useState<LandingData | null>(null);
   const [review, setReview] = useState('');
+  const [reviewEventId, setReviewEventId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -78,6 +79,9 @@ export default function LandingPage() {
       
       setData(result.landing);
       setReview(result.review);
+      if (result.reviewEventId) {
+        setReviewEventId(result.reviewEventId);
+      }
     } catch (err) {
       setError('Failed to load landing page');
     } finally {
@@ -125,6 +129,9 @@ export default function LandingPage() {
       
       if (res.ok) {
         setReview(result.review);
+        if (result.reviewEventId) {
+          setReviewEventId(result.reviewEventId);
+        }
       }
     } catch (err) {
       console.error('Failed to regenerate:', err);
@@ -136,18 +143,26 @@ export default function LandingPage() {
   async function handleCopy() {
     await navigator.clipboard.writeText(review);
     setCopied(true);
-    // Track copy (skip for demo)
+    // Track copy (skip for demo) - include reviewEventId for analytics
     if (!isDemo) {
-      fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
+      fetch(`/api/generate?id=${id}&action=copy`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewEventId })
+      }).catch(() => {});
     }
     // Keep copied state for 30 seconds so user has time to click a button
     setTimeout(() => setCopied(false), 30000);
   }
 
   async function trackClick(platform: string) {
-    // Skip tracking for demo
+    // Skip tracking for demo - include reviewEventId for analytics
     if (!isDemo) {
-      fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
+      fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewEventId })
+      }).catch(() => {});
     }
   }
 

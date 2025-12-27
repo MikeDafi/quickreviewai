@@ -174,13 +174,13 @@ export default function Upgrade() {
           </div>
 
           <div className="text-center mt-6 space-y-2">
-            <Link 
-              href="/dashboard" 
+            <button 
+              onClick={() => router.back()}
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
-            </Link>
+              Go Back
+            </button>
             <p className="text-xs text-gray-500">
               Questions? Contact us at quickreviewai@gmail.com
             </p>

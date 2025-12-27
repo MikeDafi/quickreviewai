@@ -84,10 +84,14 @@ async function checkRateLimit(ip: string, landingId: string, maxRequests: number
 }
 
 interface LandingWithStore {
+  id: string
+  store_id: string
   store_name: string
   business_type: string
   keywords: string[]
   review_expectations?: string[]
+  google_url?: string
+  yelp_url?: string
 }
 
 // Character personas for variety
@@ -454,7 +458,18 @@ const REVIEW_OPENERS = [
   "10/10",
 ]
 
-async function generateReview(landing: LandingWithStore): Promise<string> {
+// Review generation result with metadata for analytics
+interface ReviewResult {
+  review: string
+  metadata: {
+    keywordsUsed: string[]
+    expectationsUsed: string[]
+    lengthType: string
+    persona: string
+  }
+}
+
+async function generateReview(landing: LandingWithStore): Promise<ReviewResult> {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
   
   // Pick 1-2 random keywords
@@ -557,6 +572,14 @@ ABSOLUTE BANNED PHRASES (instant AI detection):
 
 Just write the review. No quotes. No "Here's a review:" preamble.`
 
+  // Build metadata object to return with review
+  const metadata = {
+    keywordsUsed: selectedKeywords,
+    expectationsUsed: selectedExpectations,
+    lengthType: lengthProfile.type,
+    persona: persona,
+  }
+
   try {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -567,7 +590,8 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
       },
     })
     const response = result.response
-    return response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
+    const reviewText = response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
+    return { review: reviewText, metadata }
   } catch (error) {
     console.error('Gemini API error:', error)
     // Varied fallback reviews if API fails
@@ -578,7 +602,7 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
       `Been here a few times now. Consistently good ${selectedKeywords[0] || 'stuff'}. No complaints.`,
       `My friend kept telling me to try this spot. Glad I listened, the ${selectedKeywords[0] || 'service'} was on point.`,
     ]
-    return pickOne(fallbacks)
+    return { review: pickOne(fallbacks), metadata }
   }
 }
 
@@ -592,8 +616,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Handle tracking actions (POST requests)
     if (req.method === 'POST') {
+      const { reviewEventId } = req.body || {}
+      
       if (action === 'copy') {
         await incrementCopyCount(id)
+        // Mark the specific review event as copied (for analytics)
+        if (reviewEventId) {
+          await sql`
+            UPDATE review_events 
+            SET was_copied = true 
+            WHERE id = ${reviewEventId}
+          `.catch(() => {}) // Silently fail if table doesn't exist yet
+        }
         return res.status(200).json({ success: true })
       }
       if (action === 'click' && platform) {
@@ -603,6 +637,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           SET click_counts = click_counts || jsonb_build_object(${platform as string}, COALESCE((click_counts->${platform as string})::int, 0) + 1)
           WHERE id = ${id}
         `
+        // Mark the review event as pasted to Google or Yelp (for analytics)
+        if (reviewEventId) {
+          if (platform === 'google') {
+            await sql`
+              UPDATE review_events 
+              SET was_pasted_google = true 
+              WHERE id = ${reviewEventId}
+            `.catch(() => {}) // Silently fail if table doesn't exist yet
+          } else if (platform === 'yelp') {
+            await sql`
+              UPDATE review_events 
+              SET was_pasted_yelp = true 
+              WHERE id = ${reviewEventId}
+            `.catch(() => {}) // Silently fail if table doesn't exist yet
+          }
+        }
         return res.status(200).json({ success: true })
       }
       return res.status(400).json({ error: 'Invalid action' })
@@ -673,10 +723,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     let review: string
+    let reviewEventId: string | null = null
+
+    // Check for cached review event ID
+    const eventCacheKey = `review_event:${id}:${ipHash}`
+    let cachedEventId: string | null = null
+    try {
+      cachedEventId = await kv.get<string>(eventCacheKey)
+    } catch (error) {
+      // Ignore cache errors
+    }
 
     if (cachedReview && !regenerate) {
       // Use the cached review for this IP
       review = cachedReview
+      reviewEventId = cachedEventId
     } else {
       // Rate limit regenerations (using Vercel KV)
       if (regenerate) {
@@ -725,8 +786,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
       
-      // Generate new review
-      review = await generateReview(landing as LandingWithStore)
+      // Generate new review with metadata
+      const result = await generateReview(landing as LandingWithStore)
+      review = result.review
+      
+      // Save review event to database for analytics (skip demo)
+      if (!isDemo && landing.store_id) {
+        try {
+          // Convert arrays to JSON strings for PostgreSQL array insertion
+          const keywordsJson = JSON.stringify(result.metadata.keywordsUsed || [])
+          const expectationsJson = JSON.stringify(result.metadata.expectationsUsed || [])
+          
+          const { rows: [event] } = await sql`
+            INSERT INTO review_events (
+              landing_page_id, 
+              store_id, 
+              review_text, 
+              keywords_used, 
+              expectations_used, 
+              length_type, 
+              persona, 
+              ip_hash
+            ) VALUES (
+              ${id},
+              ${landing.store_id},
+              ${review},
+              CASE WHEN ${keywordsJson}::text = '[]' THEN NULL 
+                   ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
+              CASE WHEN ${expectationsJson}::text = '[]' THEN NULL 
+                   ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
+              ${result.metadata.lengthType},
+              ${result.metadata.persona},
+              ${ipHash}
+            )
+            RETURNING id
+          `
+          reviewEventId = event?.id || null
+          
+          // Cache the event ID
+          if (reviewEventId) {
+            await kv.set(eventCacheKey, reviewEventId, { ex: CACHE_TTL_SECONDS })
+          }
+        } catch (error) {
+          // Log but don't fail if analytics insert fails (table might not exist yet)
+          console.error('Failed to save review event:', error)
+        }
+      }
       
       // Cache the review for this specific IP (24 hour TTL)
       try {
@@ -745,6 +850,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         yelp_url: landing.yelp_url,
       },
       review,
+      reviewEventId, // Include for tracking copy/click actions
     })
   } catch (error) {
     console.error('Generate API error:', error)

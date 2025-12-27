@@ -68,16 +68,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const subscription = await stripe.subscriptions.retrieve(subscriptionId)
         const priceId = subscription.items.data[0]?.price.id
         
-        // Map price IDs to tiers (you'll need to set these up in Stripe)
+        // Map price IDs to tiers
         let tier = 'pro'
         if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) {
           tier = 'business'
         }
 
-        // Update user subscription
+        // Update user subscription with tracking fields
+        // first_subscribed_at is only set on first ever subscription (COALESCE keeps existing value)
         await sql`
           UPDATE users 
-          SET stripe_customer_id = ${customerId}, subscription_tier = ${tier}
+          SET 
+            stripe_customer_id = ${customerId},
+            stripe_subscription_id = ${subscriptionId},
+            subscription_tier = ${tier},
+            subscription_started_at = NOW(),
+            first_subscribed_at = COALESCE(first_subscribed_at, NOW())
           WHERE email = ${session.customer_email}
         `
         break
@@ -109,7 +115,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         
         await sql`
           UPDATE users 
-          SET subscription_tier = 'free'
+          SET 
+            subscription_tier = 'free',
+            stripe_subscription_id = NULL,
+            subscription_started_at = NULL
           WHERE stripe_customer_id = ${customerId}
         `
         break

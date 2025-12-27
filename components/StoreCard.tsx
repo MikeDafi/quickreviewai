@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock } from 'lucide-react';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface StoreCardProps {
@@ -125,6 +125,26 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
                 <ChevronUp className="w-3 h-3" />
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Review Expectations Row - Pro Only */}
+      {tier === 'pro' && store.reviewExpectations && store.reviewExpectations.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <MessageSquare className="w-4 h-4 text-purple-500" />
+            <span className="text-xs font-medium text-purple-700">Review Focus</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {store.reviewExpectations.map((exp, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-sm"
+              >
+                {exp}
+              </span>
+            ))}
           </div>
         </div>
       )}
