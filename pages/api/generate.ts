@@ -56,21 +56,30 @@ async function checkRateLimit(ip: string, landingId: string, maxRequests: number
   const key = `ratelimit:${ip}:${landingId}`
   
   try {
-    // Get current count
-    const count = await kv.get<number>(key) || 0
+    // Atomic increment - this avoids race conditions
+    // incr returns the NEW value after incrementing
+    const newCount = await kv.incr(key)
     
-    if (count >= maxRequests) {
+    // Set expiry on first request (when newCount = 1)
+    // Using a separate call, but if it fails, the key will eventually be cleaned up
+    // by subsequent successful expire calls or we can handle it
+    if (newCount === 1) {
+      // Set TTL - if this fails, try to delete the key to avoid permanent blocks
+      try {
+        await kv.expire(key, RATE_LIMIT.WINDOW_SECONDS)
+      } catch (expireError) {
+        console.error('Failed to set rate limit expiry, deleting key:', expireError)
+        await kv.del(key).catch(() => {})
+        // Allow this request since we couldn't set up rate limiting properly
+        return { allowed: true, remaining: maxRequests - 1, resetIn: RATE_LIMIT.WINDOW_SECONDS * 1000 }
+      }
+    }
+    
+    // Check if over limit AFTER incrementing (atomic check)
+    if (newCount > maxRequests) {
       // Get TTL to know when it resets
       const ttl = await kv.ttl(key)
       return { allowed: false, remaining: 0, resetIn: Math.max(ttl, 0) * 1000 }
-    }
-    
-    // Increment counter
-    const newCount = await kv.incr(key)
-    
-    // Set expiry only on first request (when count was 0)
-    if (newCount === 1) {
-      await kv.expire(key, RATE_LIMIT.WINDOW_SECONDS)
     }
     
     return { 
@@ -734,7 +743,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         
         if (!alreadyCopied) {
           // First copy from this IP in the last hour - count it
-        await incrementCopyCount(id)
+          await incrementCopyCount(id)
           // Set rate limit flag for 1 hour
           await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
         }

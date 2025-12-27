@@ -233,7 +233,7 @@ export default function DemoLandingPage() {
           {/* Footer */}
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              Powered by <a href="https://quickreviewai.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-medium hover:text-emerald-700 hover:underline">QuickReviewAI</a>
+              Powered by <a href="/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-medium hover:text-emerald-700 hover:underline">QuickReviewAI</a>
             </p>
           </div>
         </div>

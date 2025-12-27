@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       success: true, 
       deletedReviewEvents,
       deletedAccounts: deletedAccountCount,
-      deletedAccountEmails: deletedUsers.map(u => u.email),
+      // Don't expose user emails in API response for privacy
     })
   } catch (error) {
     console.error('Cleanup error:', error)

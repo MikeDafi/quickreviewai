@@ -99,11 +99,12 @@ export async function getUserByEmail(email: string) {
 // Also restores soft-deleted accounts when user signs in again
 export async function upsertUser(user: { id: string; email: string; name?: string }) {
   const { rows } = await sql`
-    INSERT INTO users (id, email, name)
-    VALUES (${user.id}, ${user.email}, ${user.name || null})
+    INSERT INTO users (id, email, name, deleted_at)
+    VALUES (${user.id}, ${user.email}, ${user.name || null}, NULL)
     ON CONFLICT (id) DO UPDATE SET
       email = EXCLUDED.email,
-      name = EXCLUDED.name
+      name = EXCLUDED.name,
+      deleted_at = NULL
     RETURNING *
   `
   return rows[0]

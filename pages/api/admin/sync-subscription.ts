@@ -5,8 +5,8 @@ import Stripe from 'stripe'
 import { sql } from '@/lib/db'
 import { SubscriptionTier } from '@/lib/constants'
 
-// Admin emails allowed to use this endpoint
-const ADMIN_EMAILS = ['spindafi1@gmail.com']
+// Admin emails allowed to use this endpoint (comma-separated in env var)
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').filter(Boolean)
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
 if (!STRIPE_SECRET_KEY) {

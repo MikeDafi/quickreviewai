@@ -126,7 +126,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
 
             {/* Footer */}
             <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400">Powered by <a href="https://quickreviewai.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 hover:underline">QuickReviewAI</a></p>
+              <p className="text-xs text-gray-400">Powered by <a href="/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 hover:underline">QuickReviewAI</a></p>
             </div>
           </div>
 
