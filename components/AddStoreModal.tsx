@@ -1407,6 +1407,112 @@ const keywordSuggestions: Record<string, string[]> = {
     'elementary', 'middle school', 'high school', 'college', 'one on one', 'small group', 'online', 'in person', 'after school', 'summer',
     'assessment', 'progress report', 'hourly rate', 'package', 'flexible schedule', 'certified', 'experienced', 'background check', 'free consultation', 'trial session'
   ],
+  'Music School': [
+    'music lessons', 'music school', 'lessons', 'instruction', 'teacher', 'instructor', 'private lesson', 'group lesson', 'class', 'learn',
+    'piano', 'guitar', 'violin', 'drums', 'voice', 'singing', 'vocal', 'bass', 'ukulele', 'saxophone',
+    'beginner', 'intermediate', 'advanced', 'kids', 'adult', 'all ages', 'fundamentals', 'technique', 'theory', 'reading music',
+    'recital', 'performance', 'practice', 'practice room', 'instrument rental', 'sheet music', 'books', 'materials', 'curriculum', 'progress',
+    'weekly', 'bi-weekly', 'monthly', 'schedule', 'flexible', 'makeup', 'cancellation', 'trial lesson', 'registration', 'pricing'
+  ],
+  'Driving School': [
+    'driving school', 'driving lessons', 'drivers ed', 'drivers education', 'learn to drive', 'instructor', 'teacher', 'training', 'behind the wheel', 'BTW',
+    'permit', 'license', 'DMV', 'test', 'road test', 'written test', 'practice test', 'parallel parking', 'highway', 'freeway',
+    'teen driver', 'adult driver', 'first time driver', 'refresher', 'defensive driving', 'traffic school', 'ticket dismissal', 'insurance discount', 'certificate', 'completion',
+    'classroom', 'online', 'in car', 'dual control', 'pickup', 'drop off', 'schedule', 'flexible', 'evening', 'weekend',
+    'package', 'hours', 'pricing', 'payment plan', 'permit test prep', 'license prep', 'pass rate', 'experienced', 'patient', 'bilingual'
+  ],
+  'Language School': [
+    'language school', 'language lessons', 'ESL', 'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean',
+    'learn', 'speak', 'conversation', 'grammar', 'vocabulary', 'pronunciation', 'reading', 'writing', 'listening', 'comprehension',
+    'beginner', 'intermediate', 'advanced', 'fluent', 'native speaker', 'immersion', 'intensive', 'crash course', 'business', 'travel',
+    'private lesson', 'group class', 'small group', 'online', 'in person', 'kids', 'adult', 'professional', 'certificate', 'TOEFL',
+    'schedule', 'flexible', 'weekly', 'daily', 'pricing', 'package', 'trial class', 'free assessment', 'placement test', 'progress'
+  ],
+  'Preschool': [
+    'preschool', 'pre-k', 'pre-kindergarten', 'early childhood', 'early education', 'school', 'program', 'curriculum', 'learning', 'development',
+    'toddler', 'age 2', 'age 3', 'age 4', 'age 5', 'potty trained', 'not potty trained', 'half day', 'full day', 'extended day',
+    'play based', 'Montessori', 'Reggio', 'academic', 'kindergarten prep', 'school readiness', 'social skills', 'emotional development', 'cognitive', 'physical',
+    'licensed', 'accredited', 'certified teachers', 'ratio', 'class size', 'small class', 'outdoor play', 'playground', 'meals', 'snacks',
+    'tuition', 'registration', 'waitlist', 'enrollment', 'tour', 'open house', 'schedule', 'calendar', 'summer', 'year round'
+  ],
+  'After School Program': [
+    'after school', 'after school program', 'after care', 'extended care', 'homework help', 'tutoring', 'enrichment', 'activities', 'supervision', 'care',
+    'pickup', 'transportation', 'bus', 'school pickup', 'elementary', 'middle school', 'K-8', 'ages 5-12', 'snack', 'meals',
+    'homework time', 'study hall', 'academic support', 'reading', 'math', 'STEM', 'arts', 'sports', 'recreation', 'clubs',
+    'licensed', 'certified', 'background check', 'ratio', 'safe', 'secure', 'sign out', 'authorized pickup', 'emergency contact', 'communication',
+    'daily rate', 'weekly', 'monthly', 'drop in', 'registration', 'enrollment', 'schedule', 'hours', 'early dismissal', 'school closure'
+  ],
+  'Summer Camp': [
+    'summer camp', 'camp', 'day camp', 'summer program', 'kids', 'children', 'youth', 'ages 5-12', 'teens', 'young adults',
+    'weekly sessions', 'full day', 'half day', 'extended care', 'early drop off', 'late pickup', 'bus', 'transportation', 'lunch', 'snacks',
+    'activities', 'sports', 'swimming', 'arts and crafts', 'nature', 'science', 'STEM', 'music', 'drama', 'dance',
+    'field trips', 'special events', 'theme weeks', 'counselors', 'ratio', 'supervision', 'safety', 'certified', 'first aid', 'CPR',
+    'registration', 'enrollment', 'tuition', 'discount', 'sibling', 'early bird', 'scholarship', 'financial aid', 'forms', 'medical'
+  ],
+  'Art School': [
+    'art school', 'art class', 'art lessons', 'studio', 'instruction', 'teacher', 'artist', 'learn', 'create', 'express',
+    'drawing', 'painting', 'sculpture', 'pottery', 'ceramics', 'printmaking', 'mixed media', 'collage', 'digital art', 'illustration',
+    'watercolor', 'acrylic', 'oil', 'pastel', 'charcoal', 'pencil', 'ink', 'canvas', 'paper', 'clay',
+    'kids', 'teens', 'adults', 'beginner', 'intermediate', 'advanced', 'all levels', 'private lesson', 'group class', 'workshop',
+    'supplies', 'materials included', 'easel', 'kiln', 'wheel', 'schedule', 'weekly', 'session', 'drop in', 'registration'
+  ],
+  'Cooking Class': [
+    'cooking class', 'culinary', 'learn to cook', 'instruction', 'chef', 'instructor', 'hands on', 'demonstration', 'recipe', 'technique',
+    'Italian', 'French', 'Asian', 'Mexican', 'Indian', 'Mediterranean', 'baking', 'pastry', 'bread', 'dessert',
+    'knife skills', 'basics', 'fundamentals', 'intermediate', 'advanced', 'date night', 'couples', 'team building', 'corporate', 'private',
+    'kids', 'teens', 'adults', 'family', 'birthday party', 'bachelorette', 'group', 'event', 'private event', 'booking',
+    'menu', 'tasting', 'wine pairing', 'BYOB', 'apron', 'supplies', 'recipes', 'take home', 'schedule', 'registration'
+  ],
+  'Dance School': [
+    'dance school', 'dance studio', 'dance class', 'lessons', 'instruction', 'teacher', 'choreography', 'learn', 'technique', 'style',
+    'ballet', 'jazz', 'tap', 'hip hop', 'contemporary', 'modern', 'lyrical', 'ballroom', 'Latin', 'salsa',
+    'kids', 'teens', 'adults', 'beginner', 'intermediate', 'advanced', 'recreational', 'competitive', 'company', 'team',
+    'private lesson', 'group class', 'drop in', 'trial class', 'registration', 'tuition', 'schedule', 'weekly', 'session', 'semester',
+    'recital', 'performance', 'costume', 'competition', 'convention', 'workshop', 'summer intensive', 'dress code', 'shoes', 'attire'
+  ],
+  'Swim School': [
+    'swim school', 'swim lessons', 'swimming lessons', 'learn to swim', 'instructor', 'teacher', 'coach', 'pool', 'water', 'aquatics',
+    'baby swim', 'infant', 'toddler', 'preschool', 'kids', 'child', 'teen', 'adult', 'beginner', 'advanced',
+    'water safety', 'survival', 'stroke', 'freestyle', 'backstroke', 'breaststroke', 'butterfly', 'treading', 'floating', 'diving',
+    'private lesson', 'semi-private', 'group lesson', 'small group', 'class size', 'ratio', 'warm water', 'heated pool', 'indoor', 'outdoor',
+    'schedule', 'session', 'weekly', 'monthly', 'makeup', 'cancellation', 'registration', 'waitlist', 'trial', 'assessment'
+  ],
+  // Financial
+  'Bank': [
+    'bank', 'banking', 'account', 'checking', 'savings', 'money market', 'CD', 'certificate of deposit', 'deposit', 'withdrawal',
+    'ATM', 'debit card', 'credit card', 'online banking', 'mobile banking', 'app', 'transfer', 'wire', 'direct deposit', 'bill pay',
+    'loan', 'personal loan', 'auto loan', 'mortgage', 'home equity', 'HELOC', 'line of credit', 'business loan', 'SBA', 'refinance',
+    'interest rate', 'APY', 'APR', 'fees', 'no fee', 'minimum balance', 'overdraft', 'protection', 'FDIC', 'insured',
+    'branch', 'hours', 'drive thru', 'appointment', 'banker', 'teller', 'notary', 'safe deposit box', 'coin counter', 'foreign currency'
+  ],
+  'Credit Union': [
+    'credit union', 'member', 'membership', 'not for profit', 'community', 'local', 'account', 'checking', 'savings', 'share',
+    'loan', 'auto loan', 'personal loan', 'mortgage', 'home equity', 'credit card', 'secured loan', 'signature loan', 'student loan', 'refinance',
+    'rate', 'low rate', 'APY', 'dividend', 'fee', 'low fee', 'no fee', 'minimum balance', 'NCUA', 'insured',
+    'ATM', 'shared branch', 'online banking', 'mobile app', 'direct deposit', 'bill pay', 'transfer', 'wire', 'cashiers check', 'money order',
+    'branch', 'hours', 'drive thru', 'appointment', 'member service', 'financial counseling', 'education', 'seminar', 'join', 'eligibility'
+  ],
+  'Check Cashing': [
+    'check cashing', 'cash check', 'checks', 'paycheck', 'payroll', 'government check', 'tax refund', 'insurance check', 'personal check', 'money order',
+    'fee', 'percentage', 'flat fee', 'low fee', 'no hold', 'instant cash', 'same day', 'walk in', 'no appointment', 'fast',
+    'money order', 'bill pay', 'utility', 'prepaid card', 'reload', 'debit card', 'wire transfer', 'Western Union', 'MoneyGram', 'international',
+    'payday loan', 'cash advance', 'installment loan', 'title loan', 'pawn', 'gold', 'tax prep', 'tax filing', 'ID', 'verification',
+    'hours', 'open late', 'weekend', 'holiday', 'location', 'parking', 'safe', 'secure', 'trusted', 'licensed'
+  ],
+  'Pawn Shop': [
+    'pawn', 'pawn shop', 'pawnbroker', 'loan', 'collateral', 'pawn loan', 'borrow', 'cash', 'quick cash', 'emergency',
+    'jewelry', 'gold', 'silver', 'diamonds', 'watches', 'electronics', 'TV', 'laptop', 'phone', 'tablet',
+    'tools', 'instruments', 'guitars', 'firearms', 'guns', 'collectibles', 'coins', 'sports memorabilia', 'designer', 'brand name',
+    'buy', 'sell', 'trade', 'appraisal', 'free quote', 'best price', 'top dollar', 'fair price', 'negotiate', 'cash offer',
+    'redeem', 'extend', 'renew', 'interest rate', 'fee', 'layaway', 'inventory', 'selection', 'deals', 'bargains'
+  ],
+  'Gold Buyer': [
+    'gold buyer', 'sell gold', 'cash for gold', 'gold', 'silver', 'platinum', 'precious metals', 'scrap gold', 'broken jewelry', 'unwanted jewelry',
+    'rings', 'necklaces', 'bracelets', 'earrings', 'watches', 'coins', 'bullion', 'bars', 'dental gold', 'gold filled',
+    'karat', '10k', '14k', '18k', '22k', '24k', 'sterling silver', '.925', 'weight', 'gram',
+    'appraisal', 'free appraisal', 'evaluation', 'quote', 'estimate', 'spot price', 'market price', 'top dollar', 'best price', 'competitive',
+    'instant cash', 'same day', 'no obligation', 'private', 'confidential', 'secure', 'licensed', 'trusted', 'reviews', 'reputation'
+  ],
   // Liquor & Beverage Retail
   'Liquor Store': [
     'wine', 'beer', 'spirits', 'liquor', 'vodka', 'whiskey', 'bourbon', 'scotch', 'tequila', 'rum',
@@ -2202,11 +2308,11 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               </div>
             )}
             <div className="flex gap-2">
-              <input
-                type="url"
-                value={googleUrl}
+            <input
+              type="url"
+              value={googleUrl}
                 onChange={(e) => handleGoogleUrlChange(e.target.value)}
-                placeholder="https://g.page/r/..."
+              placeholder="https://g.page/r/..."
                 maxLength={2000}
                 className={`flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
                   googleUrlError 
@@ -2268,11 +2374,11 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               </div>
             )}
             <div className="flex gap-2">
-              <input
-                type="url"
-                value={yelpUrl}
+            <input
+              type="url"
+              value={yelpUrl}
                 onChange={(e) => handleYelpUrlChange(e.target.value)}
-                placeholder="https://www.yelp.com/biz/..."
+              placeholder="https://www.yelp.com/biz/..."
                 maxLength={2000}
                 className={`flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
                   yelpUrlError 
