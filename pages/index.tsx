@@ -122,7 +122,7 @@ export default function Home() {
                 <div className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium mb-4">Step 3</div>
                 <h3 className="text-2xl font-semibold mb-3 text-gray-900">Collect Reviews</h3>
                 <p className="text-gray-600">
-                  Customers copy the suggested review and post to Google, Yelp, TripAdvisor, Facebook, or any platform. Watch your ratings soar.
+                  Customers copy the suggested review and post to Google, Yelp, TripAdvisor, Facebook, OpenTable, or any platform. Watch your ratings soar.
                 </p>
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function Home() {
                   'Unlimited store locations',
                   'Unlimited AI reviews',
                   'Unlimited QR scans',
-                  'Google, Yelp, TripAdvisor, Facebook, Trustpilot & more',
+                  'Google, Yelp, TripAdvisor, Facebook, OpenTable & more',
                   'Priority support',
                   'Analytics dashboard',
                   '3-day refund guarantee'

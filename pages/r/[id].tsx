@@ -39,6 +39,7 @@ export default function LandingPage() {
   const [rateLimitError, setRateLimitError] = useState('');
   const [isFreePlanLimit, setIsFreePlanLimit] = useState(false);
   const [isDemoLimit, setIsDemoLimit] = useState(false);
+  const [scanLimitReached, setScanLimitReached] = useState(false);
   const [demoReviewIndex, setDemoReviewIndex] = useState(0);
   const [demoRegenerateCount, setDemoRegenerateCount] = useState(0);
   const hasAutoCopied = useRef(false);
@@ -87,12 +88,22 @@ export default function LandingPage() {
   async function fetchLandingPage() {
     try {
       const res = await fetch(`/api/generate?id=${id}`);
+      const result = await res.json();
+      
+      // Handle scan limit reached (403 with limitReached flag)
+      if (res.status === 403 && result.limitReached) {
+        setData(result.landing);
+        setScanLimitReached(true);
+        setLoading(false);
+        return;
+      }
+      
       if (!res.ok) {
         setError('Landing page not found');
         setLoading(false);
         return;
       }
-      const result = await res.json();
+      
       setData(result.landing);
       setReview(result.review);
       

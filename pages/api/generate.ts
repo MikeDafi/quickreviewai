@@ -36,11 +36,18 @@ function getClientIP(req: NextApiRequest): string {
   return req.socket.remoteAddress || 'unknown'
 }
 
-// Rate limits per tier
+// Rate limits per tier (for regeneration)
 const RATE_LIMITS = {
   demo: 3,   // Demo page: 3 per hour
   free: 1,   // Free users: 1 per hour per landing page
   pro: 10,   // Pro users: 10 per hour per landing page
+}
+
+// Monthly scan limits per tier
+const SCAN_LIMITS = {
+  free: 15,      // 15 scans/month for free users
+  pro: Infinity, // Unlimited for pro
+  business: Infinity,
 }
 
 async function checkRateLimit(ip: string, landingId: string, maxRequests: number): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
@@ -420,6 +427,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!landing) {
       // Generic error - don't confirm whether ID format is valid
       return res.status(404).json({ error: 'Not found' })
+    }
+
+    // Check monthly scan limit for the store owner (skip for demo)
+    const isDemo = id === 'demo'
+    if (!isDemo) {
+      const { rows: [scanCheck] } = await sql`
+        SELECT 
+          COALESCE(u.subscription_tier, 'free') as tier,
+          COALESCE(u.period_scans, 0) + COALESCE(SUM(lp.view_count), 0) as total_scans
+        FROM landing_pages lp
+        JOIN stores s ON lp.store_id = s.id
+        JOIN users u ON s.user_id = u.id
+        WHERE lp.id = ${id}
+        GROUP BY u.id, u.subscription_tier, u.period_scans
+      `
+      
+      if (scanCheck) {
+        const tier = (scanCheck.tier || 'free') as keyof typeof SCAN_LIMITS
+        const limit = SCAN_LIMITS[tier] ?? SCAN_LIMITS.free
+        const totalScans = parseInt(scanCheck.total_scans) || 0
+        
+        if (totalScans >= limit) {
+          return res.status(403).json({
+            error: 'Scan limit reached',
+            message: 'This business has reached their monthly scan limit. Please try again next month.',
+            landing: {
+              id: landing.id,
+              store_name: landing.store_name,
+              google_url: landing.google_url,
+              yelp_url: landing.yelp_url,
+            },
+            limitReached: true,
+          })
+        }
+      }
     }
 
     // Get visitor's IP address (using trusted headers only)
