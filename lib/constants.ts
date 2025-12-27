@@ -4,7 +4,6 @@
 export enum SubscriptionTier {
   FREE = 'free',
   PRO = 'pro',
-  BUSINESS = 'business',
 }
 
 // Type for tier keys
@@ -26,11 +25,6 @@ export const PLAN_LIMITS: Record<SubscriptionTier, PlanLimits> = {
     regenerationsPerHour: 1,
   },
   [SubscriptionTier.PRO]: {
-    stores: Infinity,
-    scansPerMonth: Infinity,
-    regenerationsPerHour: 10,
-  },
-  [SubscriptionTier.BUSINESS]: {
     stores: Infinity,
     scansPerMonth: Infinity,
     regenerationsPerHour: 10,

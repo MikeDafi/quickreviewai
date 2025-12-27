@@ -28,7 +28,7 @@ export default function Upgrade() {
     }
   }, [session, cancelled]);
 
-  const handleUpgrade = async (plan: SubscriptionTier.PRO | SubscriptionTier.BUSINESS) => {
+  const handleUpgrade = async (plan: SubscriptionTier.PRO) => {
     setLoading(true);
     setError('');
 

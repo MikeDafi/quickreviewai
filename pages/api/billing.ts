@@ -69,11 +69,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const subscription = await stripe.subscriptions.retrieve(subscriptionId)
         const priceId = subscription.items.data[0]?.price.id
         
-        // Map price IDs to tiers
-        let tier: SubscriptionTier = SubscriptionTier.PRO
-        if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) {
-          tier = SubscriptionTier.BUSINESS
-        }
+        // All paid subscriptions are Pro tier
+        const tier = SubscriptionTier.PRO
 
         // Update user subscription with tracking fields
         // first_subscribed_at is only set on first ever subscription (COALESCE keeps existing value)
@@ -95,11 +92,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const customerId = subscription.customer as string
         
         if (subscription.status === 'active') {
-          const priceId = subscription.items.data[0]?.price.id
-          let tier: SubscriptionTier = SubscriptionTier.PRO
-          if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) {
-            tier = SubscriptionTier.BUSINESS
-          }
+          // All paid subscriptions are Pro tier
+          const tier = SubscriptionTier.PRO
           
           await sql`
             UPDATE users 

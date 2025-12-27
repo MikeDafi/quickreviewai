@@ -28,14 +28,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { plan } = req.body
 
-  const validPlans = [SubscriptionTier.PRO, SubscriptionTier.BUSINESS]
-  if (!plan || !validPlans.includes(plan)) {
+  // Only Pro plan is supported
+  if (plan !== SubscriptionTier.PRO) {
     return res.status(400).json({ error: 'Invalid plan' })
   }
 
-  const priceId = (plan === SubscriptionTier.PRO 
-    ? process.env.STRIPE_PRO_PRICE_ID 
-    : process.env.STRIPE_BUSINESS_PRICE_ID)?.trim()
+  const priceId = process.env.STRIPE_PRO_PRICE_ID?.trim()
 
   if (!priceId) {
     console.error('STRIPE price ID not configured for plan:', plan)

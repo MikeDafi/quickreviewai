@@ -175,13 +175,12 @@ export default function Profile() {
     });
   };
 
-  const tierColors = {
-    free: 'bg-gray-100 text-gray-700',
-    pro: 'bg-emerald-100 text-emerald-700',
-    business: 'bg-purple-100 text-purple-700',
+  const tierColors: Record<SubscriptionTier, string> = {
+    [SubscriptionTier.FREE]: 'bg-gray-100 text-gray-700',
+    [SubscriptionTier.PRO]: 'bg-emerald-100 text-emerald-700',
   };
 
-  const tierBadgeColor = tierColors[subscription?.tier as keyof typeof tierColors] || tierColors.free;
+  const tierBadgeColor = tierColors[(subscription?.tier || SubscriptionTier.FREE) as SubscriptionTier];
 
   return (
     <>
