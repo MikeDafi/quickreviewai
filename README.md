@@ -1,6 +1,7 @@
 # QuickReviewAI
 
-Turn happy customers into 5-star reviews with AI-generated review suggestions. Customers scan a QR code, get a personalized review, and paste it directly to Google or Yelp.
+Have Your Google Business Show Up Everywhere. When customers search for 'best pizza downtown' or 'fast friendly service', we want Google to find those keywords in your business' reviews. Start ranking for searches you never showed up for.
+
 
 ## Links
 
