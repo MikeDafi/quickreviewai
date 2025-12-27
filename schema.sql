@@ -36,6 +36,7 @@ CREATE TABLE landing_pages (
   cached_at TIMESTAMP,
   view_count INT DEFAULT 0,
   copy_count INT DEFAULT 0,
+  blocked_regenerations INT DEFAULT 0,
   click_counts JSONB DEFAULT '{}',
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW()
@@ -97,3 +98,6 @@ CREATE INDEX idx_review_events_store_time ON review_events(store_id, created_at 
 -- CREATE INDEX idx_review_events_landing_page_id ON review_events(landing_page_id);
 -- CREATE INDEX idx_review_events_created_at ON review_events(created_at);
 -- CREATE INDEX idx_review_events_store_time ON review_events(store_id, created_at DESC);
+
+-- Migration: Add blocked_regenerations tracking to landing_pages table
+-- ALTER TABLE landing_pages ADD COLUMN IF NOT EXISTS blocked_regenerations INT DEFAULT 0;

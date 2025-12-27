@@ -205,11 +205,11 @@ export default function Profile() {
                 <span className="text-xl font-bold text-gray-900">QuickReviewAI</span>
               </Link>
               
-              {/* Pricing button for free users */}
+              {/* Pricing link for free users */}
               {subscription?.tier === SubscriptionTier.FREE && (
                 <Link
                   href="/upgrade"
-                  className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                  className="text-gray-600 hover:text-gray-900 text-sm font-medium"
                 >
                   Pricing
                 </Link>

@@ -55,7 +55,11 @@ export default function Login() {
             </div>
 
             <button
-              onClick={() => signIn('google', { callbackUrl: plan === SubscriptionTier.PRO ? '/upgrade' : '/dashboard' })}
+              onClick={() => signIn('google', { 
+                callbackUrl: plan === SubscriptionTier.PRO 
+                  ? `/upgrade?returnUrl=${encodeURIComponent(returnUrl)}` 
+                  : returnUrl 
+              })}
               className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all text-gray-700 font-medium"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

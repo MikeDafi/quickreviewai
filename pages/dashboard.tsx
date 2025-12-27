@@ -228,11 +228,11 @@ export default function Dashboard() {
             </Link>
 
             <div className="flex items-center gap-3">
-              {/* Pricing button for free users */}
+              {/* Pricing link for free users */}
               {stats.tier === SubscriptionTier.FREE && (
                 <Link
-                  href="/upgrade?returnUrl=/dashboard"
-                  className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                  href="/upgrade"
+                  className="text-gray-600 hover:text-gray-900 text-sm font-medium"
                 >
                   Pricing
                 </Link>
