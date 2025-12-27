@@ -451,7 +451,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (totalScans >= limit) {
           return res.status(403).json({
             error: 'Scan limit reached',
-            message: 'This business has reached their monthly scan limit. Please try again next month.',
+            message: 'No AI generations left this month. Let the owner know!',
             landing: {
               id: landing.id,
               store_name: landing.store_name,

@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Copy, RefreshCw, ExternalLink, Check, Clipboard } from 'lucide-react';
+import { Copy, RefreshCw, ExternalLink, Check, ArrowDown } from 'lucide-react';
 
 interface LandingData {
   id: string;
@@ -34,7 +34,6 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [autoCopied, setAutoCopied] = useState(false);
   const [error, setError] = useState('');
   const [rateLimitError, setRateLimitError] = useState('');
   const [isFreePlanLimit, setIsFreePlanLimit] = useState(false);
@@ -42,30 +41,8 @@ export default function LandingPage() {
   const [scanLimitReached, setScanLimitReached] = useState(false);
   const [demoReviewIndex, setDemoReviewIndex] = useState(0);
   const [demoRegenerateCount, setDemoRegenerateCount] = useState(0);
-  const hasAutoCopied = useRef(false);
 
   const isDemo = id === 'demo';
-
-  // Auto-copy function that shows a notification
-  const autoCopyToClipboard = useCallback(async (text: string, trackCopy: boolean = true) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setAutoCopied(true);
-      
-      // Track copy for analytics (skip for demo)
-      if (trackCopy && !isDemo && id) {
-        fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
-      }
-      
-      // Hide notification after 3 seconds
-      setTimeout(() => setAutoCopied(false), 3000);
-      return true;
-    } catch (err) {
-      // Auto-copy may fail if page isn't focused or clipboard API isn't available
-      console.log('Auto-copy not available, user can copy manually');
-      return false;
-    }
-  }, [id, isDemo]);
 
   useEffect(() => {
     if (id) {
@@ -74,16 +51,11 @@ export default function LandingPage() {
         setData(DEMO_DATA);
         setReview(DEMO_REVIEWS[0]);
         setLoading(false);
-        // Auto-copy demo review
-        if (!hasAutoCopied.current) {
-          hasAutoCopied.current = true;
-          setTimeout(() => autoCopyToClipboard(DEMO_REVIEWS[0], false), 500);
-        }
       } else {
         fetchLandingPage();
       }
     }
-  }, [id, isDemo, autoCopyToClipboard]);
+  }, [id, isDemo]);
 
   async function fetchLandingPage() {
     try {
@@ -106,13 +78,6 @@ export default function LandingPage() {
       
       setData(result.landing);
       setReview(result.review);
-      
-      // Auto-copy the review to clipboard
-      if (result.review && !hasAutoCopied.current) {
-        hasAutoCopied.current = true;
-        // Small delay to ensure DOM is ready
-        setTimeout(() => autoCopyToClipboard(result.review), 500);
-      }
     } catch (err) {
       setError('Failed to load landing page');
     } finally {
@@ -124,6 +89,7 @@ export default function LandingPage() {
     if (!id) return;
     setGenerating(true);
     setRateLimitError('');
+    setCopied(false); // Reset copied state when generating new review
     
     // Handle demo case - allow only 1 regeneration
     if (isDemo) {
@@ -132,14 +98,12 @@ export default function LandingPage() {
         setGenerating(false);
         return;
       }
-      setTimeout(async () => {
+      setTimeout(() => {
         const nextIndex = (demoReviewIndex + 1) % DEMO_REVIEWS.length;
         setDemoReviewIndex(nextIndex);
         setReview(DEMO_REVIEWS[nextIndex]);
         setDemoRegenerateCount(prev => prev + 1);
         setGenerating(false);
-        // Auto-copy the new demo review
-        await autoCopyToClipboard(DEMO_REVIEWS[nextIndex], false);
       }, 800);
       return;
     }
@@ -161,8 +125,6 @@ export default function LandingPage() {
       
       if (res.ok) {
         setReview(result.review);
-        // Auto-copy the newly generated review
-        await autoCopyToClipboard(result.review);
       }
     } catch (err) {
       console.error('Failed to regenerate:', err);
@@ -176,15 +138,16 @@ export default function LandingPage() {
     setCopied(true);
     // Track copy (skip for demo)
     if (!isDemo) {
-    fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
+      fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
     }
-    setTimeout(() => setCopied(false), 2000);
+    // Keep copied state for 30 seconds so user has time to click a button
+    setTimeout(() => setCopied(false), 30000);
   }
 
   async function trackClick(platform: string) {
     // Skip tracking for demo
     if (!isDemo) {
-    fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
+      fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
     }
   }
 
@@ -207,6 +170,11 @@ export default function LandingPage() {
     );
   }
 
+  // Check which platforms are available
+  const hasGoogle = !!data.google_url;
+  const hasYelp = !!data.yelp_url;
+  const hasPlatforms = hasGoogle || hasYelp;
+
   return (
     <>
       <Head>
@@ -215,18 +183,6 @@ export default function LandingPage() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 py-8">
-        {/* Auto-copied toast notification */}
-        <div 
-          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
-            autoCopied ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-          }`}
-        >
-          <div className="flex items-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-600/30">
-            <Clipboard className="w-4 h-4" />
-            <span className="text-sm font-medium">Review copied to clipboard!</span>
-          </div>
-        </div>
-
         <div className="w-full max-w-md">
           {/* Demo Banner */}
           {isDemo && (
@@ -253,21 +209,19 @@ export default function LandingPage() {
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">📝</span>
+                  <span className="text-3xl">⚠️</span>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Share Your Experience!
+                  No AI Generations Left!
                 </h2>
                 <p className="text-gray-600 mb-4">
-                  We&apos;d love to hear about your visit. Click below to leave a review!
+                  This business has used all their AI review generations for the month.
+                  <br />
+                  <span className="text-amber-600 font-medium">Let the owner know so they can upgrade!</span>
                 </p>
-                <div className="flex gap-1 justify-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                  ))}
-                </div>
+                <p className="text-sm text-gray-500 mb-4">
+                  You can still leave a review using the links below 👇
+                </p>
               </div>
             </div>
           ) : (
@@ -301,9 +255,13 @@ export default function LandingPage() {
 
               <button
                 onClick={handleCopy}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40"
+                className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-medium transition-all ${
+                  copied 
+                    ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-700/30' 
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40'
+                }`}
               >
-                {(copied || autoCopied) ? (
+                {copied ? (
                   <>
                     <Check className="w-5 h-5" />
                     Copied!
@@ -367,23 +325,34 @@ export default function LandingPage() {
             </div>
           )}
 
+          {/* Instruction after copying */}
+          {copied && hasPlatforms && (
+            <div className="mb-4 text-center animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium">
+                <ArrowDown className="w-4 h-4 animate-bounce" />
+                Now click one of these to paste your review!
+                <ArrowDown className="w-4 h-4 animate-bounce" />
+              </div>
+            </div>
+          )}
+
           {/* Platform Buttons */}
           <div className="space-y-3 mb-8">
             {/* Show message if no review platforms configured */}
-            {!data.google_url && !data.yelp_url && (
+            {!hasPlatforms && (
               <div className="text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <p className="text-gray-600 text-sm">No review platforms configured for this store.</p>
               </div>
             )}
 
-            {data.google_url && (
+            {hasGoogle && (
               <a
                 href={data.google_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackClick('google')}
                 className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
-                  autoCopied 
+                  copied 
                     ? 'border-blue-400 shadow-lg shadow-blue-200 animate-bounce-gentle ring-2 ring-blue-200' 
                     : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
                 }`}
@@ -406,21 +375,21 @@ export default function LandingPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span className={`font-medium ${autoCopied ? 'text-blue-700' : 'text-gray-700'}`}>
+                <span className={`font-medium ${copied ? 'text-blue-700' : 'text-gray-700'}`}>
                   Paste on Google Review
                 </span>
-                <ExternalLink className={`w-4 h-4 ml-auto ${autoCopied ? 'text-blue-400' : 'text-gray-400'}`} />
+                <ExternalLink className={`w-4 h-4 ml-auto ${copied ? 'text-blue-400' : 'text-gray-400'}`} />
               </a>
             )}
 
-            {data.yelp_url && (
+            {hasYelp && (
               <a
                 href={data.yelp_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackClick('yelp')}
                 className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
-                  autoCopied 
+                  copied 
                     ? 'border-red-400 shadow-lg shadow-red-200 animate-bounce-gentle ring-2 ring-red-200' 
                     : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
                 }`}
@@ -428,10 +397,10 @@ export default function LandingPage() {
                 <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M21.111 18.226c-.141.969-2.119 3.483-3.029 3.847-.311.124-.611.094-.85-.09-.154-.12-.314-.365-2.447-3.827l-.633-1.032c-.244-.37-.199-.857.104-1.229.297-.37.756-.478 1.158-.274l1.099.534c3.334 1.62 3.463 1.725 3.553 1.846.219.292.247.657.045 1.225zM18.093 9.944c-.318.396-.79.544-1.197.377l-1.143-.478c-3.521-1.478-3.638-1.562-3.749-1.67-.274-.265-.345-.633-.2-1.22.237-.956 2.454-3.334 3.392-3.636.321-.102.626-.055.856.127.148.116.33.351 2.768 3.66l.723.989c.259.35.243.847-.026 1.231-.181.25-.411.502-1.424.62zM9.839 9.633c.307.395.323.888.041 1.253-.28.36-.729.508-1.134.362L7.6 10.78c-3.442-1.617-3.567-1.713-3.671-1.831-.253-.281-.298-.65-.127-1.221.284-.95 2.598-3.241 3.553-3.499.326-.087.629-.022.848.18.142.127.312.387 2.588 3.888l.69 1.05c.108.178.237.293.358.286zM8.473 15.587c.074.403-.091.802-.434 1.012-.263.166-.539.17-.842.013-.141-.073-.321-.234-2.934-3.537l-.797-1.024c-.283-.343-.295-.82-.031-1.212.265-.396.71-.568 1.124-.428l1.14.42c3.455 1.269 3.579 1.345 3.696 1.459.295.265.389.632.297 1.212l-.219 2.085zM13.548 16.46l.186 2.084c.045.512-.15.917-.515 1.075-.271.118-.538.099-.812-.056-.144-.081-.345-.26-3.215-3.327l-.871-.931c-.31-.318-.374-.796-.161-1.208.21-.407.635-.623 1.072-.541l1.193.211c3.631.657 3.77.708 3.9.814.32.258.434.621.35 1.212-.06.48-.127.667-.127.667z" />
                 </svg>
-                <span className={`font-medium ${autoCopied ? 'text-red-700' : 'text-gray-700'}`}>
+                <span className={`font-medium ${copied ? 'text-red-700' : 'text-gray-700'}`}>
                   Paste on Yelp Review
                 </span>
-                <ExternalLink className={`w-4 h-4 ml-auto ${autoCopied ? 'text-red-400' : 'text-gray-400'}`} />
+                <ExternalLink className={`w-4 h-4 ml-auto ${copied ? 'text-red-400' : 'text-gray-400'}`} />
               </a>
             )}
           </div>
