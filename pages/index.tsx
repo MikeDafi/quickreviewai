@@ -97,55 +97,120 @@ export default function Home() {
 
             {/* Visual Demo */}
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 sm:p-8 lg:p-12">
-              <h3 className="text-2xl font-semibold text-center mb-8 text-gray-900">See It In Action</h3>
+              <h3 className="text-2xl font-semibold text-center mb-10 text-gray-900">See It In Action</h3>
               
-              <div className="max-w-4xl mx-auto">
-                <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-                  <div className="w-full md:flex-1 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-emerald-100">
-                    <div className="flex items-center gap-2 mb-3">
+              <div className="max-w-5xl mx-auto">
+                {/* Top Row */}
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-4">
+                  {/* Card 1: Business Dashboard */}
+                  <div className="w-full md:w-80 bg-white rounded-2xl p-5 shadow-lg border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-4">
                       <Store className="w-5 h-5 text-emerald-600" />
-                      <span className="text-xs sm:text-sm text-emerald-600 font-medium">Business Dashboard</span>
+                      <span className="text-sm text-emerald-600 font-medium">Business Dashboard</span>
                     </div>
-                    <div className="space-y-2">
-                      <div className="bg-gray-50 rounded-lg p-2 sm:p-3">
+                    <div className="space-y-3">
+                      <div className="bg-gray-50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 mb-1">Store Name</div>
                         <div className="text-sm text-gray-900 font-medium">Tony&apos;s Pizza</div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-2 sm:p-3">
+                      <div className="bg-gray-50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 mb-1">Keywords</div>
-                        <div className="flex gap-1 flex-wrap">
+                        <div className="flex gap-2 flex-wrap">
                           <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">authentic</span>
                           <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">delicious</span>
                         </div>
                       </div>
-                      <button className="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs sm:text-sm font-medium">
+                      <button className="w-full bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-medium">
                         Generate QR Code
                       </button>
                     </div>
                   </div>
                   
+                  {/* Arrow Right */}
                   <div className="hidden md:flex items-center justify-center">
-                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
-                      <span className="text-white">→</span>
+                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white text-lg">→</span>
+                    </div>
+                  </div>
+                  <div className="md:hidden flex items-center justify-center">
+                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white text-lg">↓</span>
                     </div>
                   </div>
                   
-                  <div className="w-full md:flex-1 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-emerald-100">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Smartphone className="w-5 h-5 text-emerald-600" />
-                      <span className="text-xs sm:text-sm text-emerald-600 font-medium">Customer Scans</span>
+                  {/* Card 2: QR Code Ready */}
+                  <div className="w-full md:w-80 bg-white rounded-2xl p-5 shadow-lg border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-4">
+                      <QrCode className="w-5 h-5 text-emerald-600" />
+                      <span className="text-sm text-emerald-600 font-medium">QR Code Ready</span>
                     </div>
-                    <div className="bg-gradient-to-b from-emerald-50 to-teal-50 rounded-xl p-3 sm:p-4">
-                      <div className="text-center mb-2">
-                        <p className="text-xs text-gray-600 mb-2">Tony&apos;s Pizza</p>
-                        <p className="text-xs sm:text-sm text-gray-800 leading-relaxed">
-                          &quot;Amazing experience! The authentic pizza was delicious...&quot;
-                        </p>
+                    <div className="bg-gradient-to-br from-gray-50 to-emerald-50/30 rounded-xl p-6 flex flex-col items-center">
+                      <div className="w-28 h-28 bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center mb-3">
+                        <QrCode className="w-20 h-20 text-gray-800" />
                       </div>
-                      <button className="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs sm:text-sm flex items-center justify-center gap-2 font-medium">
+                      <p className="text-sm text-gray-600">Display at location</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow Down */}
+                <div className="flex justify-center md:justify-end md:pr-40 mb-4">
+                  <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                    <span className="text-white text-lg">↓</span>
+                  </div>
+                </div>
+
+                {/* Bottom Row */}
+                <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-4 md:gap-6">
+                  {/* Card 3: Customer Scans */}
+                  <div className="w-full md:w-80 bg-white rounded-2xl p-5 shadow-lg border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Smartphone className="w-5 h-5 text-emerald-600" />
+                      <span className="text-sm text-emerald-600 font-medium">Customer Scans</span>
+                    </div>
+                    <div className="bg-gradient-to-b from-emerald-50 to-teal-50 rounded-xl p-4">
+                      <p className="text-xs text-gray-600 text-center mb-2">Tony&apos;s Pizza</p>
+                      <p className="text-sm text-gray-800 text-center leading-relaxed mb-3">
+                        &quot;Amazing experience! The authentic pizza was delicious...&quot;
+                      </p>
+                      <button className="w-full bg-emerald-600 text-white py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 font-medium">
                         <Check className="w-4 h-4" />
                         Copy Review
                       </button>
+                    </div>
+                  </div>
+                  
+                  {/* Arrow Right */}
+                  <div className="hidden md:flex items-center justify-center">
+                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white text-lg">→</span>
+                    </div>
+                  </div>
+                  <div className="md:hidden flex items-center justify-center">
+                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white text-lg">↓</span>
+                    </div>
+                  </div>
+                  
+                  {/* Card 4: Posted Review */}
+                  <div className="w-full md:w-80 bg-white rounded-2xl p-5 shadow-lg border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                      <span className="text-sm text-yellow-600 font-medium">Posted Review</span>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-800 leading-relaxed">
+                        &quot;Amazing experience! The authentic pizza was delicious...&quot;
+                      </p>
+                      <div className="flex items-center gap-2 pt-2">
+                        <div className="w-8 h-8 bg-emerald-100 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Sarah M. • Google</span>
+                      </div>
                     </div>
                   </div>
                 </div>
