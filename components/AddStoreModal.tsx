@@ -188,6 +188,188 @@ const keywordSuggestions: Record<string, string[]> = {
     'catering', 'party trays', 'sandwich platters', 'meat and cheese trays', 'wrap platters', 'box lunches', 'corporate catering', 'event catering', 'delivery', 'pickup',
     'breakfast', 'lunch', 'early morning', 'quick service', 'call ahead', 'online order', 'daily specials', 'fresh baked bread', 'gluten free', 'vegetarian'
   ],
+  'Steakhouse': [
+    'steak', 'ribeye', 'filet mignon', 'NY strip', 'sirloin', 'porterhouse', 't-bone', 'prime rib', 'wagyu', 'USDA prime',
+    'rare', 'medium rare', 'medium', 'well done', 'dry aged', 'wet aged', 'grass fed', 'choice', 'select', 'angus',
+    'lobster', 'crab', 'shrimp', 'seafood', 'surf and turf', 'sides', 'baked potato', 'creamed spinach', 'mac and cheese', 'asparagus',
+    'wine list', 'cocktails', 'bar', 'happy hour', 'reservations', 'private dining', 'date night', 'anniversary', 'business dinner', 'special occasion',
+    'lunch', 'dinner', 'prix fixe', 'tasting menu', 'butcher cuts', 'tomahawk', 'bone in', 'au poivre', 'oscar style', 'parking'
+  ],
+  'Seafood Restaurant': [
+    'seafood', 'fish', 'shrimp', 'crab', 'lobster', 'oysters', 'clams', 'mussels', 'scallops', 'calamari',
+    'salmon', 'tuna', 'halibut', 'cod', 'snapper', 'grouper', 'mahi', 'swordfish', 'sea bass', 'tilapia',
+    'fried', 'grilled', 'blackened', 'broiled', 'steamed', 'raw bar', 'ceviche', 'sashimi', 'fish tacos', 'fish and chips',
+    'crab legs', 'lobster tail', 'shrimp scampi', 'clam chowder', 'gumbo', 'jambalaya', 'boil', 'seafood platter', 'catch of the day', 'market price',
+    'fresh', 'daily catch', 'sustainable', 'local', 'waterfront', 'outdoor seating', 'view', 'reservations', 'happy hour', 'full bar'
+  ],
+  'BBQ Restaurant': [
+    'BBQ', 'barbecue', 'brisket', 'ribs', 'pulled pork', 'burnt ends', 'smoked', 'low and slow', 'pit master', 'smoke',
+    'baby back ribs', 'spare ribs', 'beef ribs', 'pork ribs', 'st louis ribs', 'sausage', 'hot links', 'chicken', 'turkey', 'tri tip',
+    'Texas style', 'Kansas City', 'Carolina', 'Memphis', 'dry rub', 'wet rub', 'sauce', 'sweet', 'spicy', 'vinegar',
+    'sides', 'coleslaw', 'beans', 'mac and cheese', 'potato salad', 'cornbread', 'pickles', 'onions', 'white bread', 'banana pudding',
+    'by the pound', 'plate', 'combo', 'family pack', 'catering', 'takeout', 'dine in', 'outdoor seating', 'picnic tables', 'casual'
+  ],
+  'Mexican Restaurant': [
+    'tacos', 'burritos', 'enchiladas', 'quesadillas', 'fajitas', 'nachos', 'tamales', 'tostadas', 'chimichanga', 'flautas',
+    'carnitas', 'carne asada', 'al pastor', 'barbacoa', 'chorizo', 'pollo', 'chicken', 'beef', 'pork', 'shrimp',
+    'rice', 'beans', 'guacamole', 'salsa', 'pico', 'sour cream', 'cheese', 'lettuce', 'tomato', 'jalapeno',
+    'margarita', 'tequila', 'mezcal', 'cerveza', 'beer', 'horchata', 'agua fresca', 'mexican coke', 'happy hour', 'cantina',
+    'combo plate', 'lunch special', 'dinner', 'family style', 'catering', 'takeout', 'delivery', 'dine in', 'patio', 'authentic'
+  ],
+  'Italian Restaurant': [
+    'pasta', 'pizza', 'lasagna', 'spaghetti', 'fettuccine', 'penne', 'ravioli', 'gnocchi', 'linguine', 'rigatoni',
+    'alfredo', 'marinara', 'bolognese', 'carbonara', 'vodka sauce', 'pesto', 'primavera', 'arrabiata', 'aglio e olio', 'cacio e pepe',
+    'chicken parm', 'eggplant parm', 'veal', 'osso buco', 'saltimbocca', 'piccata', 'marsala', 'francese', 'meatballs', 'sausage',
+    'antipasto', 'bruschetta', 'caprese', 'calamari', 'minestrone', 'italian wedding soup', 'caesar salad', 'tiramisu', 'cannoli', 'gelato',
+    'wine list', 'chianti', 'pinot grigio', 'prosecco', 'espresso', 'cappuccino', 'romantic', 'date night', 'family style', 'reservations'
+  ],
+  'Chinese Restaurant': [
+    'chinese food', 'fried rice', 'lo mein', 'chow mein', 'egg roll', 'spring roll', 'wonton', 'dumpling', 'potsticker', 'dim sum',
+    'general tso', 'orange chicken', 'kung pao', 'sweet and sour', 'mongolian beef', 'beef broccoli', 'cashew chicken', 'moo shu', 'twice cooked pork', 'mapo tofu',
+    'chicken', 'beef', 'pork', 'shrimp', 'tofu', 'vegetable', 'seafood', 'duck', 'crispy', 'steamed',
+    'wonton soup', 'hot and sour soup', 'egg drop soup', 'fried wontons', 'crab rangoon', 'fortune cookie', 'white rice', 'brown rice', 'combo', 'family dinner',
+    'takeout', 'delivery', 'dine in', 'lunch special', 'buffet', 'all you can eat', 'MSG free', 'spicy', 'mild', 'authentic'
+  ],
+  'Thai Restaurant': [
+    'thai food', 'pad thai', 'curry', 'red curry', 'green curry', 'yellow curry', 'massaman', 'panang', 'tom yum', 'tom kha',
+    'fried rice', 'basil fried rice', 'pineapple fried rice', 'pad see ew', 'drunken noodles', 'pad kee mao', 'satay', 'larb', 'papaya salad', 'spring rolls',
+    'chicken', 'beef', 'pork', 'shrimp', 'tofu', 'vegetables', 'duck', 'seafood', 'fish', 'squid',
+    'mild', 'medium', 'spicy', 'thai hot', 'coconut milk', 'lemongrass', 'basil', 'peanut sauce', 'fish sauce', 'lime',
+    'thai iced tea', 'thai iced coffee', 'bubble tea', 'lunch special', 'dinner', 'takeout', 'delivery', 'dine in', 'vegetarian', 'vegan'
+  ],
+  'Indian Restaurant': [
+    'indian food', 'curry', 'tikka masala', 'butter chicken', 'vindaloo', 'korma', 'saag', 'biryani', 'tandoori', 'samosa',
+    'naan', 'garlic naan', 'roti', 'paratha', 'rice', 'basmati', 'dal', 'chana masala', 'palak paneer', 'aloo gobi',
+    'chicken', 'lamb', 'goat', 'shrimp', 'fish', 'vegetable', 'paneer', 'lentils', 'chickpeas', 'potato',
+    'mild', 'medium', 'spicy', 'extra hot', 'raita', 'chutney', 'pickle', 'papadum', 'lassi', 'mango lassi',
+    'buffet', 'lunch buffet', 'dinner', 'takeout', 'delivery', 'catering', 'vegetarian', 'vegan', 'halal', 'gluten free'
+  ],
+  'Vietnamese Restaurant': [
+    'pho', 'banh mi', 'spring rolls', 'summer rolls', 'vermicelli', 'bun', 'rice', 'noodles', 'soup', 'broth',
+    'beef pho', 'chicken pho', 'rare beef', 'brisket', 'meatball', 'tendon', 'tripe', 'combo', 'vegetable', 'tofu',
+    'grilled pork', 'lemongrass chicken', 'shaking beef', 'broken rice', 'com tam', 'caramelized pork', 'egg roll', 'cha gio', 'goi cuon', 'crispy',
+    'sriracha', 'hoisin', 'fish sauce', 'lime', 'basil', 'bean sprouts', 'jalapeno', 'cilantro', 'mint', 'fresh herbs',
+    'vietnamese coffee', 'iced coffee', 'bubble tea', 'lunch', 'dinner', 'takeout', 'delivery', 'dine in', 'fast', 'authentic'
+  ],
+  'Greek Restaurant': [
+    'greek food', 'gyro', 'souvlaki', 'kebab', 'lamb', 'chicken', 'pork', 'beef', 'falafel', 'shawarma',
+    'hummus', 'tzatziki', 'baba ganoush', 'dolmas', 'spanakopita', 'saganaki', 'calamari', 'greek salad', 'feta', 'olives',
+    'pita', 'pita bread', 'rice', 'fries', 'potatoes', 'combo plate', 'platter', 'wrap', 'sandwich', 'bowl',
+    'moussaka', 'pastitsio', 'lamb chops', 'whole fish', 'grilled octopus', 'baklava', 'loukoumades', 'greek yogurt', 'honey', 'dessert',
+    'lunch', 'dinner', 'takeout', 'delivery', 'dine in', 'catering', 'fast casual', 'family owned', 'authentic', 'mediterranean'
+  ],
+  'Mediterranean Restaurant': [
+    'mediterranean', 'hummus', 'falafel', 'shawarma', 'kebab', 'gyro', 'pita', 'flatbread', 'wrap', 'bowl',
+    'chicken', 'lamb', 'beef', 'fish', 'shrimp', 'vegetarian', 'vegan', 'grilled', 'marinated', 'seasoned',
+    'tzatziki', 'tahini', 'baba ganoush', 'tabbouleh', 'fattoush', 'greek salad', 'feta', 'olives', 'pickles', 'turnips',
+    'rice', 'couscous', 'lentils', 'chickpeas', 'eggplant', 'cauliflower', 'tomato', 'cucumber', 'onion', 'garlic',
+    'lunch', 'dinner', 'takeout', 'delivery', 'catering', 'fast casual', 'healthy', 'fresh', 'gluten free', 'halal'
+  ],
+  'Brunch Spot': [
+    'brunch', 'breakfast', 'eggs', 'omelette', 'scrambled', 'fried', 'poached', 'eggs benedict', 'florentine', 'hash',
+    'pancakes', 'waffles', 'french toast', 'crepes', 'mimosa', 'bloody mary', 'bellini', 'champagne', 'bottomless', 'unlimited',
+    'bacon', 'sausage', 'ham', 'avocado toast', 'smoked salmon', 'bagel', 'toast', 'fruit', 'yogurt', 'granola',
+    'coffee', 'espresso', 'latte', 'orange juice', 'fresh squeezed', 'tea', 'hot chocolate', 'smoothie', 'juice', 'refreshments',
+    'weekend brunch', 'saturday', 'sunday', 'reservations', 'wait', 'walk in', 'patio', 'outdoor', 'group', 'special occasion'
+  ],
+  'Donut Shop': [
+    'donuts', 'doughnuts', 'glazed', 'chocolate', 'maple', 'strawberry', 'vanilla', 'jelly', 'cream filled', 'custard',
+    'cake donut', 'raised donut', 'old fashioned', 'cruller', 'fritter', 'apple fritter', 'bear claw', 'cinnamon roll', 'donut holes', 'munchkins',
+    'sprinkles', 'frosting', 'icing', 'bacon maple', 'specialty', 'seasonal', 'fresh', 'made daily', 'hot donuts', 'fresh out of fryer',
+    'coffee', 'espresso', 'latte', 'cold brew', 'milk', 'juice', 'breakfast sandwich', 'kolache', 'croissant', 'pastry',
+    'dozen', 'half dozen', 'single', 'box', 'preorder', 'catering', 'party', 'office', 'early morning', 'drive thru'
+  ],
+  'Bagel Shop': [
+    'bagels', 'plain', 'everything', 'sesame', 'poppy', 'onion', 'garlic', 'cinnamon raisin', 'blueberry', 'asiago',
+    'cream cheese', 'plain cream cheese', 'veggie cream cheese', 'lox spread', 'butter', 'jam', 'peanut butter', 'hummus', 'avocado', 'schmear',
+    'lox', 'smoked salmon', 'nova', 'capers', 'red onion', 'tomato', 'breakfast sandwich', 'egg', 'bacon', 'sausage',
+    'deli sandwich', 'turkey', 'ham', 'roast beef', 'tuna salad', 'egg salad', 'chicken salad', 'BLT', 'club', 'veggie',
+    'coffee', 'espresso', 'latte', 'tea', 'juice', 'fresh baked', 'daily', 'dozen', 'catering', 'delivery'
+  ],
+  'Smoothie Shop': [
+    'smoothie', 'fruit smoothie', 'green smoothie', 'protein smoothie', 'meal replacement', 'post workout', 'healthy', 'fresh', 'blended', 'frozen',
+    'strawberry', 'banana', 'mango', 'pineapple', 'blueberry', 'mixed berry', 'peach', 'tropical', 'acai', 'pitaya',
+    'protein', 'whey', 'plant protein', 'peanut butter', 'almond butter', 'spinach', 'kale', 'ginger', 'turmeric', 'superfood',
+    'almond milk', 'oat milk', 'coconut milk', 'soy milk', 'dairy free', 'vegan', 'no sugar added', 'low calorie', 'keto', 'paleo',
+    'bowl', 'acai bowl', 'smoothie bowl', 'juice', 'fresh juice', 'cold pressed', 'size', 'add-ins', 'boost', 'loyalty'
+  ],
+  'Tea House': [
+    'tea', 'loose leaf', 'tea bag', 'hot tea', 'iced tea', 'green tea', 'black tea', 'oolong', 'white tea', 'herbal tea',
+    'matcha', 'chai', 'earl grey', 'english breakfast', 'jasmine', 'chamomile', 'peppermint', 'lavender', 'rooibos', 'hibiscus',
+    'tea latte', 'matcha latte', 'chai latte', 'london fog', 'milk tea', 'honey', 'sugar', 'cream', 'oat milk', 'almond milk',
+    'afternoon tea', 'high tea', 'tea service', 'scones', 'sandwiches', 'pastries', 'desserts', 'macarons', 'cake', 'cookies',
+    'tea ware', 'teapot', 'tea set', 'gifts', 'loose leaf sale', 'online order', 'pickup', 'dine in', 'cozy', 'relaxing'
+  ],
+  'Bubble Tea': [
+    'bubble tea', 'boba', 'milk tea', 'tapioca', 'pearls', 'boba pearls', 'black sugar', 'brown sugar', 'tiger', 'classic',
+    'taro', 'matcha', 'thai tea', 'jasmine', 'oolong', 'green tea', 'black tea', 'fruit tea', 'passion fruit', 'mango',
+    'ice level', 'sugar level', 'no ice', 'less ice', 'regular ice', 'no sugar', 'less sugar', 'half sugar', 'regular sugar', 'extra sugar',
+    'toppings', 'jelly', 'coconut jelly', 'aloe', 'pudding', 'red bean', 'grass jelly', 'cheese foam', 'milk foam', 'cream',
+    'small', 'medium', 'large', 'hot', 'cold', 'slush', 'smoothie', 'fresh', 'made to order', 'rewards'
+  ],
+  'Dessert Shop': [
+    'dessert', 'cake', 'pie', 'cupcake', 'cookie', 'brownie', 'cheesecake', 'ice cream', 'gelato', 'frozen yogurt',
+    'chocolate', 'vanilla', 'strawberry', 'red velvet', 'carrot cake', 'tiramisu', 'creme brulee', 'mousse', 'pudding', 'flan',
+    'pastry', 'croissant', 'danish', 'eclair', 'cannoli', 'macaron', 'churro', 'crepe', 'waffle', 'sundae',
+    'milkshake', 'float', 'banana split', 'parfait', 'trifle', 'cobbler', 'crumble', 'tart', 'fruit', 'whipped cream',
+    'dine in', 'takeout', 'delivery', 'catering', 'custom order', 'birthday', 'celebration', 'gift', 'party', 'late night'
+  ],
+  'Supermarket': [
+    'groceries', 'produce', 'meat', 'seafood', 'deli', 'bakery', 'dairy', 'frozen', 'canned goods', 'pantry',
+    'organic', 'natural', 'fresh', 'local', 'farm fresh', 'free range', 'grass fed', 'non-GMO', 'gluten free', 'vegan',
+    'pharmacy', 'health', 'beauty', 'household', 'cleaning', 'paper goods', 'pet', 'baby', 'seasonal', 'floral',
+    'weekly ad', 'sale', 'coupon', 'rewards', 'loyalty', 'digital coupons', 'BOGO', 'clearance', 'manager special', 'rollback',
+    'pickup', 'delivery', 'instacart', 'curbside', 'online order', 'self checkout', 'express lane', 'parking', 'cart', '24 hour'
+  ],
+  'Butcher Shop': [
+    'butcher', 'meat', 'beef', 'pork', 'chicken', 'lamb', 'veal', 'turkey', 'duck', 'game',
+    'steak', 'ribeye', 'filet', 'sirloin', 'ground beef', 'ground chuck', 'roast', 'brisket', 'short ribs', 'oxtail',
+    'sausage', 'bacon', 'ham', 'pork chop', 'pork loin', 'tenderloin', 'ribs', 'belly', 'shoulder', 'butt',
+    'organic', 'grass fed', 'free range', 'local', 'prime', 'choice', 'custom cut', 'special order', 'marinated', 'seasoned',
+    'deli', 'cold cuts', 'prepared foods', 'catering', 'party trays', 'BBQ packs', 'grill packs', 'freezer packs', 'bulk', 'wholesale'
+  ],
+  'Seafood Market': [
+    'seafood', 'fish', 'fresh fish', 'whole fish', 'fillet', 'salmon', 'tuna', 'halibut', 'cod', 'snapper',
+    'shrimp', 'prawns', 'crab', 'lobster', 'oysters', 'clams', 'mussels', 'scallops', 'calamari', 'octopus',
+    'fresh', 'frozen', 'wild caught', 'farm raised', 'sustainable', 'local', 'daily catch', 'seasonal', 'sushi grade', 'sashimi grade',
+    'cleaned', 'filleted', 'steaked', 'butterflied', 'shell on', 'peeled', 'deveined', 'ready to cook', 'marinated', 'seasoned',
+    'prepared foods', 'cooked', 'fried', 'steamed', 'boil', 'catering', 'party trays', 'special order', 'custom', 'wholesale'
+  ],
+  'Specialty Food Store': [
+    'specialty', 'gourmet', 'imported', 'international', 'ethnic', 'artisan', 'local', 'small batch', 'handmade', 'craft',
+    'cheese', 'charcuterie', 'olive oil', 'vinegar', 'pasta', 'sauce', 'spices', 'seasonings', 'condiments', 'preserves',
+    'chocolate', 'candy', 'cookies', 'crackers', 'nuts', 'dried fruit', 'coffee', 'tea', 'wine', 'beer',
+    'gift basket', 'gift box', 'corporate gifts', 'party', 'catering', 'cheese board', 'platter', 'samples', 'tasting', 'events',
+    'organic', 'vegan', 'gluten free', 'kosher', 'halal', 'dietary', 'allergen free', 'special diet', 'healthy', 'natural'
+  ],
+  'Health Food Store': [
+    'health food', 'organic', 'natural', 'whole foods', 'vitamins', 'supplements', 'protein', 'collagen', 'probiotics', 'omega',
+    'vegan', 'vegetarian', 'gluten free', 'dairy free', 'keto', 'paleo', 'plant based', 'raw', 'non-GMO', 'clean eating',
+    'produce', 'fresh', 'local', 'farm', 'bulk', 'grains', 'nuts', 'seeds', 'dried fruit', 'snacks',
+    'juice bar', 'smoothie', 'cold pressed', 'shots', 'wellness', 'immunity', 'energy', 'detox', 'cleanse', 'superfoods',
+    'beauty', 'skincare', 'essential oils', 'aromatherapy', 'CBD', 'herbal', 'homeopathic', 'natural remedies', 'eco friendly', 'sustainable'
+  ],
+  'Candy Store': [
+    'candy', 'chocolate', 'gummies', 'hard candy', 'lollipop', 'taffy', 'fudge', 'caramel', 'licorice', 'sour candy',
+    'bulk candy', 'by the pound', 'pick and mix', 'candy bar', 'candy bag', 'gift box', 'party favors', 'candy buffet', 'sweet table', 'goodie bags',
+    'retro candy', 'nostalgic', 'vintage', 'old fashioned', 'imported', 'international', 'novelty', 'seasonal', 'holiday', 'limited edition',
+    'sugar free', 'diabetic friendly', 'vegan', 'organic', 'natural', 'allergen free', 'nut free', 'gluten free', 'kosher', 'halal',
+    'gift', 'birthday', 'party', 'wedding', 'baby shower', 'corporate', 'custom', 'personalized', 'wrapped', 'basket'
+  ],
+  'Chocolate Shop': [
+    'chocolate', 'dark chocolate', 'milk chocolate', 'white chocolate', 'truffles', 'bonbons', 'pralines', 'ganache', 'filled', 'assorted',
+    'chocolate bar', 'chocolate box', 'gift box', 'sampler', 'variety', 'seasonal', 'holiday', 'limited edition', 'signature', 'house made',
+    'single origin', 'bean to bar', 'artisan', 'craft', 'handmade', 'small batch', 'fair trade', 'organic', 'vegan', 'sugar free',
+    'hot chocolate', 'drinking chocolate', 'mocha', 'chocolate dipped', 'fruit', 'nuts', 'caramel', 'sea salt', 'espresso', 'lavender',
+    'gift', 'valentines', 'mothers day', 'christmas', 'easter', 'birthday', 'anniversary', 'thank you', 'corporate', 'wedding'
+  ],
+  'CBD Store': [
+    'CBD', 'cannabidiol', 'hemp', 'full spectrum', 'broad spectrum', 'isolate', 'THC free', 'organic', 'lab tested', 'COA',
+    'tincture', 'oil', 'drops', 'capsules', 'softgels', 'gummies', 'edibles', 'topical', 'cream', 'balm',
+    'pain relief', 'anxiety', 'sleep', 'stress', 'inflammation', 'recovery', 'wellness', 'relaxation', 'calm', 'focus',
+    'pet CBD', 'dog', 'cat', 'treats', 'oil', 'vape', 'cartridge', 'flower', 'pre-roll', 'concentrate',
+    'mg', 'strength', 'dosage', 'serving', 'third party tested', 'certificate', 'quality', 'potency', 'purity', 'natural'
+  ],
   // Health & Beauty
   'Salon': [
     'haircut', 'hair color', 'highlights', 'balayage', 'ombre', 'lowlights', 'root touch up', 'full color', 'color correction', 'bleach',
@@ -252,6 +434,48 @@ const keywordSuggestions: Record<string, string[]> = {
     'licensed', 'esthetician', 'dermatologist', 'certified', 'medical grade', 'professional', 'clean', 'sterile', 'private', 'relaxing',
     'appointment', 'online booking', 'parking', 'gift card', 'membership', 'loyalty', 'HSA', 'FSA', 'financing', 'before after'
   ],
+  'Lash Studio': [
+    'lashes', 'eyelash extensions', 'lash extensions', 'classic lashes', 'volume lashes', 'hybrid lashes', 'mega volume', 'russian volume', 'wispy', 'natural',
+    'full set', 'lash fill', 'refill', '2 week fill', '3 week fill', 'lash lift', 'lash tint', 'brow lamination', 'brow tint', 'combo',
+    'mink', 'silk', 'synthetic', 'faux mink', 'length', 'curl', 'diameter', 'mapping', 'customized', 'lash bath',
+    'lash removal', 'aftercare', 'lash serum', 'products', 'retail', 'touch up', 'correction', 'allergic reaction', 'sensitive', 'gentle',
+    'appointment', 'online booking', 'new client', 'returning client', 'pricing', 'deposit', 'cancellation', 'late policy', 'portfolio', 'certified'
+  ],
+  'Brow Bar': [
+    'brows', 'eyebrows', 'brow shaping', 'brow wax', 'brow threading', 'brow tint', 'brow lamination', 'microblading', 'microshading', 'ombre brows',
+    'powder brows', 'nano brows', 'brow mapping', 'brow design', 'arch', 'shape', 'cleanup', 'maintenance', 'full brow', 'touch up',
+    'henna brows', 'brow gel', 'brow pomade', 'brow pencil', 'brow products', 'retail', 'aftercare', 'brow serum', 'growth serum', 'castor oil',
+    'wax', 'hard wax', 'soft wax', 'thread', 'tweeze', 'trim', 'bleach', 'lighten', 'men', 'women',
+    'walk in', 'appointment', 'quick service', 'express', 'pricing', 'package', 'membership', 'new client', 'certified', 'experienced'
+  ],
+  'Waxing Studio': [
+    'waxing', 'wax', 'brazilian', 'bikini', 'full bikini', 'french bikini', 'leg wax', 'arm wax', 'underarm', 'back wax',
+    'chest wax', 'stomach', 'full body', 'face wax', 'lip', 'chin', 'brow', 'sideburn', 'nose', 'ear',
+    'hard wax', 'soft wax', 'strip wax', 'stripless', 'sensitive skin', 'gentle', 'less painful', 'numbing', 'before care', 'aftercare',
+    'first time', 'maintenance', 'growth', 'weeks', 'regrowth', 'ingrown', 'exfoliate', 'smooth', 'clean', 'hygienic',
+    'appointment', 'walk in', 'men', 'women', 'pricing', 'package', 'membership', 'brazilian specialist', 'experienced', 'private'
+  ],
+  'Hair Extensions': [
+    'hair extensions', 'extensions', 'tape in', 'sew in', 'weave', 'clip in', 'halo', 'micro link', 'i-tip', 'k-tip',
+    'fusion', 'keratin bond', 'hand tied', 'weft', 'machine weft', 'beaded row', 'NBR', 'install', 'removal', 'reinstall',
+    'length', 'volume', 'thickness', 'color match', 'blend', 'custom color', 'highlights', 'balayage', 'ombre', 'rooted',
+    'human hair', 'remy', 'virgin hair', 'quality', 'maintenance', 'care', 'wash', 'styling', 'longevity', 'lifespan',
+    'consultation', 'appointment', 'pricing', 'deposit', 'touch up', 'move up', 'tightening', 'certified', 'trained', 'experienced'
+  ],
+  'Wig Shop': [
+    'wigs', 'wig', 'human hair wig', 'synthetic wig', 'lace front', 'full lace', 'closure', 'frontal', '360 lace', 'glueless',
+    'custom wig', 'wig install', 'wig styling', 'wig cut', 'wig color', 'wig wash', 'wig maintenance', 'wig repair', 'wig cap', 'wig stand',
+    'hair pieces', 'toppers', 'ponytail', 'bun', 'bangs', 'clip in', 'units', 'bundles', 'closures', 'frontals',
+    'straight', 'curly', 'wavy', 'body wave', 'deep wave', 'kinky curly', 'bob', 'pixie', 'long', 'short',
+    'medical wig', 'chemo', 'alopecia', 'hair loss', 'consultation', 'private fitting', 'financing', 'insurance', 'quality', 'natural looking'
+  ],
+  'Beauty Supply': [
+    'beauty supply', 'hair care', 'skin care', 'makeup', 'cosmetics', 'nails', 'hair color', 'relaxer', 'perm', 'styling products',
+    'shampoo', 'conditioner', 'leave in', 'oil', 'gel', 'mousse', 'hairspray', 'edge control', 'deep conditioner', 'treatment',
+    'flat iron', 'curling iron', 'blow dryer', 'clippers', 'trimmers', 'combs', 'brushes', 'rollers', 'pins', 'accessories',
+    'wigs', 'weave', 'braiding hair', 'extensions', 'lashes', 'adhesive', 'nail polish', 'acrylics', 'gel polish', 'nail tools',
+    'wholesale', 'retail', 'professional', 'salon quality', 'brands', 'discount', 'sale', 'clearance', 'rewards', 'new arrivals'
+  ],
   // Automotive
   'Auto Shop': [
     'oil change', 'brake repair', 'brakes', 'engine repair', 'transmission', 'AC repair', 'air conditioning', 'heating', 'check engine light', 'diagnostics',
@@ -301,6 +525,48 @@ const keywordSuggestions: Record<string, string[]> = {
     'sedan', 'SUV', 'truck', 'van', 'coupe', 'convertible', 'hybrid', 'electric', 'EV', 'crossover',
     'service department', 'parts', 'accessories', 'warranty', 'extended warranty', 'maintenance plan', 'recall', 'loaner car', 'shuttle', 'pickup delivery',
     'no haggle', 'one price', 'negotiable', 'OTD price', 'monthly payment', 'down payment', 'credit check', 'approval', 'rebate', 'incentive'
+  ],
+  'Motorcycle Shop': [
+    'motorcycle', 'bike', 'Harley', 'Honda', 'Yamaha', 'Kawasaki', 'Suzuki', 'BMW', 'Ducati', 'Indian',
+    'cruiser', 'sport bike', 'touring', 'adventure', 'dirt bike', 'dual sport', 'scooter', 'moped', 'trike', 'sidecar',
+    'new', 'used', 'certified', 'trade in', 'financing', 'lease', 'test ride', 'demo', 'inventory', 'special order',
+    'service', 'repair', 'maintenance', 'oil change', 'tires', 'brakes', 'tune up', 'parts', 'accessories', 'gear',
+    'helmet', 'jacket', 'gloves', 'boots', 'riding gear', 'apparel', 'saddlebags', 'exhaust', 'custom', 'performance'
+  ],
+  'Auto Parts Store': [
+    'auto parts', 'car parts', 'parts', 'oil', 'filter', 'oil filter', 'air filter', 'cabin filter', 'brake pads', 'rotors',
+    'battery', 'alternator', 'starter', 'spark plugs', 'ignition', 'belts', 'hoses', 'coolant', 'antifreeze', 'transmission fluid',
+    'wipers', 'wiper blades', 'headlight', 'bulb', 'fuse', 'relay', 'sensor', 'O2 sensor', 'MAF', 'thermostat',
+    'tools', 'jack', 'jack stands', 'wrench', 'socket', 'OBD', 'scanner', 'charger', 'jumper cables', 'tow strap',
+    'in stock', 'special order', 'next day', 'same day', 'lookup', 'fitment', 'warranty', 'core charge', 'return', 'loaner tool'
+  ],
+  'Transmission Shop': [
+    'transmission', 'trans', 'automatic', 'manual', 'CVT', 'DSG', 'rebuild', 'repair', 'replace', 'overhaul',
+    'transmission fluid', 'flush', 'filter', 'pan gasket', 'seal', 'leak', 'slipping', 'hard shift', 'no reverse', 'wont move',
+    'torque converter', 'clutch', 'flywheel', 'differential', 'transfer case', 'axle', 'CV joint', 'driveshaft', 'U joint', 'AWD',
+    'diagnostic', 'scan', 'code', 'check engine', 'transmission light', 'limp mode', 'solenoid', 'valve body', 'TCM', 'PCM',
+    'estimate', 'free diagnostic', 'warranty', 'nationwide warranty', 'financing', 'tow', 'loaner', 'shuttle', 'same day', 'quick'
+  ],
+  'Muffler Shop': [
+    'muffler', 'exhaust', 'catalytic converter', 'cat', 'resonator', 'pipe', 'flex pipe', 'manifold', 'header', 'downpipe',
+    'exhaust repair', 'exhaust replacement', 'custom exhaust', 'performance exhaust', 'dual exhaust', 'straight pipe', 'delete', 'loud', 'quiet', 'stock',
+    'leak', 'hole', 'rust', 'rattle', 'noise', 'smell', 'fumes', 'check engine', 'O2 sensor', 'emissions',
+    'weld', 'clamp', 'hanger', 'gasket', 'flange', 'tip', 'chrome', 'black', 'stainless', 'aluminized',
+    'free inspection', 'estimate', 'while you wait', 'same day', 'warranty', 'lifetime', 'affordable', 'quick', 'no appointment', 'walk in'
+  ],
+  'Towing Service': [
+    'towing', 'tow truck', 'tow', 'flatbed', 'wheel lift', 'dolly', 'roadside', 'roadside assistance', 'AAA', 'emergency',
+    'jump start', 'battery', 'dead battery', 'lockout', 'locked out', 'keys locked', 'flat tire', 'tire change', 'spare', 'fuel delivery',
+    'accident', 'breakdown', 'stuck', 'ditch', 'winch', 'recovery', 'off road', 'mud', 'snow', 'water',
+    '24 hour', 'emergency', 'fast', 'quick', 'response time', 'ETA', 'dispatch', 'GPS', 'location', 'near me',
+    'local', 'long distance', 'impound', 'storage', 'auction', 'junk car', 'scrap', 'cash for cars', 'price', 'estimate'
+  ],
+  'Car Rental': [
+    'car rental', 'rental car', 'rent a car', 'daily rental', 'weekly rental', 'monthly rental', 'hourly', 'pickup', 'drop off', 'one way',
+    'economy', 'compact', 'midsize', 'full size', 'SUV', 'truck', 'van', 'minivan', 'luxury', 'convertible',
+    'unlimited miles', 'mileage', 'insurance', 'CDW', 'LDW', 'liability', 'roadside', 'GPS', 'car seat', 'additional driver',
+    'age requirement', '25', 'under 25', 'young driver fee', 'license', 'credit card', 'deposit', 'deductible', 'damage', 'inspection',
+    'airport', 'downtown', 'delivery', 'after hours', 'key drop', 'reservation', 'booking', 'corporate', 'discount', 'coupon'
   ],
   // Fitness & Recreation
   'Gym': [
@@ -358,6 +624,48 @@ const keywordSuggestions: Record<string, string[]> = {
     'arcade', 'games', 'prizes', 'snack bar', 'food', 'drinks', 'beer', 'pizza', 'nachos', 'wings',
     'birthday party', 'party package', 'group event', 'corporate event', 'team building', 'private party', 'room rental', 'catering', 'DJ', 'music',
     'per game', 'per hour', 'unlimited', 'specials', 'discount', 'coupon', 'student discount', 'family deal', 'parking', 'clean'
+  ],
+  'Rock Climbing Gym': [
+    'climbing', 'rock climbing', 'bouldering', 'top rope', 'lead climbing', 'auto belay', 'walls', 'routes', 'grades', 'problems',
+    'beginner', 'intermediate', 'advanced', 'V scale', 'YDS', 'setting', 'new routes', 'routesetter', 'comp wall', 'training wall',
+    'belay', 'belay certification', 'harness', 'shoes', 'chalk', 'rental', 'gear', 'equipment', 'crash pad', 'mat',
+    'day pass', 'punch card', 'membership', 'monthly', 'annual', 'student', 'family', 'corporate', 'group', 'party',
+    'classes', 'instruction', 'private lesson', 'intro class', 'youth', 'kids', 'team', 'competition', 'fitness', 'training'
+  ],
+  'Swimming Pool': [
+    'swimming', 'pool', 'lap swim', 'open swim', 'recreational swim', 'lanes', 'lap lanes', 'diving', 'diving board', 'slide',
+    'lessons', 'swim lessons', 'learn to swim', 'kids lessons', 'adult lessons', 'private lessons', 'group lessons', 'swim team', 'water polo', 'masters',
+    'aqua aerobics', 'water aerobics', 'aqua fitness', 'water exercise', 'therapy', 'rehab', 'physical therapy', 'warm water', 'heated', 'indoor',
+    'outdoor', 'seasonal', 'summer', 'year round', 'hours', 'schedule', 'lap swim hours', 'open swim hours', 'family swim', 'adult swim',
+    'membership', 'day pass', 'punch card', 'guest', 'locker room', 'shower', 'towels', 'parking', 'lifeguard', 'clean'
+  ],
+  'Tennis Club': [
+    'tennis', 'courts', 'hard court', 'clay court', 'grass court', 'indoor', 'outdoor', 'lighted', 'covered', 'bubble',
+    'lessons', 'private lessons', 'group lessons', 'clinic', 'camp', 'junior', 'adult', 'beginner', 'intermediate', 'advanced',
+    'league', 'USTA', 'team', 'tournament', 'match', 'singles', 'doubles', 'mixed doubles', 'round robin', 'ladder',
+    'membership', 'court rental', 'court time', 'reservation', 'booking', 'guest', 'pro shop', 'racket', 'stringing', 'demo',
+    'ball machine', 'practice', 'hitting partner', 'social', 'events', 'clinics', 'fitness', 'cardio tennis', 'pickle ball', 'paddle'
+  ],
+  'Boxing Gym': [
+    'boxing', 'box', 'punch', 'heavy bag', 'speed bag', 'double end bag', 'mitts', 'pad work', 'shadow boxing', 'sparring',
+    'gloves', 'wraps', 'hand wraps', 'headgear', 'mouthguard', 'groin protector', 'equipment', 'gear', 'rental', 'pro shop',
+    'classes', 'boxing class', 'cardio boxing', 'fitness boxing', 'technique', 'fundamentals', 'beginner', 'advanced', 'competitive', 'amateur',
+    'personal training', 'private lesson', 'one on one', 'trainer', 'coach', 'corner', 'conditioning', 'strength', 'cardio', 'circuit',
+    'membership', 'day pass', 'drop in', 'package', 'pricing', 'trial', 'first class free', 'open gym', 'hours', 'schedule'
+  ],
+  'Spin Studio': [
+    'spin', 'spinning', 'cycling', 'indoor cycling', 'bike', 'spin bike', 'peloton', 'stationary bike', 'cardio', 'endurance',
+    'class', 'spin class', 'cycling class', 'rhythm ride', 'power ride', 'endurance ride', 'interval', 'HIIT', 'climb', 'sprint',
+    'instructor', 'music', 'playlist', 'beats', 'dark room', 'lights', 'energy', 'motivation', 'community', 'tribe',
+    'shoes', 'clip in', 'SPD', 'delta', 'rental', 'towel', 'water', 'locker', 'shower', 'amenities',
+    'first class free', 'trial', 'class pack', 'membership', 'unlimited', 'schedule', 'booking', 'waitlist', 'cancellation', 'late policy'
+  ],
+  'Barre Studio': [
+    'barre', 'barre class', 'ballet barre', 'bar', 'toning', 'sculpting', 'lengthening', 'strengthening', 'low impact', 'full body',
+    'arms', 'thighs', 'seat', 'glutes', 'core', 'abs', 'back', 'posture', 'flexibility', 'balance',
+    'small movements', 'isometric', 'pulse', 'shake', 'burn', 'tuck', 'squeeze', 'light weights', 'ball', 'resistance band',
+    'beginner', 'intermediate', 'advanced', 'all levels', 'prenatal', 'postnatal', 'modifications', 'challenging', 'results', 'transformation',
+    'class', 'schedule', 'membership', 'class pack', 'drop in', 'first class', 'trial', 'intro offer', 'new student', 'unlimited'
   ],
   // Retail
   'Retail Store': [

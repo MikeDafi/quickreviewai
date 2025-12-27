@@ -61,6 +61,7 @@ export default function Dashboard() {
           googleUrl: s.google_url,
           yelpUrl: s.yelp_url,
           landing_page_count: s.landing_page_count,
+          landing_page_id: s.landing_page_id,
         }));
         setStores(mappedStores);
       }
@@ -89,20 +90,21 @@ export default function Dashboard() {
       
       setIsAddModalOpen(false);
       await fetchStores();
-      // Automatically show QR code modal after creating a store
-      if (data.store) {
-        const newStore: Store = {
-          id: data.store.id,
-          name: data.store.name,
-          address: data.store.address || '',
-          businessType: data.store.business_type || '',
-          keywords: data.store.keywords || [],
-          reviewExpectations: data.store.review_expectations || [],
-          googleUrl: data.store.google_url,
-          yelpUrl: data.store.yelp_url,
-        };
-        setQrCodeStore(newStore);
-      }
+        // Automatically show QR code modal after creating a store
+        if (data.store) {
+          const newStore: Store = {
+            id: data.store.id,
+            name: data.store.name,
+            address: data.store.address || '',
+            businessType: data.store.business_type || '',
+            keywords: data.store.keywords || [],
+            reviewExpectations: data.store.review_expectations || [],
+            googleUrl: data.store.google_url,
+            yelpUrl: data.store.yelp_url,
+            landing_page_id: data.store.landing_page_id,
+          };
+          setQrCodeStore(newStore);
+        }
     } catch (error) {
       console.error('Failed to create store:', error);
       alert('Failed to create store. Please try again.');

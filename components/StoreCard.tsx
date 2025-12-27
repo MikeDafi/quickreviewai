@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Edit, Trash2, QrCode, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
-import Link from 'next/link';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface StoreCardProps {
@@ -107,13 +106,6 @@ export default function StoreCard({ store, onEdit, onDelete, onShowQR }: StoreCa
           <QrCode className="w-4 h-4" />
           QR Code
         </button>
-        <Link
-          href={`/analytics/${store.id}`}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm"
-        >
-          <BarChart3 className="w-4 h-4" />
-          Analytics
-        </Link>
         <button
           onClick={() => onDelete(store.id)}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm ml-auto"

@@ -9,6 +9,7 @@ export interface Store {
   googleUrl?: string;
   yelpUrl?: string;
   landing_page_count?: number;
+  landing_page_id: string; // ID of the primary landing page
 }
 
 export interface LandingPage {
