@@ -24,16 +24,16 @@ export default function Home() {
           <div className="max-w-6xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 mb-6">
               <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">AI-Powered Review Generation • 100% FREE to Start</span>
+              <span className="text-sm font-medium">Boost Your Google Rankings • 100% FREE to Start</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-gray-900 max-w-4xl mx-auto leading-tight">
-              Turn Happy Customers into 5-Star Reviews
+              Rank for Keywords You&apos;re Missing Out On
             </h1>
             
             <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-              Help your customers share their positive experiences with AI-generated review suggestions. 
-              Simple QR codes, instant setup, real results.
+              Every review is SEO gold. When customers mention &quot;best pizza downtown&quot; or &quot;fast friendly service&quot;, 
+              Google indexes those keywords for YOUR business. Start ranking for searches you never showed up for.
             </p>
             
             <div className="flex justify-center">
@@ -89,7 +89,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">How It Works</h2>
-              <p className="text-xl text-gray-600">Three simple steps to boost your online reputation</p>
+              <p className="text-xl text-gray-600">Turn every happy customer into an SEO asset</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-12 mb-20">
@@ -98,9 +98,9 @@ export default function Home() {
                   <Zap className="w-8 h-8 text-emerald-600" />
                 </div>
                 <div className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium mb-4">Step 1</div>
-                <h3 className="text-2xl font-semibold mb-3 text-gray-900">Setup Your Store</h3>
+                <h3 className="text-2xl font-semibold mb-3 text-gray-900">Add Your Keywords</h3>
                 <p className="text-gray-600">
-                  Add your business details and let our AI generate personalized review templates based on your keywords and tone.
+                  Tell us what searches you want to rank for. &quot;Best tacos in Austin&quot;? &quot;Emergency plumber&quot;? Our AI weaves them naturally into reviews.
                 </p>
               </div>
               
@@ -109,9 +109,9 @@ export default function Home() {
                   <QrCode className="w-8 h-8 text-emerald-600" />
                 </div>
                 <div className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium mb-4">Step 2</div>
-                <h3 className="text-2xl font-semibold mb-3 text-gray-900">Share QR Code</h3>
+                <h3 className="text-2xl font-semibold mb-3 text-gray-900">Display QR Code</h3>
                 <p className="text-gray-600">
-                  Display your unique QR code on receipts, table tents, or store windows. Customers scan and go.
+                  Print it on receipts, table tents, or your counter. Happy customers scan in seconds.
                 </p>
               </div>
               
@@ -120,9 +120,9 @@ export default function Home() {
                   <TrendingUp className="w-8 h-8 text-emerald-600" />
                 </div>
                 <div className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium mb-4">Step 3</div>
-                <h3 className="text-2xl font-semibold mb-3 text-gray-900">Collect Reviews</h3>
+                <h3 className="text-2xl font-semibold mb-3 text-gray-900">Watch Rankings Climb</h3>
                 <p className="text-gray-600">
-                  Customers copy the suggested review and post to Google, Yelp, TripAdvisor, Facebook, OpenTable, or any platform. Watch your ratings soar.
+                  Every review posted to Google, Yelp, or TripAdvisor builds your keyword authority. More reviews = more visibility = more customers.
                 </p>
               </div>
             </div>
@@ -278,33 +278,33 @@ export default function Home() {
         <section className="px-4 py-24 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Everything You Need</h2>
-              <p className="text-xl text-gray-600">Powerful features to grow your online presence</p>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Why Reviews = Free SEO</h2>
+              <p className="text-xl text-gray-600">Every review is content that Google indexes for your business</p>
             </div>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <Sparkles className="w-10 h-10 text-emerald-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">AI-Generated Reviews</h3>
-                <p className="text-gray-600">Smart, authentic-sounding reviews tailored to your business</p>
+                <TrendingUp className="w-10 h-10 text-emerald-600 mb-4" />
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Rank for New Keywords</h3>
+                <p className="text-gray-600">When reviews mention &quot;best brunch spot&quot; or &quot;affordable mechanic&quot;, you start ranking for those searches</p>
               </div>
               
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <Zap className="w-10 h-10 text-emerald-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Instant Setup</h3>
-                <p className="text-gray-600">Get your first QR code in under 2 minutes</p>
+                <Sparkles className="w-10 h-10 text-emerald-600 mb-4" />
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Fresh Content Daily</h3>
+                <p className="text-gray-600">Google rewards businesses with recent activity. New reviews signal you&apos;re active and relevant</p>
               </div>
               
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <Shield className="w-10 h-10 text-emerald-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Multi-Platform</h3>
-                <p className="text-gray-600">Google, Yelp, TripAdvisor, Facebook, Trustpilot & more</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Build Trust Signals</h3>
+                <p className="text-gray-600">More 5-star reviews = higher click-through rates from search results</p>
               </div>
               
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <BarChart3 className="w-10 h-10 text-emerald-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Analytics</h3>
-                <p className="text-gray-600">Track scans, conversions, and review performance</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Outrank Competitors</h3>
+                <p className="text-gray-600">The business with more recent, keyword-rich reviews wins the local pack</p>
               </div>
             </div>
           </div>
