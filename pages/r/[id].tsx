@@ -121,12 +121,14 @@ export default function LandingPage() {
         setGenerating(false);
         return;
       }
-      setTimeout(() => {
+      setTimeout(async () => {
         const nextIndex = (demoReviewIndex + 1) % DEMO_REVIEWS.length;
         setDemoReviewIndex(nextIndex);
         setReview(DEMO_REVIEWS[nextIndex]);
         setDemoRegenerateCount(prev => prev + 1);
         setGenerating(false);
+        // Auto-copy the new demo review
+        await autoCopyToClipboard(DEMO_REVIEWS[nextIndex], false);
       }, 800);
       return;
     }
@@ -148,6 +150,8 @@ export default function LandingPage() {
       
       if (res.ok) {
         setReview(result.review);
+        // Auto-copy the newly generated review
+        await autoCopyToClipboard(result.review);
       }
     } catch (err) {
       console.error('Failed to regenerate:', err);
@@ -200,6 +204,18 @@ export default function LandingPage() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 py-8">
+        {/* Auto-copied toast notification */}
+        <div 
+          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
+            autoCopied ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+          }`}
+        >
+          <div className="flex items-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-600/30">
+            <Clipboard className="w-4 h-4" />
+            <span className="text-sm font-medium">Review copied to clipboard!</span>
+          </div>
+        </div>
+
         <div className="w-full max-w-md">
           {/* Demo Banner */}
           {isDemo && (
