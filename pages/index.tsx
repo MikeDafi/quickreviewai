@@ -59,7 +59,7 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   <div className="bg-white p-3 rounded-xl border-2 border-emerald-100 shadow-sm">
                     <QRCodeSVG 
-                      value={typeof window !== 'undefined' ? `${window.location.origin}${DEMO_LANDING_PAGE_URL}` : `https://quickreviewai.com${DEMO_LANDING_PAGE_URL}`}
+                      value="https://quickreviewai.vercel.app/r/demo"
                       size={120}
                       level="M"
                       bgColor="#ffffff"
