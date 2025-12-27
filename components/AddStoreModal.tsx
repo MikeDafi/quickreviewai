@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, KeyboardEvent } from 'react';
 import { X, Lightbulb } from 'lucide-react';
 import { Store } from '@/lib/types';
 
@@ -8,80 +8,189 @@ interface AddStoreModalProps {
   onSave: (store: Store | Omit<Store, 'id'>) => void;
 }
 
-const keywordSuggestions: Record<string, string[]> = {
-  'Restaurant': ['delicious', 'authentic', 'family-friendly', 'fresh ingredients', 'cozy atmosphere'],
-  'Salon': ['professional', 'relaxing', 'modern', 'skilled stylists', 'luxurious'],
-  'Auto Shop': ['reliable', 'trustworthy', 'quick service', 'honest pricing', 'expert mechanics'],
-  'Retail': ['quality products', 'great selection', 'helpful staff', 'affordable', 'convenient'],
-  'Cafe': ['cozy', 'artisanal', 'fresh', 'friendly service', 'best coffee'],
-  'Gym': ['motivating', 'clean', 'professional trainers', 'state-of-the-art', 'welcoming'],
-  'Spa': ['relaxing', 'rejuvenating', 'professional', 'tranquil', 'top-notch service'],
-  'Other': ['excellent', 'professional', 'friendly', 'high-quality', 'recommended']
-};
+const businessTypes = [
+  // Food & Beverage
+  'Restaurant',
+  'Cafe',
+  'Coffee Shop',
+  'Bakery',
+  'Bar',
+  'Brewery',
+  'Food Truck',
+  'Catering',
+  'Ice Cream Shop',
+  'Juice Bar',
+  'Pizza Shop',
+  'Deli',
+  'Fast Food',
+  'Fine Dining',
+  // Health & Beauty
+  'Salon',
+  'Barbershop',
+  'Spa',
+  'Nail Salon',
+  'Med Spa',
+  'Massage Therapy',
+  'Tattoo Studio',
+  'Waxing Studio',
+  'Skincare Clinic',
+  'Tanning Salon',
+  // Fitness & Wellness
+  'Gym',
+  'Yoga Studio',
+  'Pilates Studio',
+  'CrossFit Box',
+  'Martial Arts Studio',
+  'Dance Studio',
+  'Personal Training',
+  'Physical Therapy',
+  'Chiropractic',
+  // Automotive
+  'Auto Shop',
+  'Car Wash',
+  'Auto Detailing',
+  'Tire Shop',
+  'Oil Change',
+  'Body Shop',
+  'Car Dealership',
+  'Motorcycle Shop',
+  'RV Dealer',
+  // Retail
+  'Retail Store',
+  'Boutique',
+  'Clothing Store',
+  'Jewelry Store',
+  'Shoe Store',
+  'Pet Store',
+  'Furniture Store',
+  'Electronics Store',
+  'Bookstore',
+  'Florist',
+  'Gift Shop',
+  'Thrift Store',
+  'Sporting Goods',
+  'Hardware Store',
+  'Liquor Store',
+  'Smoke Shop',
+  'Convenience Store',
+  'Grocery Store',
+  // Professional Services
+  'Law Firm',
+  'Accounting Firm',
+  'Insurance Agency',
+  'Real Estate Agency',
+  'Financial Advisor',
+  'Marketing Agency',
+  'IT Services',
+  'Consulting',
+  'Architecture Firm',
+  'Engineering Firm',
+  // Home Services
+  'Plumber',
+  'Electrician',
+  'HVAC',
+  'Roofing',
+  'Landscaping',
+  'Lawn Care',
+  'Cleaning Service',
+  'Pest Control',
+  'Moving Company',
+  'Handyman',
+  'Interior Design',
+  'Pool Service',
+  'Painting',
+  'Flooring',
+  'Fencing',
+  // Medical & Dental
+  'Doctor',
+  'Dentist',
+  'Orthodontist',
+  'Optometrist',
+  'Veterinarian',
+  'Urgent Care',
+  'Mental Health',
+  'Pediatrician',
+  'Dermatologist',
+  'Pharmacy',
+  // Education & Childcare
+  'Daycare',
+  'Preschool',
+  'Tutoring',
+  'Music School',
+  'Art School',
+  'Driving School',
+  'Language School',
+  'Test Prep',
+  // Entertainment & Recreation
+  'Movie Theater',
+  'Bowling Alley',
+  'Arcade',
+  'Escape Room',
+  'Amusement Park',
+  'Golf Course',
+  'Mini Golf',
+  'Laser Tag',
+  'Trampoline Park',
+  'Go Kart',
+  'Axe Throwing',
+  // Hospitality & Travel
+  'Hotel',
+  'Motel',
+  'Bed & Breakfast',
+  'Vacation Rental',
+  'Travel Agency',
+  'Tour Operator',
+  'Wedding Venue',
+  'Event Venue',
+  // Photography & Creative
+  'Photography Studio',
+  'Video Production',
+  'Graphic Design',
+  'Printing Shop',
+  'Sign Shop',
+  'Music Studio',
+  // Other
+  'Dry Cleaner',
+  'Laundromat',
+  'Tailor',
+  'Locksmith',
+  'Storage Facility',
+  'Shipping Store',
+  'Pawn Shop',
+  'Gun Shop',
+  'Vape Shop',
+  'Other'
+];
 
-const reviewPromptSuggestions: Record<string, string[]> = {
-  'Restaurant': [
-    'Focus on food quality and taste',
-    'Highlight atmosphere and service',
-    'Mention specific dishes loved',
-    'Emphasize value for money'
-  ],
-  'Salon': [
-    'Describe the transformation/results',
-    'Mention stylist expertise',
-    'Highlight relaxing experience',
-    'Focus on professionalism'
-  ],
-  'Auto Shop': [
-    'Emphasize honesty and transparency',
-    'Highlight quick turnaround time',
-    'Mention fair pricing',
-    'Focus on quality of work'
-  ],
-  'Retail': [
-    'Highlight product quality',
-    'Mention helpful staff',
-    'Focus on selection variety',
-    'Emphasize great prices'
-  ],
-  'Cafe': [
-    'Describe coffee/beverage quality',
-    'Mention cozy atmosphere',
-    'Highlight friendly baristas',
-    'Focus on perfect spot to work/relax'
-  ],
-  'Gym': [
-    'Mention clean facilities',
-    'Highlight helpful trainers',
-    'Focus on results achieved',
-    'Emphasize welcoming community'
-  ],
-  'Spa': [
-    'Describe relaxation experience',
-    'Highlight professional staff',
-    'Mention treatments enjoyed',
-    'Focus on peaceful atmosphere'
-  ],
-  'Other': [
-    'Emphasize quality of service',
-    'Highlight professionalism',
-    'Mention positive experience',
-    'Focus on recommending to others'
-  ]
+const keywordSuggestions: Record<string, string[]> = {
+  'Restaurant': ['delicious', 'authentic', 'family-friendly', 'fresh ingredients', 'cozy atmosphere', 'great service'],
+  'Cafe': ['cozy', 'artisanal', 'fresh', 'friendly service', 'best coffee', 'relaxing'],
+  'Coffee Shop': ['best coffee', 'friendly baristas', 'cozy', 'great atmosphere', 'quality beans'],
+  'Salon': ['professional', 'relaxing', 'modern', 'skilled stylists', 'luxurious', 'friendly'],
+  'Barbershop': ['skilled barbers', 'clean', 'great haircut', 'friendly', 'classic'],
+  'Spa': ['relaxing', 'rejuvenating', 'professional', 'tranquil', 'luxurious'],
+  'Gym': ['motivating', 'clean', 'professional trainers', 'state-of-the-art', 'welcoming'],
+  'Auto Shop': ['reliable', 'trustworthy', 'quick service', 'honest pricing', 'expert mechanics'],
+  'Retail Store': ['quality products', 'great selection', 'helpful staff', 'affordable', 'convenient'],
+  'Dentist': ['gentle', 'professional', 'friendly staff', 'modern equipment', 'pain-free'],
+  'Doctor': ['caring', 'professional', 'thorough', 'attentive', 'knowledgeable'],
+  'Plumber': ['reliable', 'quick response', 'fair pricing', 'professional', 'expert'],
+  'Electrician': ['professional', 'reliable', 'knowledgeable', 'fair pricing', 'safe'],
+  'Cleaning Service': ['thorough', 'reliable', 'professional', 'trustworthy', 'detail-oriented'],
+  'Hotel': ['comfortable', 'clean', 'great location', 'friendly staff', 'excellent amenities'],
+  'default': ['excellent', 'professional', 'friendly', 'high-quality', 'recommended', 'great experience']
 };
 
 export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalProps) {
   const [name, setName] = useState(store?.name || '');
   const [businessType, setBusinessType] = useState(store?.businessType || '');
-  const [keywords, setKeywords] = useState(store?.keywords.join(', ') || '');
-  const [tone, setTone] = useState(store?.tone || 'friendly');
+  const [keywords, setKeywords] = useState<string[]>(store?.keywords || []);
+  const [keywordInput, setKeywordInput] = useState('');
   const [googleUrl, setGoogleUrl] = useState(store?.googleUrl || '');
   const [yelpUrl, setYelpUrl] = useState(store?.yelpUrl || '');
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
-  const [showPromptSuggestions, setShowPromptSuggestions] = useState(false);
 
-  const currentKeywordSuggestions = businessType ? keywordSuggestions[businessType] || [] : [];
-  const currentPromptSuggestions = businessType ? reviewPromptSuggestions[businessType] || [] : [];
+  const currentKeywordSuggestions = keywordSuggestions[businessType] || keywordSuggestions['default'];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,8 +198,8 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     const storeData = {
       name,
       businessType,
-      keywords: keywords.split(',').map(k => k.trim()).filter(k => k),
-      tone,
+      keywords,
+      tone: 'friendly', // Keep a default tone for the API
       googleUrl: googleUrl || undefined,
       yelpUrl: yelpUrl || undefined
     };
@@ -102,11 +211,37 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
     }
   };
 
-  const addSuggestedKeyword = (keyword: string) => {
-    const currentKeywords = keywords.split(',').map(k => k.trim()).filter(k => k);
-    if (!currentKeywords.includes(keyword)) {
-      setKeywords(currentKeywords.concat(keyword).join(', '));
+  const handleKeywordKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addKeywordsFromInput();
     }
+  };
+
+  const addKeywordsFromInput = () => {
+    if (!keywordInput.trim()) return;
+    
+    // Split by comma and add each keyword
+    const newKeywords = keywordInput
+      .split(',')
+      .map(k => k.trim().toLowerCase())
+      .filter(k => k && !keywords.includes(k));
+    
+    if (newKeywords.length > 0) {
+      setKeywords([...keywords, ...newKeywords]);
+    }
+    setKeywordInput('');
+  };
+
+  const addSuggestedKeyword = (keyword: string) => {
+    const normalizedKeyword = keyword.toLowerCase();
+    if (!keywords.includes(normalizedKeyword)) {
+      setKeywords([...keywords, normalizedKeyword]);
+    }
+  };
+
+  const removeKeyword = (keywordToRemove: string) => {
+    setKeywords(keywords.filter(k => k !== keywordToRemove));
   };
 
   return (
@@ -149,15 +284,10 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
             >
-              <option value="">Select a type</option>
-              <option value="Restaurant">Restaurant</option>
-              <option value="Salon">Salon</option>
-              <option value="Auto Shop">Auto Shop</option>
-              <option value="Retail">Retail</option>
-              <option value="Cafe">Cafe</option>
-              <option value="Gym">Gym</option>
-              <option value="Spa">Spa</option>
-              <option value="Other">Other</option>
+              <option value="" disabled>Select your business type</option>
+              {businessTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
             </select>
           </div>
 
@@ -166,7 +296,7 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
               <label className="block text-sm text-gray-700">
                 Keywords *
               </label>
-              {businessType && currentKeywordSuggestions.length > 0 && (
+              {currentKeywordSuggestions.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setShowKeywordSuggestions(!showKeywordSuggestions)}
@@ -177,16 +307,22 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 </button>
               )}
             </div>
+            
             {showKeywordSuggestions && currentKeywordSuggestions.length > 0 && (
               <div className="mb-2 p-3 bg-emerald-50 rounded-lg">
-                <p className="text-xs text-emerald-700 mb-2">Suggested keywords for {businessType}:</p>
+                <p className="text-xs text-emerald-700 mb-2">Click to add:</p>
                 <div className="flex flex-wrap gap-2">
                   {currentKeywordSuggestions.map((keyword) => (
                     <button
                       key={keyword}
                       type="button"
                       onClick={() => addSuggestedKeyword(keyword)}
-                      className="text-xs px-2 py-1 bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100 transition-colors"
+                      disabled={keywords.includes(keyword.toLowerCase())}
+                      className={`text-xs px-2 py-1 rounded transition-colors ${
+                        keywords.includes(keyword.toLowerCase())
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                      }`}
                     >
                       + {keyword}
                     </button>
@@ -194,64 +330,45 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
                 </div>
               </div>
             )}
+
+            {/* Keywords display */}
+            {keywords.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {keywords.map((keyword) => (
+                  <span
+                    key={keyword}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm"
+                  >
+                    {keyword}
+                    <button
+                      type="button"
+                      onClick={() => removeKeyword(keyword)}
+                      className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-200 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
             <input
               type="text"
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
-              placeholder="e.g. authentic, family-friendly, delicious"
-              required
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyDown={handleKeywordKeyDown}
+              onBlur={addKeywordsFromInput}
+              placeholder="Type keyword and press Enter (or comma-separated)"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Separate keywords with commas
+              Press Enter to add • Use commas for multiple keywords
             </p>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm text-gray-700">
-                Review Tone *
-              </label>
-              {businessType && currentPromptSuggestions.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowPromptSuggestions(!showPromptSuggestions)}
-                  className="text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-                >
-                  <Lightbulb className="w-3 h-3" />
-                  Review tips
-                </button>
-              )}
-            </div>
-            {showPromptSuggestions && currentPromptSuggestions.length > 0 && (
-              <div className="mb-3 p-3 bg-blue-50 rounded-lg">
-                <p className="text-xs text-blue-700 mb-2">Review generation tips for {businessType}:</p>
-                <ul className="space-y-1">
-                  {currentPromptSuggestions.map((tip, index) => (
-                    <li key={index} className="text-xs text-blue-700 flex items-start gap-2">
-                      <span>•</span>
-                      <span>{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {keywords.length === 0 && (
+              <p className="text-xs text-red-500 mt-1">
+                At least one keyword is required
+              </p>
             )}
-            <div className="grid grid-cols-2 gap-3">
-              {['friendly', 'professional', 'casual', 'enthusiastic'].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTone(t)}
-                  className={`px-4 py-3 rounded-lg border-2 transition-all capitalize ${
-                    tone === t
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
           </div>
 
           <div>
@@ -290,7 +407,8 @@ export default function AddStoreModal({ store, onClose, onSave }: AddStoreModalP
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+              disabled={keywords.length === 0}
+              className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {store ? 'Save Changes' : 'Add Store'}
             </button>
