@@ -325,7 +325,7 @@ export default function Home() {
                 period="forever"
                 features={[
                   '1 store location',
-                  '1 keyword-rich review per hour',
+                  '1 keyword-rich review per user',
                   '15 QR scans per month',
                   'Google & Yelp posting',
                   'Email support'
@@ -344,6 +344,7 @@ export default function Home() {
                   'Unlimited keyword-rich reviews',
                   'Unlimited QR scans',
                   'Target specific keywords you want to rank for',
+                  'Review Guidance (control what customers mention)',
                   'Google, Yelp, TripAdvisor, Facebook, OpenTable',
                   'Analytics dashboard',
                   'Priority support'

@@ -343,7 +343,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Unlock the Full Power of QuickReviewAI</h3>
-                  <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <div className="grid sm:grid-cols-3 gap-4 mb-4">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Zap className="w-4 h-4 text-purple-600" />
@@ -351,7 +351,7 @@ export default function Dashboard() {
                       <div>
                         <p className="font-medium text-gray-900 text-sm">Review Guidance</p>
                         <p className="text-xs text-gray-600">
-                          Tell the AI exactly what to highlight in every review. Mention your best dishes, friendly staff, or unique atmosphere.
+                          Tell the AI exactly what to highlight in every review.
                         </p>
                       </div>
                     </div>
@@ -362,7 +362,18 @@ export default function Dashboard() {
                       <div>
                         <p className="font-medium text-gray-900 text-sm">Unlimited Scans</p>
                         <p className="text-xs text-gray-600">
-                          No monthly limits. Generate as many AI reviews as your customers need.
+                          No monthly scan limits for your customers.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Copy className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">Unlimited Regenerations</p>
+                        <p className="text-xs text-gray-600">
+                          Not limited to 1 review per user. Generate fresh reviews anytime.
                         </p>
                       </div>
                     </div>

@@ -622,8 +622,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { reviewEventId } = req.body || {}
       
       if (action === 'copy') {
+        // Rate limit copy counts: 1 per IP per landing page per hour
+        const ip = getClientIP(req)
+        const ipHash = hashIP(ip)
+        const copyRateLimitKey = `copy_limit:${ipHash}:${id}`
+        
+        // Check if this IP has already copied from this landing page in the last hour
+        const alreadyCopied = await kv.get<boolean>(copyRateLimitKey)
+        
+        if (!alreadyCopied) {
+          // First copy from this IP in the last hour - count it
         await incrementCopyCount(id)
-        // Mark the specific review event as copied (for analytics)
+          // Set rate limit flag for 1 hour
+          await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
+        }
+        
+        // Mark the specific review event as copied (for analytics) - always do this
         if (reviewEventId) {
           await sql`
             UPDATE review_events 
@@ -631,7 +645,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             WHERE id = ${reviewEventId}
           `.catch(() => {}) // Silently fail if table doesn't exist yet
         }
-        return res.status(200).json({ success: true })
+        return res.status(200).json({ success: true, counted: !alreadyCopied })
       }
       if (action === 'click' && platform) {
         // Update click count in JSON column
@@ -786,7 +800,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             
             return res.status(429).json({ 
               error: 'Free plan rate limit', 
-              message: `Free plan allows 1 regeneration per hour. Upgrade to Pro for 10/hour! Try again in ${minutes} minutes.`,
+              message: `Free plan allows 1 review per user. Upgrade to Pro for unlimited regenerations!`,
               resetIn: rateLimitResult.resetIn,
               isPlanLimit: true
             })

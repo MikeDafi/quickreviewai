@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy, BarChart3, Lock, MessageSquare, AlertTriangle, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { Store } from '@/lib/types';
 import { SubscriptionTier } from '@/lib/constants';
@@ -11,11 +11,12 @@ interface StoreCardProps {
   onDelete: (id: string) => void;
   onShowQR: (store: Store) => void;
   onShowAnalytics?: (store: Store) => void;
+  onShowGuidance?: (store: Store) => void;
 }
 
 const MAX_VISIBLE_KEYWORDS = 3;
 
-export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onShowAnalytics }: StoreCardProps) {
+export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onShowAnalytics, onShowGuidance }: StoreCardProps) {
   const [showAllKeywords, setShowAllKeywords] = useState(false);
   
   const visibleKeywords = showAllKeywords 
@@ -157,10 +158,10 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
       {tier === SubscriptionTier.PRO && store.reviewExpectations && store.reviewExpectations.length > 0 && store.reviewExpectations[0] && (
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-purple-500" />
-            <span className="text-xs font-medium text-purple-700">Review Guidance</span>
+            <Wand2 className="w-4 h-4 text-violet-500" />
+            <span className="text-xs font-medium text-violet-700">Review Guidance</span>
           </div>
-          <p className="text-sm text-gray-600 bg-purple-50 rounded-lg px-3 py-2 italic">
+          <p className="text-sm text-gray-600 bg-violet-50 rounded-lg px-3 py-2 italic">
             &ldquo;{store.reviewExpectations[0]}&rdquo;
           </p>
         </div>
@@ -182,27 +183,53 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
           <QrCode className="w-4 h-4" />
           QR Code
         </button>
+        
+        {/* Review Guidance Button */}
+        {tier === SubscriptionTier.PRO ? (
+          <button
+            onClick={() => onShowGuidance?.(store)}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm"
+          >
+            <Wand2 className="w-4 h-4" />
+            Guidance
+          </button>
+        ) : (
+          <Link
+            href="/upgrade"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-100 text-violet-400 rounded-lg hover:bg-violet-200 transition-colors text-sm group relative"
+          >
+            <Lock className="w-3 h-3" />
+            <Wand2 className="w-4 h-4" />
+            Guidance
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Pro feature
+            </span>
+          </Link>
+        )}
+        
+        {/* Analytics Button */}
         {tier === SubscriptionTier.PRO ? (
           <button
             onClick={() => onShowAnalytics?.(store)}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
           >
             <BarChart3 className="w-4 h-4" />
             Analytics
           </button>
         ) : (
-          <div
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed text-sm group relative select-none"
-            title="Pro feature"
+          <Link
+            href="/upgrade"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-400 rounded-lg hover:bg-indigo-200 transition-colors text-sm group relative"
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-3 h-3" />
             <BarChart3 className="w-4 h-4" />
             Analytics
             <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Pro feature
             </span>
-          </div>
+          </Link>
         )}
+        
         <button
           onClick={() => onDelete(store.id)}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm ml-auto"

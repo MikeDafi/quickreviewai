@@ -42,11 +42,11 @@ const DEMO_DATA: LandingData = {
 };
 
 const DEMO_REVIEWS = [
-  "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back",
-  "Ok so my coworker kept bugging me to try Tony's and she was right lol. The pepperoni was on point and they actually use real cheese, not that processed stuff. New favorite spot",
-  "Brought my parents here for their anniversary. Dad's picky about pizza but even he admitted this was great. The margherita was fresh and the garlic knots... chef's kiss",
-  "Been coming here for like 2 years now and it's consistently good. Not the cheapest but worth it imo. The lunch special is clutch if you're on a budget",
-  "Stopped by on a whim after the gym and no regrets. Quick service, tasty slice, friendly people. What more do you need honestly",
+  "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back next week with my friends.",
+  "Ok so my coworker kept bugging me to try Tony's and she was right lol. The pepperoni was on point and they actually use real cheese, not that processed stuff. New favorite spot for sure. Already planning my next visit.",
+  "Brought my parents here for their anniversary dinner. Dad's picky about pizza but even he admitted this was great. The margherita was fresh and the garlic knots... chef's kiss. Mom wants to come back already.",
+  "Been coming here for like 2 years now and it's consistently good. Not the cheapest but worth it imo. The lunch special is clutch if you're on a budget. Staff remembers my usual order which is a nice touch.",
+  "Stopped by on a whim after the gym and no regrets. Quick service, tasty slice, friendly people. What more do you need honestly. The guy at the counter even gave me extra napkins without asking haha.",
 ];
 
 export default function LandingPage() {

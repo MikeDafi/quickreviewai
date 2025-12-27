@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { Copy, RefreshCw, ExternalLink, Check, Sparkles, Lock, X } from 'lucide-react';
 
 const DEMO_REVIEWS = [
-  "3rd time here this month lol. The pepperoni is legit and the crust has that perfect char. Parking can be annoying but honestly worth it",
-  "My coworker kept bugging me to try this place. Finally gave in and ok yeah she was right. Got the margherita and it slapped",
-  "Not gonna lie almost walked past it bc it looked kinda empty but so glad I went in. Wood fired makes such a difference tbh. The garlic knots tho...",
-  "Been meaning to try this spot forever. We ordered way too much food but no regrets. That pepperoni tho I'm still thinking about it",
-  "Finally a pizza place that gets it right. Tried like 4 other spots in the area and this one actually knows what theyre doing. Owner is super nice too",
-  "Stopped in on a whim while waiting for my car at the shop. Pleasantly surprised ngl. Nothing fancy but everything was done well",
-  "Ok so the crust here is actually crispy and not all soggy like everywhere else. Good portions too. Kids demolished their slices",
-  "My bf said this was his favorite pizza in the city and i was skeptical but... yeah ok fine he was right this time lmao",
+  "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back next week with my friends.",
+  "Ok so my coworker kept bugging me to try Tony's and she was right lol. The pepperoni was on point and they actually use real cheese, not that processed stuff. New favorite spot for sure. Already planning my next visit.",
+  "Brought my parents here for their anniversary dinner. Dad's picky about pizza but even he admitted this was great. The margherita was fresh and the garlic knots... chef's kiss. Mom wants to come back already.",
+  "Been coming here for like 2 years now and it's consistently good. Not the cheapest but worth it imo. The lunch special is clutch if you're on a budget. Staff remembers my usual order which is a nice touch.",
+  "Stopped by on a whim after the gym and no regrets. Quick service, tasty slice, friendly people. What more do you need honestly. The guy at the counter even gave me extra napkins without asking haha.",
+  "3rd time here this month lol. The pepperoni is legit and the crust has that perfect char on the bottom. Parking can be annoying but honestly worth the hassle. My go-to spot now when I'm craving pizza.",
+  "Not gonna lie almost walked past it bc it looked kinda empty but so glad I went in. Wood fired makes such a difference tbh. The garlic knots were incredible too. Will definitely be bringing my family next time.",
+  "My bf said this was his favorite pizza in the city and i was skeptical but... yeah ok fine he was right this time lmao. The margherita was perfect and the vibes were great. We stayed way longer than planned.",
 ];
 
 const MAX_DEMO_REGENERATIONS = 3;
@@ -149,7 +149,7 @@ export default function DemoLandingPage() {
                 <div className="flex-1">
                   <p className="font-medium mb-1">Demo limit reached</p>
                   <p className="text-sm text-gray-400">
-                    Free plan customers get 1 review per visit. Upgrade to Pro for unlimited regenerations.
+                    Free plan customers get 1 review per user. Upgrade to Pro for unlimited regenerations.
                   </p>
                 </div>
                 <button 
