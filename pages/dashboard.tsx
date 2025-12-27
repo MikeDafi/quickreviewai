@@ -54,6 +54,7 @@ export default function Dashboard() {
         const mappedStores = (data.stores || []).map((s: Record<string, unknown>) => ({
           id: s.id,
           name: s.name,
+          address: s.address || '',
           businessType: s.business_type || '',
           keywords: s.keywords || [],
           reviewExpectations: s.review_expectations || [],
@@ -86,6 +87,7 @@ export default function Dashboard() {
           const newStore: Store = {
             id: data.store.id,
             name: data.store.name,
+            address: data.store.address || '',
             businessType: data.store.business_type || '',
             keywords: data.store.keywords || [],
             reviewExpectations: data.store.review_expectations || [],
@@ -239,7 +241,7 @@ export default function Dashboard() {
               {stats.tier === 'free' && (
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 mb-2">
-                    {stores.length}/1 store • 15 scans/mo
+                    {stores.length}/1 store • 15 QR scans/mo
                   </p>
                   <Link 
                     href="/upgrade" 

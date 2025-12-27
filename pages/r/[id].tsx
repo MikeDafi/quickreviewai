@@ -11,6 +11,21 @@ interface LandingData {
   yelp_url: string;
 }
 
+// Demo data for the homepage preview
+const DEMO_DATA: LandingData = {
+  id: 'demo',
+  store_name: "Tony's Pizza",
+  business_type: 'Pizzeria',
+  google_url: 'https://g.page/review',
+  yelp_url: 'https://www.yelp.com/writeareview',
+};
+
+const DEMO_REVIEWS = [
+  "Had an amazing experience at Tony's Pizza! The crust was perfectly crispy and the toppings were so fresh. The staff was incredibly friendly and made sure we had everything we needed. Will definitely be coming back with friends and family!",
+  "Tony's Pizza never disappoints! The authentic flavors remind me of the pizzerias I visited in Italy. Generous portions, fair prices, and the cozy atmosphere makes it perfect for a family dinner. Highly recommend the pepperoni special!",
+  "Best pizza in town, hands down! The quality of ingredients really shines through in every bite. Fast service even during the busy dinner rush. Tony's has become our go-to spot for pizza night. Five stars well deserved!",
+];
+
 export default function LandingPage() {
   const router = useRouter();
   const { id } = router.query;
@@ -21,12 +36,22 @@ export default function LandingPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [rateLimitError, setRateLimitError] = useState('');
+  const [demoReviewIndex, setDemoReviewIndex] = useState(0);
+
+  const isDemo = id === 'demo';
 
   useEffect(() => {
     if (id) {
-      fetchLandingPage();
+      if (isDemo) {
+        // Use demo data
+        setData(DEMO_DATA);
+        setReview(DEMO_REVIEWS[0]);
+        setLoading(false);
+      } else {
+        fetchLandingPage();
+      }
     }
-  }, [id]);
+  }, [id, isDemo]);
 
   async function fetchLandingPage() {
     try {
@@ -50,6 +75,18 @@ export default function LandingPage() {
     if (!id) return;
     setGenerating(true);
     setRateLimitError('');
+    
+    // Handle demo case
+    if (isDemo) {
+      setTimeout(() => {
+        const nextIndex = (demoReviewIndex + 1) % DEMO_REVIEWS.length;
+        setDemoReviewIndex(nextIndex);
+        setReview(DEMO_REVIEWS[nextIndex]);
+        setGenerating(false);
+      }, 500);
+      return;
+    }
+    
     try {
       const res = await fetch(`/api/generate?id=${id}&regenerate=true`);
       const result = await res.json();
@@ -72,13 +109,18 @@ export default function LandingPage() {
   async function handleCopy() {
     await navigator.clipboard.writeText(review);
     setCopied(true);
-    // Track copy
-    fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
+    // Track copy (skip for demo)
+    if (!isDemo) {
+      fetch(`/api/generate?id=${id}&action=copy`, { method: 'POST' }).catch(() => {});
+    }
     setTimeout(() => setCopied(false), 2000);
   }
 
   async function trackClick(platform: string) {
-    fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
+    // Skip tracking for demo
+    if (!isDemo) {
+      fetch(`/api/generate?id=${id}&action=click&platform=${platform}`, { method: 'POST' }).catch(() => {});
+    }
   }
 
   if (loading) {
@@ -109,6 +151,18 @@ export default function LandingPage() {
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
+          {/* Demo Banner */}
+          {isDemo && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
+              <p className="text-sm text-amber-800">
+                📱 <strong>Demo Mode</strong> — This is what your customers will see!
+              </p>
+              <a href="/" className="text-xs text-amber-600 hover:text-amber-700 underline">
+                ← Back to homepage
+              </a>
+            </div>
+          )}
+
           {/* Business Name */}
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{data.store_name}</h1>

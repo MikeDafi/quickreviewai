@@ -1,6 +1,7 @@
 export interface Store {
   id: string;
   name: string;
+  address?: string;
   businessType: string; // Stored as comma-separated, but UI handles as array
   businessTypes?: string[]; // Convenience field for UI (up to 3)
   keywords: string[];

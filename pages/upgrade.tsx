@@ -168,6 +168,9 @@ export default function Upgrade() {
             <p className="text-center text-sm text-gray-500 mt-4">
               Secure payment powered by Stripe
             </p>
+            <p className="text-center text-xs text-gray-400 mt-2">
+              Full refund available within 3 days via Profile page or quickreviewai@gmail.com
+            </p>
           </div>
 
           <div className="text-center mt-6 space-y-2">

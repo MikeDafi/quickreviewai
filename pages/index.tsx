@@ -1,9 +1,12 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { Sparkles, QrCode, TrendingUp, Zap, Shield, BarChart3, Check, Store, Smartphone, Star, ChevronDown } from 'lucide-react';
+import { Sparkles, QrCode, TrendingUp, Zap, Shield, BarChart3, Check, Store, Smartphone, Star, ExternalLink } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
+
+const DEMO_LANDING_PAGE_URL = '/r/demo';
 
 export default function Home() {
   return (
@@ -33,22 +36,51 @@ export default function Home() {
               Simple QR codes, instant setup, real results.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Link 
                 href="/login" 
                 className="px-8 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40"
               >
                 Get Started Free
               </Link>
-              <button className="px-8 py-4 bg-white text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all border border-gray-200">
-                View Demo
-              </button>
             </div>
             
             <p className="text-sm text-gray-500 mt-6">
               <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full mr-2">✓ No credit card required</span>
               <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full">✓ Free forever plan</span>
             </p>
+
+            {/* Demo QR Code Section */}
+            <div className="mt-12 max-w-md mx-auto">
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                <p className="text-sm text-gray-500 mb-4 text-center">
+                  📱 Scan or click to see what your customers will experience
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <div className="bg-white p-3 rounded-xl border-2 border-emerald-100 shadow-sm">
+                    <QRCodeSVG 
+                      value={typeof window !== 'undefined' ? `${window.location.origin}${DEMO_LANDING_PAGE_URL}` : `https://quickreviewai.com${DEMO_LANDING_PAGE_URL}`}
+                      size={120}
+                      level="M"
+                      bgColor="#ffffff"
+                      fgColor="#059669"
+                    />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left">
+                    <p className="text-gray-700 font-medium mb-3">
+                      Try it yourself!
+                    </p>
+                    <Link
+                      href={DEMO_LANDING_PAGE_URL}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 rounded-lg font-medium hover:bg-emerald-100 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      View Demo Page
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -97,12 +129,7 @@ export default function Home() {
 
             {/* Visual Demo */}
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 sm:p-8 lg:p-12">
-              <h3 className="text-2xl font-semibold text-center mb-4 text-gray-900">See It In Action</h3>
-              <div className="flex justify-center mb-8">
-                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md animate-bounce">
-                  <span className="text-white text-lg">↓</span>
-                </div>
-              </div>
+              <h3 className="text-2xl font-semibold text-center mb-8 text-gray-900">See It In Action</h3>
               
               <div className="max-w-5xl mx-auto">
                 {/* Top Row */}
@@ -159,7 +186,7 @@ export default function Home() {
                 </div>
 
                 {/* Arrow Down */}
-                <div className="flex justify-center md:justify-end md:pr-40 mb-4">
+                <div className="flex justify-center mb-4">
                   <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
                     <span className="text-white text-lg">↓</span>
                   </div>
@@ -295,14 +322,19 @@ export default function Home() {
                   'Unlimited QR scans',
                   'All platforms',
                   'Priority support',
-                  'Analytics dashboard'
+                  'Analytics dashboard',
+                  '3-day refund guarantee'
                 ]}
-                buttonText="Start Pro Trial"
+                buttonText="Get Pro"
                 buttonVariant="primary"
                 href="/login?plan=pro"
                 popular
               />
             </div>
+            
+            <p className="text-center text-sm text-gray-500 mt-8">
+              Full refund available within 3 days via your Profile page or by emailing quickreviewai@gmail.com
+            </p>
           </div>
         </section>
 

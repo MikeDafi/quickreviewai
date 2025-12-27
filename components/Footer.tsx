@@ -6,20 +6,20 @@ export default function Footer() {
     <footer className="bg-white border-t border-gray-200 px-4 py-12">
       <div className="max-w-6xl mx-auto">
         {/* Brand */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
+        <div className="mb-8 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl text-gray-900">QuickReviewAI</span>
           </div>
-          <p className="text-gray-600 text-sm max-w-xs">
+          <p className="text-gray-600 text-sm max-w-xs mx-auto">
             AI-powered review generation for local businesses.
           </p>
         </div>
 
-        {/* Links - always 3 columns */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        {/* Links - centered 3 columns */}
+        <div className="flex justify-center gap-16 sm:gap-24 mb-8">
           <div>
             <h3 className="mb-3 text-gray-900 text-sm font-medium">Product</h3>
             <ul className="space-y-2 text-sm">

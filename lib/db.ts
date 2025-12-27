@@ -2,6 +2,87 @@ import { sql } from '@vercel/postgres'
 
 export { sql }
 
+// ============ Input Sanitization ============
+// Prevents XSS, script injection, and other malicious input
+
+const DANGEROUS_PATTERNS = [
+  /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+  /javascript:/gi,
+  /on\w+\s*=/gi, // onclick=, onerror=, etc.
+  /<iframe/gi,
+  /<object/gi,
+  /<embed/gi,
+  /<link/gi,
+  /<meta/gi,
+  /data:/gi,
+  /vbscript:/gi,
+]
+
+export function sanitizeString(input: string | undefined | null): string | null {
+  if (!input) return null
+  
+  let sanitized = input.trim()
+  
+  // Remove dangerous patterns
+  for (const pattern of DANGEROUS_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '')
+  }
+  
+  // Escape HTML entities
+  sanitized = sanitized
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+  
+  // Limit length to prevent abuse
+  return sanitized.slice(0, 500)
+}
+
+export function sanitizeUrl(url: string | undefined | null): string | null {
+  if (!url) return null
+  
+  const trimmed = url.trim()
+  
+  // Only allow http and https URLs
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    return null
+  }
+  
+  // Check for javascript: or data: embedded in URL
+  if (/javascript:|data:|vbscript:/i.test(trimmed)) {
+    return null
+  }
+  
+  // Limit length
+  return trimmed.slice(0, 2000)
+}
+
+export function sanitizeAddress(address: string | undefined | null): string | null {
+  if (!address) return null
+  
+  let sanitized = address.trim()
+  
+  // Remove dangerous patterns
+  for (const pattern of DANGEROUS_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '')
+  }
+  
+  // Basic HTML entity escape
+  sanitized = sanitized
+    .replace(/</g, '')
+    .replace(/>/g, '')
+    .replace(/"/g, '')
+    .replace(/'/g, '')
+  
+  // Only allow alphanumeric, spaces, commas, periods, hyphens, and # for addresses
+  sanitized = sanitized.replace(/[^\w\s,.\-#]/g, '')
+  
+  // Limit to reasonable address length
+  return sanitized.slice(0, 300) || null
+}
+
 // Helper to get a user by ID
 export async function getUser(id: string) {
   const { rows } = await sql`SELECT * FROM users WHERE id = ${id}`
@@ -57,24 +138,36 @@ function toPostgresArray(arr: string[] | undefined): string | null {
 export async function createStore(data: {
   userId: string
   name: string
+  address?: string
   businessType?: string
   keywords?: string[]
   reviewExpectations?: string[]
   googleUrl?: string
   yelpUrl?: string
 }) {
-  const keywordsArray = toPostgresArray(data.keywords)
-  const expectationsArray = toPostgresArray(data.reviewExpectations)
+  // Sanitize all inputs
+  const safeName = sanitizeString(data.name)
+  const safeAddress = sanitizeAddress(data.address)
+  const safeBusinessType = sanitizeString(data.businessType)
+  const safeGoogleUrl = sanitizeUrl(data.googleUrl)
+  const safeYelpUrl = sanitizeUrl(data.yelpUrl)
+  const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
+  const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
+  
+  const keywordsArray = toPostgresArray(safeKeywords)
+  const expectationsArray = toPostgresArray(safeExpectations)
+  
   const { rows } = await sql`
-    INSERT INTO stores (user_id, name, business_type, keywords, review_expectations, google_url, yelp_url)
+    INSERT INTO stores (user_id, name, address, business_type, keywords, review_expectations, google_url, yelp_url)
     VALUES (
       ${data.userId},
-      ${data.name},
-      ${data.businessType || null},
+      ${safeName},
+      ${safeAddress},
+      ${safeBusinessType},
       ${keywordsArray}::text[],
       ${expectationsArray}::text[],
-      ${data.googleUrl || null},
-      ${data.yelpUrl || null}
+      ${safeGoogleUrl},
+      ${safeYelpUrl}
     )
     RETURNING *
   `
@@ -84,22 +177,34 @@ export async function createStore(data: {
 // Update a store
 export async function updateStore(storeId: string, userId: string, data: {
   name?: string
+  address?: string
   businessType?: string
   keywords?: string[]
   reviewExpectations?: string[]
   googleUrl?: string
   yelpUrl?: string
 }) {
-  const keywordsArray = toPostgresArray(data.keywords)
-  const expectationsArray = toPostgresArray(data.reviewExpectations)
+  // Sanitize all inputs
+  const safeName = sanitizeString(data.name)
+  const safeAddress = sanitizeAddress(data.address)
+  const safeBusinessType = sanitizeString(data.businessType)
+  const safeGoogleUrl = sanitizeUrl(data.googleUrl)
+  const safeYelpUrl = sanitizeUrl(data.yelpUrl)
+  const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
+  const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
+  
+  const keywordsArray = toPostgresArray(safeKeywords)
+  const expectationsArray = toPostgresArray(safeExpectations)
+  
   const { rows } = await sql`
     UPDATE stores SET
-      name = COALESCE(${data.name || null}, name),
-      business_type = COALESCE(${data.businessType || null}, business_type),
+      name = COALESCE(${safeName}, name),
+      address = COALESCE(${safeAddress}, address),
+      business_type = COALESCE(${safeBusinessType}, business_type),
       keywords = COALESCE(${keywordsArray}::text[], keywords),
       review_expectations = COALESCE(${expectationsArray}::text[], review_expectations),
-      google_url = COALESCE(${data.googleUrl || null}, google_url),
-      yelp_url = COALESCE(${data.yelpUrl || null}, yelp_url)
+      google_url = COALESCE(${safeGoogleUrl}, google_url),
+      yelp_url = COALESCE(${safeYelpUrl}, yelp_url)
     WHERE id = ${storeId} AND user_id = ${userId}
     RETURNING *
   `
