@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { Sparkles, QrCode, TrendingUp, Zap, Shield, BarChart3, Check, Store, Smartphone, Star } from 'lucide-react';
+import { Sparkles, QrCode, TrendingUp, Zap, Shield, BarChart3, Check, Store, Smartphone, Star, ChevronDown } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
@@ -97,7 +97,10 @@ export default function Home() {
 
             {/* Visual Demo */}
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 sm:p-8 lg:p-12">
-              <h3 className="text-2xl font-semibold text-center mb-10 text-gray-900">See It In Action</h3>
+              <h3 className="text-2xl font-semibold text-center mb-4 text-gray-900">See It In Action</h3>
+              <div className="flex justify-center mb-8">
+                <ChevronDown className="w-8 h-8 text-emerald-600 animate-bounce" />
+              </div>
               
               <div className="max-w-5xl mx-auto">
                 {/* Top Row */}
