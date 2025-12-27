@@ -3,21 +3,25 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Copy, RefreshCw, ExternalLink, Check, ArrowDown, X, AlertCircle } from 'lucide-react';
 
-// Toast component
+// Toast component - more prominent with animation
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onClose, 5000);
+    // Auto-dismiss after 8 seconds (longer so user can read it)
+    const timer = setTimeout(onClose, 8000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
   return (
     <div 
-      className="fixed top-4 left-1/2 z-[9999] flex items-center gap-3 px-5 py-4 bg-amber-500 text-white rounded-xl shadow-2xl border border-amber-400 max-w-sm"
-      style={{ transform: 'translateX(-50%)' }}
+      className="fixed top-4 left-1/2 z-[9999] flex items-center gap-3 px-6 py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl shadow-2xl border-2 border-amber-300 max-w-md animate-bounce"
+      style={{ 
+        transform: 'translateX(-50%)',
+        animation: 'bounce 0.5s ease-out, pulse 2s ease-in-out infinite 0.5s',
+      }}
     >
-      <AlertCircle className="w-6 h-6 flex-shrink-0" />
-      <span className="text-sm font-semibold">{message}</span>
-      <button onClick={onClose} className="ml-2 p-1 hover:bg-amber-600 rounded transition-colors">
+      <AlertCircle className="w-7 h-7 flex-shrink-0 animate-pulse" />
+      <span className="text-base font-bold">{message}</span>
+      <button onClick={onClose} className="ml-3 p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
         <X className="w-5 h-5" />
       </button>
     </div>
@@ -147,17 +151,27 @@ export default function LandingPage() {
       const res = await fetch(`/api/generate?id=${id}&regenerate=true`);
       const result = await res.json();
       
-      if (res.status === 403 && result.isPlanLimit) {
-        showToast("Free plan allows 1 review per visit. Upgrade for unlimited!");
-        setIsFreePlanLimit(true);
-        setRateLimitError(result.message || 'Upgrade to Pro for unlimited regenerations!');
+      // Handle rate limits (429) - check isPlanLimit for free plan specific messaging
+      if (res.status === 429) {
+        if (result.isPlanLimit) {
+          // Free plan reached their 1 regeneration limit
+          showToast("⚡ Free plan: 1 review/hour. Upgrade for 10/hour!");
+          setIsFreePlanLimit(true);
+          setRateLimitError(result.message || 'Upgrade to Pro for more regenerations!');
+        } else {
+          // General rate limit (Pro users hitting their limit)
+          showToast(result.message || "Rate limit reached. Try again later.");
+          setRateLimitError(result.message || 'Too many regenerations. Please try again later.');
+        }
         setGenerating(false);
         return;
       }
       
-      if (res.status === 429) {
-        showToast(result.message || "Rate limit reached. Try again later.");
-        setRateLimitError(result.message || 'Too many regenerations. Please try again later.');
+      // Handle 403 as a fallback for other forbidden scenarios
+      if (res.status === 403 && result.isPlanLimit) {
+        showToast("⚡ Free plan: 1 review/hour. Upgrade for 10/hour!");
+        setIsFreePlanLimit(true);
+        setRateLimitError(result.message || 'Upgrade to Pro for unlimited regenerations!');
         setGenerating(false);
         return;
       }

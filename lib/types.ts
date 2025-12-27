@@ -5,7 +5,7 @@ export interface Store {
   businessType: string; // Stored as comma-separated, but UI handles as array
   businessTypes?: string[]; // Convenience field for UI (up to 3)
   keywords: string[];
-  reviewExpectations?: string[];
+  reviewExpectations?: string[]; // Pro-only: Things customers should mention in reviews
   googleUrl?: string;
   yelpUrl?: string;
   landing_page_count?: number;
@@ -21,7 +21,7 @@ export interface LandingPage {
   store_name: string;
   business_type: string; // Can be comma-separated for multiple types
   keywords: string[];
-  review_expectations?: string[];
+  review_expectations?: string[]; // Pro-only: Things customers should mention
   google_url?: string;
   yelp_url?: string;
   cached_review?: string;

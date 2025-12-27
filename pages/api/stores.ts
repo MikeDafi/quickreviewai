@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       case 'POST': {
-        const { name, address, businessType, keywords, reviewExpectations, googleUrl, yelpUrl } = req.body
+        const { name, address, businessType, keywords, reviewGuidance, googleUrl, yelpUrl } = req.body
         
         if (!name) {
           return res.status(400).json({ error: 'Store name is required' })
@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           address,
           businessType,
           keywords,
-          reviewExpectations,
+          reviewGuidance,
           googleUrl,
           yelpUrl,
         })
@@ -76,14 +76,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ error: 'Store ID is required' })
         }
 
-        const { name, address, businessType, keywords, reviewExpectations, googleUrl, yelpUrl } = req.body
+        const { name, address, businessType, keywords, reviewGuidance, googleUrl, yelpUrl } = req.body
         
         const store = await updateStore(id, userId, {
           name,
           address,
           businessType,
           keywords,
-          reviewExpectations,
+          reviewGuidance,
           googleUrl,
           yelpUrl,
         })

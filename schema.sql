@@ -23,7 +23,7 @@ CREATE TABLE stores (
   address TEXT,
   business_type TEXT,
   keywords TEXT[],
-  review_expectations TEXT[],
+  review_guidance TEXT,  -- Pro-only custom instructions for AI review generation
   google_url TEXT,
   yelp_url TEXT,
   created_at TIMESTAMP DEFAULT NOW()
@@ -48,7 +48,7 @@ CREATE TABLE review_events (
   store_id TEXT REFERENCES stores(id) ON DELETE CASCADE,
   review_text TEXT NOT NULL,
   keywords_used TEXT[],           -- Which keywords were included in this review
-  expectations_used TEXT[],       -- Which expectations were included
+  guidance_used TEXT,             -- Review guidance that was applied
   length_type TEXT,               -- 'ultra-short', 'short', 'medium', 'long', 'extended'
   persona TEXT,                   -- Character persona used
   was_copied BOOLEAN DEFAULT false,
