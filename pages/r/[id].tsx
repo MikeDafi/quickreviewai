@@ -1,7 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Copy, RefreshCw, ExternalLink, Check, ArrowDown } from 'lucide-react';
+import { Copy, RefreshCw, ExternalLink, Check, ArrowDown, X, AlertCircle } from 'lucide-react';
+
+// Toast component
+function Toast({ message, onClose }: { message: string; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-amber-600 text-white rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+      <span className="text-sm font-medium">{message}</span>
+      <button onClick={onClose} className="ml-2 hover:opacity-80">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
 
 interface LandingData {
   id: string;
@@ -21,9 +39,11 @@ const DEMO_DATA: LandingData = {
 };
 
 const DEMO_REVIEWS = [
-  "Had an amazing experience at Tony's Pizza! The crust was perfectly crispy and the toppings were so fresh. The staff was incredibly friendly and made sure we had everything we needed. Will definitely be coming back with friends and family!",
-  "Tony's Pizza never disappoints! The authentic flavors remind me of the pizzerias I visited in Italy. Generous portions, fair prices, and the cozy atmosphere makes it perfect for a family dinner. Highly recommend the pepperoni special!",
-  "Best pizza in town, hands down! The quality of ingredients really shines through in every bite. Fast service even during the busy dinner rush. Tony's has become our go-to spot for pizza night. Five stars well deserved!",
+  "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back",
+  "Ok so my coworker kept bugging me to try Tony's and she was right lol. The pepperoni was on point and they actually use real cheese, not that processed stuff. New favorite spot",
+  "Brought my parents here for their anniversary. Dad's picky about pizza but even he admitted this was great. The margherita was fresh and the garlic knots... chef's kiss",
+  "Been coming here for like 2 years now and it's consistently good. Not the cheapest but worth it imo. The lunch special is clutch if you're on a budget",
+  "Stopped by on a whim after the gym and no regrets. Quick service, tasty slice, friendly people. What more do you need honestly",
 ];
 
 export default function LandingPage() {
@@ -42,15 +62,22 @@ export default function LandingPage() {
   const [scanLimitReached, setScanLimitReached] = useState(false);
   const [demoReviewIndex, setDemoReviewIndex] = useState(0);
   const [demoRegenerateCount, setDemoRegenerateCount] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
 
   const isDemo = id === 'demo';
+  
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+  }, []);
 
   useEffect(() => {
     if (id) {
       if (isDemo) {
-        // Use demo data
+        // Use demo data with random starting review
+        const randomIndex = Math.floor(Math.random() * DEMO_REVIEWS.length);
+        setDemoReviewIndex(randomIndex);
         setData(DEMO_DATA);
-        setReview(DEMO_REVIEWS[0]);
+        setReview(DEMO_REVIEWS[randomIndex]);
         setLoading(false);
       } else {
         fetchLandingPage();
@@ -95,9 +122,10 @@ export default function LandingPage() {
     setRateLimitError('');
     setCopied(false); // Reset copied state when generating new review
     
-    // Handle demo case - allow only 1 regeneration
+    // Handle demo case - allow only 3 regenerations with unique reviews
     if (isDemo) {
-      if (demoRegenerateCount >= 1) {
+      if (demoRegenerateCount >= 3) {
+        showToast("You've seen all demo reviews! Sign up to create your own.");
         setIsDemoLimit(true);
         setGenerating(false);
         return;
@@ -117,12 +145,14 @@ export default function LandingPage() {
       const result = await res.json();
       
       if (res.status === 403 && result.isPlanLimit) {
+        showToast("Free plan allows 1 review per visit. Upgrade for unlimited!");
         setIsFreePlanLimit(true);
         setRateLimitError(result.message || 'Upgrade to Pro for unlimited regenerations!');
         return;
       }
       
       if (res.status === 429) {
+        showToast(result.message || "Rate limit reached. Try again later.");
         setRateLimitError(result.message || 'Too many regenerations. Please try again later.');
         return;
       }
@@ -446,6 +476,9 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+      
+      {/* Toast notification */}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </>
   );
 }

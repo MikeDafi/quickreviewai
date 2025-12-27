@@ -294,7 +294,7 @@ export default function Profile() {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-gray-900 font-medium">
-                          {subscription?.tier === SubscriptionTier.PRO ? 'Pro' : 'Business'} Plan
+                          Pro Plan
                         </p>
                         {subscription?.cancelAtPeriodEnd ? (
                           <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
