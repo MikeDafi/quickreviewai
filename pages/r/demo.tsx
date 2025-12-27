@@ -106,7 +106,7 @@ export default function DemoLandingPage() {
           {/* Platform Buttons */}
           <div className="space-y-3 mb-8">
             <a
-              href="https://www.google.com/search?q=pizza+near+me"
+              href="https://g.page/r/CYbhqyxqIqguEBM/review"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
@@ -134,7 +134,7 @@ export default function DemoLandingPage() {
             </a>
 
             <a
-              href="https://www.yelp.com/search?find_desc=pizza"
+              href="https://www.yelp.com/writeareview/biz/dx3-uI6A5bIXptySpOSaZg"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"

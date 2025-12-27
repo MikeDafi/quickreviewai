@@ -214,6 +214,24 @@ const EXAMPLE_HUMAN_REVIEWS = [
   "Been meaning to try this spot forever. Finally made it last weekend with some friends. We got way too much food but no regrets. That dessert though... I'm still thinking about it",
 ]
 
+// Ultra-short examples for very brief reviews
+const ULTRA_SHORT_EXAMPLES = [
+  "Solid spot. Been here twice now",
+  "Finally tried it, not disappointed",
+  "My new go-to",
+  "The hype is real ngl",
+  "Better than expected tbh",
+  "Good stuff, fair prices",
+  "Came for the reviews, staying for the food",
+  "Worth the wait",
+  "10/10 would come back",
+  "Exactly what I needed",
+  "Can't complain",
+  "Slaps every time",
+  "Pretty decent actually",
+  "They know what they're doing here",
+]
+
 async function generateReview(landing: LandingWithStore): Promise<string> {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
   
@@ -231,8 +249,22 @@ async function generateReview(landing: LandingWithStore): Promise<string> {
     : []
   const expectationsStr = selectedExpectations.length > 0 ? selectedExpectations[0] : ''
 
-  // Random sentence count (real reviews are often short)
-  const sentenceCount = pickOne([2, 2, 3, 3, 3, 4, 5])
+  // Random review length profile (real reviews vary wildly)
+  const lengthProfiles = [
+    { type: 'ultra-short', instruction: '6-10 words only. Just a quick one-liner reaction.', weight: 1 },
+    { type: 'ultra-short', instruction: '6-10 words only. Just a quick one-liner reaction.', weight: 1 },
+    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
+    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
+    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'long', instruction: '5-6 sentences with some detail.', weight: 2 },
+    { type: 'long', instruction: '5-6 sentences with some detail.', weight: 2 },
+    { type: 'extended', instruction: '2 short paragraphs. Tell a story about the experience.', weight: 1 },
+  ]
+  const lengthProfile = pickOne(lengthProfiles)
 
   // Random character persona
   const persona = pickOne(CHARACTER_PERSONAS)
@@ -265,19 +297,20 @@ CONTEXT: ${visitReason}
 
 WORK IN NATURALLY: ${keywordsStr}${expectationsStr ? ` and mention ${expectationsStr}` : ''}
 
-LENGTH: ${sentenceCount} sentences. Keep it real, not a novel.
+LENGTH: ${lengthProfile.instruction}
 
-HERE ARE REAL HUMAN REVIEWS FOR REFERENCE (match this vibe, NOT the content):
+${lengthProfile.type === 'ultra-short' ? `ULTRA-SHORT EXAMPLES (match this length):
+"${pickRandom(ULTRA_SHORT_EXAMPLES, 3).join('", "')}"` : `HERE ARE REAL HUMAN REVIEWS FOR REFERENCE (match this vibe, NOT the content):
 "${exampleReviews[0]}"
-"${exampleReviews[1]}"
+"${exampleReviews[1]}"`}
 
 CRITICAL - SOUND HUMAN BY:
 ${quirks.length > 0 ? quirks.map(q => `• ${q}`).join('\n') : '• Write casually like texting a friend'}
 • Use contractions (don't, wasn't, couldn't, it's)
-• Be specific about ONE thing you liked, not everything
+${lengthProfile.type !== 'ultra-short' ? `• Be specific about ONE thing you liked, not everything
 • It's ok to mention something small that wasn't perfect
 • Write like you're telling a friend, not writing an essay
-• Real people ramble a bit and go off topic
+• Real people ramble a bit and go off topic` : '• Keep it super casual and brief'}
 
 ABSOLUTE BANNED PHRASES (instant AI detection):
 ❌ "I recently visited" / "I had the pleasure" / "I recently had the opportunity"
