@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const YELP_API_KEY = process.env.YELP_API_KEY
+const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY
 
 interface YelpBusiness {
   id: string
@@ -15,6 +16,17 @@ interface YelpBusiness {
 
 interface YelpSearchResponse {
   businesses: YelpBusiness[]
+}
+
+interface GooglePlaceCandidate {
+  place_id: string
+  name: string
+  formatted_address: string
+}
+
+interface GoogleFindPlaceResponse {
+  candidates: GooglePlaceCandidate[]
+  status: string
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -66,9 +78,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // Google - generate a Maps search URL (free, no API needed)
-  // Users can click through to the review page from there
-  if (name) {
+  // Google Places API lookup
+  if (GOOGLE_PLACES_API_KEY) {
+    try {
+      const searchQuery = address ? `${name} ${address}` : name
+      const searchParams = new URLSearchParams({
+        input: searchQuery,
+        inputtype: 'textquery',
+        fields: 'place_id,name,formatted_address',
+        key: GOOGLE_PLACES_API_KEY,
+      })
+
+      const googleRes = await fetch(
+        `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${searchParams}`
+      )
+
+      if (googleRes.ok) {
+        const data: GoogleFindPlaceResponse = await googleRes.json()
+        if (data.status === 'OK' && data.candidates && data.candidates.length > 0) {
+          const place = data.candidates[0]
+          // Construct the Google review URL using place_id
+          results.googleUrl = `https://search.google.com/local/writereview?placeid=${place.place_id}`
+        }
+      } else {
+        console.error('Google Places API error:', await googleRes.text())
+      }
+    } catch (error) {
+      console.error('Google Places lookup error:', error)
+    }
+  }
+
+  // Fallback to Maps search URL if Places API didn't work
+  if (!results.googleUrl && name) {
     const searchQuery = address ? `${name} ${address}` : name
     results.googleUrl = `https://www.google.com/maps/search/${encodeURIComponent(searchQuery)}`
   }
