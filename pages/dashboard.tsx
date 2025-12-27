@@ -1,157 +1,114 @@
-import { useSession, signOut } from 'next-auth/react'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import Head from 'next/head'
-import Link from 'next/link'
-import { QRCodeSVG } from 'qrcode.react'
-import { FiPlus, FiTrash2, FiEdit2, FiCopy, FiExternalLink, FiBarChart2, FiLogOut } from 'react-icons/fi'
-
-interface Store {
-  id: string
-  name: string
-  business_type: string
-  keywords: string[]
-  tone: string
-  google_url: string
-  yelp_url: string
-  landing_page_count: number
-}
-
-interface LandingPage {
-  id: string
-  view_count: number
-  copy_count: number
-}
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { Store as StoreIcon, Plus, User, LogOut, Sparkles } from 'lucide-react';
+import { Store } from '@/lib/types';
+import StoreCard from '@/components/StoreCard';
+import AddStoreModal from '@/components/AddStoreModal';
+import QRCodeModal from '@/components/QRCodeModal';
 
 export default function Dashboard() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [stores, setStores] = useState<Store[]>([])
-  const [loading, setLoading] = useState(true)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showQRModal, setShowQRModal] = useState<string | null>(null)
-  const [editingStore, setEditingStore] = useState<Store | null>(null)
-
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    businessType: '',
-    keywords: '',
-    tone: 'friendly',
-    promptGuidance: '',
-    googleUrl: '',
-    yelpUrl: '',
-  })
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [stores, setStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingStore, setEditingStore] = useState<Store | null>(null);
+  const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login')
+      router.push('/login');
     }
-  }, [status, router])
+  }, [status, router]);
 
   useEffect(() => {
     if (session) {
-      fetchStores()
+      fetchStores();
     }
-  }, [session])
+  }, [session]);
 
   async function fetchStores() {
     try {
-      const res = await fetch('/api/stores')
+      const res = await fetch('/api/stores');
       if (res.ok) {
-        const data = await res.json()
-        setStores(data.stores || [])
+        const data = await res.json();
+        // Map DB fields to component fields
+        const mappedStores = (data.stores || []).map((s: Record<string, unknown>) => ({
+          id: s.id,
+          name: s.name,
+          businessType: s.business_type || '',
+          keywords: s.keywords || [],
+          tone: s.tone || 'friendly',
+          googleUrl: s.google_url,
+          yelpUrl: s.yelp_url,
+          landing_page_count: s.landing_page_count,
+        }));
+        setStores(mappedStores);
       }
     } catch (error) {
-      console.error('Failed to fetch stores:', error)
+      console.error('Failed to fetch stores:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  async function handleCreateStore(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleAddStore(store: Omit<Store, 'id'>) {
     try {
       const res = await fetch('/api/stores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          keywords: formData.keywords.split(',').map(k => k.trim()).filter(Boolean),
-        }),
-      })
+        body: JSON.stringify(store),
+      });
       if (res.ok) {
-        setShowCreateModal(false)
-        setFormData({ name: '', businessType: '', keywords: '', tone: 'friendly', promptGuidance: '', googleUrl: '', yelpUrl: '' })
-        fetchStores()
+        setIsAddModalOpen(false);
+        fetchStores();
       }
     } catch (error) {
-      console.error('Failed to create store:', error)
+      console.error('Failed to create store:', error);
     }
   }
 
-  async function handleUpdateStore(e: React.FormEvent) {
-    e.preventDefault()
-    if (!editingStore) return
+  async function handleEditStore(store: Store) {
     try {
-      const res = await fetch(`/api/stores?id=${editingStore.id}`, {
+      const res = await fetch(`/api/stores?id=${store.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          keywords: formData.keywords.split(',').map(k => k.trim()).filter(Boolean),
-        }),
-      })
+        body: JSON.stringify(store),
+      });
       if (res.ok) {
-        setEditingStore(null)
-        setFormData({ name: '', businessType: '', keywords: '', tone: 'friendly', promptGuidance: '', googleUrl: '', yelpUrl: '' })
-        fetchStores()
+        setEditingStore(null);
+        fetchStores();
       }
     } catch (error) {
-      console.error('Failed to update store:', error)
+      console.error('Failed to update store:', error);
     }
   }
 
-  async function handleDeleteStore(storeId: string) {
-    if (!confirm('Are you sure you want to delete this store?')) return
+  async function handleDeleteStore(id: string) {
+    if (!confirm('Are you sure you want to delete this store?')) return;
     try {
-      const res = await fetch(`/api/stores?id=${storeId}`, { method: 'DELETE' })
+      const res = await fetch(`/api/stores?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        fetchStores()
+        fetchStores();
       }
     } catch (error) {
-      console.error('Failed to delete store:', error)
+      console.error('Failed to delete store:', error);
     }
-  }
-
-  function openEditModal(store: Store) {
-    setEditingStore(store)
-    setFormData({
-      name: store.name,
-      businessType: store.business_type || '',
-      keywords: store.keywords?.join(', ') || '',
-      tone: store.tone || 'friendly',
-      promptGuidance: '',
-      googleUrl: store.google_url || '',
-      yelpUrl: store.yelp_url || '',
-    })
-  }
-
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text)
   }
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
       </div>
-    )
+    );
   }
 
-  if (!session) return null
-
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  if (!session) return null;
 
   return (
     <>
@@ -159,315 +116,138 @@ export default function Dashboard() {
         <title>Dashboard - QuickReviewAI</title>
       </Head>
 
-      <div className="min-h-screen bg-base-200">
+      <div className="min-h-screen bg-gray-50">
         {/* Navbar */}
-        <div className="navbar bg-base-100 shadow-sm">
-          <div className="flex-1">
-            <Link href="/" className="btn btn-ghost text-xl font-bold">
-              QuickReview<span className="text-primary">AI</span>
+        <nav className="bg-white border-b border-gray-200 px-4 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">QuickReviewAI</span>
             </Link>
-          </div>
-          <div className="flex-none gap-2">
-            <div className="dropdown dropdown-end">
-              <label tabIndex={0} className="btn btn-ghost btn-circle avatar placeholder">
-                <div className="bg-primary text-primary-content rounded-full w-10">
-                  <span>{session.user?.name?.[0] || session.user?.email?.[0] || '?'}</span>
+
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-200 transition-colors"
+              >
+                <User className="w-5 h-5 text-emerald-700" />
+              </button>
+
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm text-gray-500 truncate">{session.user?.email}</p>
+                  </div>
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
                 </div>
-              </label>
-              <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
-                <li className="menu-title px-4 py-2">
-                  <span className="text-xs text-base-content/70">{session.user?.email}</span>
-                </li>
-                <li><button onClick={() => signOut({ callbackUrl: '/' })}><FiLogOut /> Sign Out</button></li>
-              </ul>
+              )}
             </div>
           </div>
-        </div>
+        </nav>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          {/* Stats */}
-          <div className="stats shadow mb-8 w-full">
-            <div className="stat">
-              <div className="stat-figure text-primary">
-                <FiBarChart2 className="w-8 h-8" />
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          {/* Stats Cards */}
+          <div className="grid sm:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-600">Total Stores</span>
+                <StoreIcon className="w-5 h-5 text-gray-400" />
               </div>
-              <div className="stat-title">Total Stores</div>
-              <div className="stat-value text-primary">{stores.length}</div>
+              <div className="text-3xl font-bold text-gray-900">{stores.length}</div>
             </div>
-            <div className="stat">
-              <div className="stat-title">Total Landing Pages</div>
-              <div className="stat-value">{stores.reduce((acc, s) => acc + (s.landing_page_count || 0), 0)}</div>
-            </div>
-            <div className="stat">
-              <div className="stat-title">Plan</div>
-              <div className="stat-value text-secondary">Free</div>
-              <div className="stat-desc">
-                <Link href="#" className="link link-primary">Upgrade</Link>
+
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-600">Landing Pages</span>
+                <StoreIcon className="w-5 h-5 text-gray-400" />
               </div>
+              <div className="text-3xl font-bold text-gray-900">{stores.length}</div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-600">Current Plan</span>
+              </div>
+              <div className="text-3xl font-bold text-gray-900">Free</div>
+              <button className="text-sm text-emerald-600 hover:text-emerald-700 mt-1 font-medium">
+                Upgrade
+              </button>
             </div>
           </div>
 
           {/* Stores Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Your Stores</h1>
-            <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-              <FiPlus className="w-4 h-4" /> Add Store
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Your Stores</h2>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              Add Store
             </button>
           </div>
 
           {/* Stores Grid */}
           {stores.length === 0 ? (
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body items-center text-center py-16">
-                <h3 className="text-xl font-semibold mb-2">No stores yet</h3>
-                <p className="text-base-content/70 mb-4">Create your first store to start generating review pages</p>
-                <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-                  <FiPlus className="w-4 h-4" /> Create Store
-                </button>
-              </div>
+            <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
+              <StoreIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No stores yet</h3>
+              <p className="text-gray-600 mb-6">Get started by adding your first store location</p>
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+              >
+                <Plus className="w-5 h-5" />
+                Add Your First Store
+              </button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {stores.map((store) => (
-                <div key={store.id} className="card bg-base-100 shadow-xl">
-                  <div className="card-body">
-                    <h2 className="card-title">{store.name}</h2>
-                    {store.business_type && (
-                      <p className="text-sm text-base-content/70">{store.business_type}</p>
-                    )}
-                    {store.keywords?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {store.keywords.slice(0, 3).map((kw, i) => (
-                          <span key={i} className="badge badge-outline badge-sm">{kw}</span>
-                        ))}
-                        {store.keywords.length > 3 && (
-                          <span className="badge badge-ghost badge-sm">+{store.keywords.length - 3}</span>
-                        )}
-                      </div>
-                    )}
-                    <div className="flex gap-2 mt-2">
-                      {store.google_url && <span className="badge badge-primary badge-sm">Google</span>}
-                      {store.yelp_url && <span className="badge badge-error badge-sm">Yelp</span>}
-                    </div>
-                    <div className="card-actions justify-end mt-4">
-                      <button className="btn btn-ghost btn-sm" onClick={() => setShowQRModal(store.id)}>
-                        QR Code
-                      </button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEditModal(store)}>
-                        <FiEdit2 className="w-4 h-4" />
-                      </button>
-                      <button className="btn btn-ghost btn-sm text-error" onClick={() => handleDeleteStore(store.id)}>
-                        <FiTrash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {stores.map(store => (
+                <StoreCard
+                  key={store.id}
+                  store={store}
+                  onEdit={setEditingStore}
+                  onDelete={handleDeleteStore}
+                  onShowQR={setQrCodeStore}
+                />
               ))}
             </div>
           )}
-        </div>
+        </main>
 
-        {/* Create Store Modal */}
-        <dialog className={`modal ${showCreateModal ? 'modal-open' : ''}`}>
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Create New Store</h3>
-            <form onSubmit={handleCreateStore}>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Store Name *</span></label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Business Type</span></label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  placeholder="e.g., Restaurant, Salon, Auto Shop"
-                  value={formData.businessType}
-                  onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Keywords (comma-separated)</span></label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  placeholder="e.g., friendly staff, great food, clean"
-                  value={formData.keywords}
-                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Tone</span></label>
-                <select
-                  className="select select-bordered"
-                  value={formData.tone}
-                  onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
-                >
-                  <option value="friendly">Friendly</option>
-                  <option value="professional">Professional</option>
-                  <option value="casual">Casual</option>
-                  <option value="enthusiastic">Enthusiastic</option>
-                </select>
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Google Review URL</span></label>
-                <input
-                  type="url"
-                  className="input input-bordered"
-                  placeholder="https://g.page/..."
-                  value={formData.googleUrl}
-                  onChange={(e) => setFormData({ ...formData, googleUrl: e.target.value })}
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Yelp URL</span></label>
-                <input
-                  type="url"
-                  className="input input-bordered"
-                  placeholder="https://yelp.com/biz/..."
-                  value={formData.yelpUrl}
-                  onChange={(e) => setFormData({ ...formData, yelpUrl: e.target.value })}
-                />
-              </div>
-              <div className="modal-action">
-                <button type="button" className="btn" onClick={() => setShowCreateModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Create Store</button>
-              </div>
-            </form>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setShowCreateModal(false)}>close</button>
-          </form>
-        </dialog>
+        {/* Modals */}
+        {isAddModalOpen && (
+          <AddStoreModal
+            onClose={() => setIsAddModalOpen(false)}
+            onSave={handleAddStore}
+          />
+        )}
 
-        {/* Edit Store Modal */}
-        <dialog className={`modal ${editingStore ? 'modal-open' : ''}`}>
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Edit Store</h3>
-            <form onSubmit={handleUpdateStore}>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Store Name *</span></label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Business Type</span></label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  value={formData.businessType}
-                  onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Keywords (comma-separated)</span></label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  value={formData.keywords}
-                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Tone</span></label>
-                <select
-                  className="select select-bordered"
-                  value={formData.tone}
-                  onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
-                >
-                  <option value="friendly">Friendly</option>
-                  <option value="professional">Professional</option>
-                  <option value="casual">Casual</option>
-                  <option value="enthusiastic">Enthusiastic</option>
-                </select>
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Google Review URL</span></label>
-                <input
-                  type="url"
-                  className="input input-bordered"
-                  value={formData.googleUrl}
-                  onChange={(e) => setFormData({ ...formData, googleUrl: e.target.value })}
-                />
-              </div>
-              <div className="form-control mb-3">
-                <label className="label"><span className="label-text">Yelp URL</span></label>
-                <input
-                  type="url"
-                  className="input input-bordered"
-                  value={formData.yelpUrl}
-                  onChange={(e) => setFormData({ ...formData, yelpUrl: e.target.value })}
-                />
-              </div>
-              <div className="modal-action">
-                <button type="button" className="btn" onClick={() => setEditingStore(null)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save Changes</button>
-              </div>
-            </form>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setEditingStore(null)}>close</button>
-          </form>
-        </dialog>
+        {editingStore && (
+          <AddStoreModal
+            store={editingStore}
+            onClose={() => setEditingStore(null)}
+            onSave={(store) => handleEditStore(store as Store)}
+          />
+        )}
 
-        {/* QR Code Modal */}
-        <dialog className={`modal ${showQRModal ? 'modal-open' : ''}`}>
-          <div className="modal-box text-center">
-            <h3 className="font-bold text-lg mb-4">QR Code</h3>
-            {showQRModal && (
-              <>
-                <div className="flex justify-center mb-4">
-                  <QRCodeSVG value={`${baseUrl}/r/${showQRModal}`} size={200} />
-                </div>
-                <p className="text-sm text-base-content/70 mb-4">
-                  Scan to open the review page
-                </p>
-                <div className="flex items-center gap-2 justify-center">
-                  <input
-                    type="text"
-                    className="input input-bordered input-sm flex-1"
-                    value={`${baseUrl}/r/${showQRModal}`}
-                    readOnly
-                  />
-                  <button
-                    className="btn btn-sm btn-primary"
-                    onClick={() => copyToClipboard(`${baseUrl}/r/${showQRModal}`)}
-                  >
-                    <FiCopy />
-                  </button>
-                  <a
-                    href={`${baseUrl}/r/${showQRModal}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-sm btn-ghost"
-                  >
-                    <FiExternalLink />
-                  </a>
-                </div>
-              </>
-            )}
-            <div className="modal-action justify-center">
-              <button className="btn" onClick={() => setShowQRModal(null)}>Close</button>
-            </div>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setShowQRModal(null)}>close</button>
-          </form>
-        </dialog>
+        {qrCodeStore && (
+          <QRCodeModal
+            store={qrCodeStore}
+            onClose={() => setQrCodeStore(null)}
+          />
+        )}
       </div>
     </>
-  )
+  );
 }
-
