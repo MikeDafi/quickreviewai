@@ -215,14 +215,12 @@ export default function Profile() {
                 </Link>
               )}
               
-              {/* Tier badge */}
-              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                subscription?.tier === SubscriptionTier.PRO 
-                  ? 'bg-amber-400 text-amber-900' 
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
-                {subscription?.tier === SubscriptionTier.PRO ? 'Pro' : 'Free'}
-              </span>
+              {/* Tier badge - only show for Pro */}
+              {subscription?.tier === SubscriptionTier.PRO && (
+                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-400 text-amber-900">
+                  Pro
+                </span>
+              )}
             </div>
           </div>
         </nav>

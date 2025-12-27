@@ -63,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         u.subscription_tier,
         COALESCE(SUM(lp.view_count), 0)::int as current_scans,
         COALESCE(SUM(lp.copy_count), 0)::int as current_copies,
+        COALESCE(SUM(lp.blocked_regenerations), 0)::int as blocked_regenerations,
         COUNT(DISTINCT s.id)::int as store_count
       FROM users u
       LEFT JOIN stores s ON s.user_id = u.id
@@ -101,6 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       totalScans,
       reviewsCopied,
+      blockedRegenerations: data.blocked_regenerations || 0,
       storeCount: data.store_count,
       tier,
       scanLimit,

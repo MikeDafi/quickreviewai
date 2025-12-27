@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [qrCodeStore, setQrCodeStore] = useState<Store | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, storeCount: 0, tier: SubscriptionTier.FREE as string, storeLimit: 1 as number | null });
+  const [stats, setStats] = useState({ totalScans: 0, reviewsCopied: 0, blockedRegenerations: 0, storeCount: 0, tier: SubscriptionTier.FREE as string, storeLimit: 1 as number | null });
   
   // Loading states for mutations
   const [savingStore, setSavingStore] = useState(false);
