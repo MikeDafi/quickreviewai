@@ -78,27 +78,34 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(store),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setIsAddModalOpen(false);
-        await fetchStores();
-        // Automatically show QR code modal after creating a store
-        if (data.store) {
-          const newStore: Store = {
-            id: data.store.id,
-            name: data.store.name,
-            address: data.store.address || '',
-            businessType: data.store.business_type || '',
-            keywords: data.store.keywords || [],
-            reviewExpectations: data.store.review_expectations || [],
-            googleUrl: data.store.google_url,
-            yelpUrl: data.store.yelp_url,
-          };
-          setQrCodeStore(newStore);
-        }
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        console.error('API Error:', data);
+        alert(`Failed to create store: ${data.error || 'Unknown error'}`);
+        return;
+      }
+      
+      setIsAddModalOpen(false);
+      await fetchStores();
+      // Automatically show QR code modal after creating a store
+      if (data.store) {
+        const newStore: Store = {
+          id: data.store.id,
+          name: data.store.name,
+          address: data.store.address || '',
+          businessType: data.store.business_type || '',
+          keywords: data.store.keywords || [],
+          reviewExpectations: data.store.review_expectations || [],
+          googleUrl: data.store.google_url,
+          yelpUrl: data.store.yelp_url,
+        };
+        setQrCodeStore(newStore);
       }
     } catch (error) {
       console.error('Failed to create store:', error);
+      alert('Failed to create store. Please try again.');
     }
   }
 
