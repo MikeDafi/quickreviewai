@@ -94,12 +94,12 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
             {/* QR Code */}
             <div className="flex justify-center mb-6">
               <div className="p-4 bg-white border-4 border-emerald-500 rounded-2xl shadow-lg">
-                <QRCodeSVG
-                  value={landingUrl}
+            <QRCodeSVG
+              value={landingUrl}
                   size={180}
-                  level="H"
-                  includeMargin={false}
-                />
+              level="H"
+              includeMargin={false}
+            />
               </div>
             </div>
 

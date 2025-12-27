@@ -4,11 +4,14 @@ import Link from 'next/link';
 import { Copy, RefreshCw, ExternalLink, Check, Sparkles } from 'lucide-react';
 
 const DEMO_REVIEWS = [
-  "Had an amazing experience at Tony's Pizza! The crust was perfectly crispy and the toppings were so fresh. Our server was incredibly friendly and made great recommendations. Will definitely be back with friends and family!",
-  "Best pizza in town, hands down! The authentic Italian flavors really shine through. Love the cozy atmosphere and quick service. Already planning my next visit!",
-  "Tony's Pizza exceeded all expectations! The wood-fired oven makes such a difference - you can taste the quality in every bite. Great value for the portion sizes too. Highly recommend the margherita!",
-  "What a gem! Fresh ingredients, generous portions, and that perfect char on the crust. The staff clearly takes pride in what they do. This is my new go-to pizza spot!",
-  "Absolutely delicious! The pizza here is authentic and flavorful. Loved the family-friendly atmosphere and attentive service. Can't wait to try more items on the menu!"
+  "3rd time here this month lol. The pepperoni is legit and the crust has that perfect char. Parking can be annoying but honestly worth it",
+  "My coworker kept bugging me to try this place. Finally gave in and ok yeah she was right. Got the margherita and it slapped",
+  "Not gonna lie almost walked past it bc it looked kinda empty but so glad I went in. Wood fired makes such a difference tbh. The garlic knots tho...",
+  "Been meaning to try this spot forever. We ordered way too much food but no regrets. That pepperoni tho I'm still thinking about it",
+  "Finally a pizza place that gets it right. Tried like 4 other spots in the area and this one actually knows what theyre doing. Owner is super nice too",
+  "Stopped in on a whim while waiting for my car at the shop. Pleasantly surprised ngl. Nothing fancy but everything was done well",
+  "Ok so the crust here is actually crispy and not all soggy like everywhere else. Good portions too. Kids demolished their slices",
+  "My bf said this was his favorite pizza in the city and i was skeptical but... yeah ok fine he was right this time lmao",
 ];
 
 const MAX_DEMO_REGENERATIONS = 3;

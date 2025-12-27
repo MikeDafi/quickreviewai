@@ -333,6 +333,51 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Pro Features Callout - Only for free users */}
+          {stats.tier === SubscriptionTier.FREE && (
+            <div className="mb-8 bg-gradient-to-r from-purple-50 via-white to-emerald-50 border border-purple-100 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Unlock the Full Power of QuickReviewAI</h3>
+                  <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">Review Guidance</p>
+                        <p className="text-xs text-gray-600">
+                          Tell the AI exactly what to highlight in every review. Mention your best dishes, friendly staff, or unique atmosphere.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <QrCode className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">Unlimited Scans</p>
+                        <p className="text-xs text-gray-600">
+                          No monthly limits. Generate as many AI reviews as your customers need.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    href="/upgrade"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-emerald-700 transition-all shadow-sm"
+                  >
+                    Upgrade to Pro
+                    <span className="text-purple-200">→</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stores Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Your Stores</h2>

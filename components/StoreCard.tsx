@@ -129,23 +129,16 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
         </div>
       )}
 
-      {/* Review Expectations Row - Pro Only */}
-      {tier === SubscriptionTier.PRO && store.reviewExpectations && store.reviewExpectations.length > 0 && (
+      {/* Review Guidance Row - Pro Only */}
+      {tier === SubscriptionTier.PRO && store.reviewExpectations && store.reviewExpectations.length > 0 && store.reviewExpectations[0] && (
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
             <MessageSquare className="w-4 h-4 text-purple-500" />
-            <span className="text-xs font-medium text-purple-700">Review Focus</span>
+            <span className="text-xs font-medium text-purple-700">Review Guidance</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {store.reviewExpectations.map((exp, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-sm"
-              >
-                {exp}
-              </span>
-            ))}
-          </div>
+          <p className="text-sm text-gray-600 bg-purple-50 rounded-lg px-3 py-2 italic">
+            &ldquo;{store.reviewExpectations[0]}&rdquo;
+          </p>
         </div>
       )}
 

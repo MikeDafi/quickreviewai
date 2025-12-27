@@ -3,25 +3,21 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Copy, RefreshCw, ExternalLink, Check, ArrowDown, X, AlertCircle } from 'lucide-react';
 
-// Toast component - more prominent with animation
+// Toast component - prominent notification
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
-    // Auto-dismiss after 8 seconds (longer so user can read it)
-    const timer = setTimeout(onClose, 8000);
+    const timer = setTimeout(onClose, 6000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
   return (
     <div 
-      className="fixed top-4 left-1/2 z-[9999] flex items-center gap-3 px-6 py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl shadow-2xl border-2 border-amber-300 max-w-md animate-bounce"
-      style={{ 
-        transform: 'translateX(-50%)',
-        animation: 'bounce 0.5s ease-out, pulse 2s ease-in-out infinite 0.5s',
-      }}
+      className="fixed top-4 left-1/2 z-[9999] flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-2xl border-2 border-amber-300 max-w-md"
+      style={{ transform: 'translateX(-50%)' }}
     >
-      <AlertCircle className="w-7 h-7 flex-shrink-0 animate-pulse" />
-      <span className="text-base font-bold">{message}</span>
-      <button onClick={onClose} className="ml-3 p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
+      <AlertCircle className="w-6 h-6 flex-shrink-0" />
+      <span className="font-semibold">{message}</span>
+      <button onClick={onClose} className="ml-2 p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
         <X className="w-5 h-5" />
       </button>
     </div>
@@ -75,6 +71,10 @@ export default function LandingPage() {
   
   const showToast = useCallback((message: string) => {
     setToast(message);
+    // Also use native alert as fallback for visibility
+    if (typeof window !== 'undefined') {
+      window.alert(message);
+    }
   }, []);
 
   useEffect(() => {
@@ -155,7 +155,7 @@ export default function LandingPage() {
       if (res.status === 429) {
         if (result.isPlanLimit) {
           // Free plan reached their 1 regeneration limit
-          showToast("⚡ Free plan: 1 review/hour. Upgrade for 10/hour!");
+          showToast("Reached Max Generations for Free plan!");
           setIsFreePlanLimit(true);
           setRateLimitError(result.message || 'Upgrade to Pro for more regenerations!');
         } else {
@@ -169,7 +169,7 @@ export default function LandingPage() {
       
       // Handle 403 as a fallback for other forbidden scenarios
       if (res.status === 403 && result.isPlanLimit) {
-        showToast("⚡ Free plan: 1 review/hour. Upgrade for 10/hour!");
+        showToast("Reached Max Generations for Free plan!");
         setIsFreePlanLimit(true);
         setRateLimitError(result.message || 'Upgrade to Pro for unlimited regenerations!');
         setGenerating(false);

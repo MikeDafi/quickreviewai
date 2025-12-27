@@ -1,6 +1,6 @@
 import { useState, KeyboardEvent, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Search, Loader2, Lock } from 'lucide-react';
+import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Search, Loader2, Lock, Sparkles, CheckCircle } from 'lucide-react';
 import { Store } from '@/lib/types';
 import { SubscriptionTier } from '@/lib/constants';
 
@@ -87,23 +87,8 @@ const BUSINESS_TYPES = [
   'Other'
 ];
 
-const REVIEW_EXPECTATIONS = [
-  'Cleanliness',
-  'Customer Service', 
-  'Food Quality',
-  'Atmosphere',
-  'Value for Money',
-  'Wait Time',
-  'Staff Friendliness',
-  'Product Quality',
-  'Expertise',
-  'Communication',
-  'Professionalism',
-  'Results',
-  'Convenience',
-  'Selection',
-  'Parking',
-];
+// Maximum character limit for review guidance
+const REVIEW_GUIDANCE_MAX_LENGTH = 500;
 
 const keywordSuggestions: Record<string, string[]> = {
   // Food & Beverage
@@ -1665,7 +1650,11 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
   const [showBusinessTypeDropdown, setShowBusinessTypeDropdown] = useState(false);
   const [keywords, setKeywords] = useState<string[]>(store?.keywords || []);
   const [keywordInput, setKeywordInput] = useState('');
-  const [expectations, setExpectations] = useState<string[]>(store?.reviewExpectations || []);
+  // Review guidance is stored as first element of reviewExpectations array for backwards compatibility
+  const [reviewGuidance, setReviewGuidance] = useState<string>(
+    store?.reviewExpectations?.[0] || ''
+  );
+  const formRef = useRef<HTMLFormElement>(null);
   const [googleUrl, setGoogleUrl] = useState(store?.googleUrl || '');
   const [yelpUrl, setYelpUrl] = useState(store?.yelpUrl || '');
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
@@ -1936,12 +1925,9 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
     }
   };
 
-  const toggleExpectation = (expectation: string) => {
-    if (expectations.includes(expectation)) {
-      setExpectations(expectations.filter(e => e !== expectation));
-    } else {
-      setExpectations([...expectations, expectation]);
-    }
+  // Scroll to top of form for Pro feature explanation
+  const scrollToProFeature = () => {
+    formRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1952,7 +1938,8 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
       address: address || undefined,
       businessType: businessTypes.join(', '), // Store as comma-separated string
       keywords,
-      reviewExpectations: expectations,
+      // Store review guidance as array with single element for backwards compatibility
+      reviewExpectations: reviewGuidance.trim() ? [reviewGuidance.trim()] : [],
       googleUrl: googleUrl || undefined,
       yelpUrl: yelpUrl || undefined
     };
@@ -1979,7 +1966,46 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Pro Feature Banner - Only show for free users */}
+          {tier === SubscriptionTier.FREE && (
+            <div className="bg-gradient-to-r from-purple-50 to-emerald-50 border border-purple-100 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">Unlock Review Guidance with Pro</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Pro users can guide the AI to emphasize specific aspects of their business in every generated review.
+                    Tell the AI what makes you special, and watch reviews highlight exactly what you want customers to know.
+                  </p>
+                  <ul className="text-sm text-gray-600 space-y-1 mb-3">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      Custom review guidance for your brand
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      Highlight your unique selling points
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      Better SEO with targeted keywords
+                    </li>
+                  </ul>
+                  <Link
+                    href="/upgrade"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Upgrade to Pro
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Store Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2009,8 +2035,8 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
                 onChange={(e) => setStreet(e.target.value)}
                 placeholder="Street Address (e.g. 123 Main St)"
                 maxLength={150}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
               />
               
               {/* City */}
@@ -2073,7 +2099,7 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
                     </button>
                   </span>
                 ))}
-              </div>
+          </div>
             )}
             
             {/* Input for adding more */}
@@ -2129,67 +2155,53 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
             />
           </div>
 
-          {/* Review Expectations - Pro Only */}
+          {/* Review Guidance - Pro Only */}
           <div className={tier === SubscriptionTier.FREE ? 'relative' : ''}>
             {tier === SubscriptionTier.FREE && (
-              <div className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] z-10 rounded-lg flex items-center justify-center">
-                <Link
-                  href="/upgrade"
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-                >
+              <button
+                type="button"
+                onClick={scrollToProFeature}
+                className="absolute inset-0 bg-gray-50/80 backdrop-blur-[1px] z-10 rounded-lg flex items-center justify-center cursor-pointer"
+              >
+                <span className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
                   <Lock className="w-4 h-4" />
-                  Upgrade to Pro to customize review focus
-                </Link>
-              </div>
+                  Upgrade to Pro to guide AI reviews
+                </span>
+              </button>
             )}
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2">
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-              Review Expectations
+                Review Guidance
                 {tier === SubscriptionTier.FREE && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
                     <Lock className="w-3 h-3" />
                     Pro
                   </span>
                 )}
-            </label>
-              {tier === SubscriptionTier.PRO && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (expectations.length === REVIEW_EXPECTATIONS.length) {
-                      setExpectations([]);
-                    } else {
-                      setExpectations([...REVIEW_EXPECTATIONS]);
-                    }
-                  }}
-                  className="text-xs text-emerald-600 hover:text-emerald-700"
-                >
-                  {expectations.length === REVIEW_EXPECTATIONS.length ? 'Deselect All' : 'Select All'}
-                </button>
-              )}
+              </label>
             </div>
             <p className="text-xs text-gray-500 mb-3">
-              What should customers focus on in their review? <span className="text-gray-400">(AI will highlight one of these per generated review)</span>
+              Tell the AI what to emphasize in generated reviews. Be specific about what makes your business special.
             </p>
-            <div className="flex flex-wrap gap-2">
-              {REVIEW_EXPECTATIONS.map(exp => (
-                <button
-                  key={exp}
-                  type="button"
-                  onClick={() => tier === SubscriptionTier.PRO && toggleExpectation(exp)}
-                  disabled={tier === SubscriptionTier.FREE}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
-                    expectations.includes(exp)
-                      ? 'bg-emerald-600 text-white border-emerald-600'
-                      : tier === SubscriptionTier.FREE
-                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-emerald-400'
-                  }`}
-                >
-                  {exp}
-                </button>
-              ))}
-            </div>
+            <textarea
+              value={reviewGuidance}
+              onChange={(e) => tier === SubscriptionTier.PRO && setReviewGuidance(e.target.value.slice(0, REVIEW_GUIDANCE_MAX_LENGTH))}
+              disabled={tier === SubscriptionTier.FREE}
+              placeholder={tier === SubscriptionTier.FREE 
+                ? "Upgrade to Pro to customize review guidance..." 
+                : "e.g., Mention our friendly staff, quick service, and fresh ingredients. Highlight the cozy atmosphere and great value for families."}
+              rows={3}
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent resize-none ${
+                tier === SubscriptionTier.FREE 
+                  ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed' 
+                  : 'border-gray-300'
+              }`}
+            />
+            {tier === SubscriptionTier.PRO && (
+              <p className="text-xs text-gray-400 mt-1 text-right">
+                {reviewGuidance.length}/{REVIEW_GUIDANCE_MAX_LENGTH}
+              </p>
+            )}
           </div>
 
           {/* Keywords */}

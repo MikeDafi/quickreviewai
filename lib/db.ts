@@ -150,7 +150,7 @@ export async function createStore(data: {
   address?: string
   businessType?: string
   keywords?: string[]
-  reviewGuidance?: string
+  reviewExpectations?: string[]
   googleUrl?: string
   yelpUrl?: string
 }) {
@@ -161,14 +161,15 @@ export async function createStore(data: {
   const safeGoogleUrl = sanitizeUrl(data.googleUrl)
   const safeYelpUrl = sanitizeUrl(data.yelpUrl)
   const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
-  const safeGuidance = sanitizeString(data.reviewGuidance)
+  const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
   
   const keywordsJson = toJsonArray(safeKeywords)
+  const expectationsJson = toJsonArray(safeExpectations)
   
   // Use PostgreSQL's array() function with json_array_elements_text for safe conversion
   // This avoids manual string interpolation that could lead to SQL injection
   const { rows } = await sql`
-    INSERT INTO stores (user_id, name, address, business_type, keywords, review_guidance, google_url, yelp_url)
+    INSERT INTO stores (user_id, name, address, business_type, keywords, review_expectations, google_url, yelp_url)
     VALUES (
       ${data.userId},
       ${safeName},
@@ -176,7 +177,8 @@ export async function createStore(data: {
       ${safeBusinessType},
       CASE WHEN ${keywordsJson}::text IS NULL THEN NULL 
            ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
-      ${safeGuidance},
+      CASE WHEN ${expectationsJson}::text IS NULL THEN NULL 
+           ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
       ${safeGoogleUrl},
       ${safeYelpUrl}
     )
@@ -191,7 +193,7 @@ export async function updateStore(storeId: string, userId: string, data: {
   address?: string
   businessType?: string
   keywords?: string[]
-  reviewGuidance?: string
+  reviewExpectations?: string[]
   googleUrl?: string
   yelpUrl?: string
 }) {
@@ -202,9 +204,10 @@ export async function updateStore(storeId: string, userId: string, data: {
   const safeGoogleUrl = sanitizeUrl(data.googleUrl)
   const safeYelpUrl = sanitizeUrl(data.yelpUrl)
   const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
-  const safeGuidance = sanitizeString(data.reviewGuidance)
+  const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
   
   const keywordsJson = toJsonArray(safeKeywords)
+  const expectationsJson = toJsonArray(safeExpectations)
   
   // Use PostgreSQL's array() function with json_array_elements_text for safe conversion
   const { rows } = await sql`
@@ -217,7 +220,11 @@ export async function updateStore(storeId: string, userId: string, data: {
              ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
         keywords
       ),
-      review_guidance = COALESCE(${safeGuidance}, review_guidance),
+      review_expectations = COALESCE(
+        CASE WHEN ${expectationsJson}::text IS NULL THEN NULL 
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
+        review_expectations
+      ),
       google_url = COALESCE(${safeGoogleUrl}, google_url),
       yelp_url = COALESCE(${safeYelpUrl}, yelp_url)
     WHERE id = ${storeId} AND user_id = ${userId}
@@ -304,7 +311,7 @@ export async function resetBillingPeriod(userId: string) {
 export async function getLandingPage(id: string) {
   const { rows } = await sql`
     SELECT lp.*, s.name as store_name, s.business_type, s.keywords, 
-           s.review_guidance, s.google_url, s.yelp_url
+           s.review_expectations, s.google_url, s.yelp_url
     FROM landing_pages lp
     JOIN stores s ON lp.store_id = s.id
     WHERE lp.id = ${id} AND lp.is_active = true

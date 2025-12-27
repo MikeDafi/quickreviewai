@@ -91,7 +91,7 @@ interface LandingWithStore {
   store_name: string
   business_type: string
   keywords: string[]
-  review_guidance?: string
+  review_expectations?: string[]
   google_url?: string
   yelp_url?: string
 }
@@ -478,76 +478,116 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
   const keywordCount = Math.random() < 0.6 ? 1 : 2
   const selectedKeywords = landing.keywords && landing.keywords.length > 0 
     ? pickRandom(landing.keywords, keywordCount)
-    : []
-  
-  // Pick 0-1 random expectations
-  const selectedExpectations = landing.review_expectations && landing.review_expectations.length > 0
-    ? (Math.random() < 0.5 ? pickRandom(landing.review_expectations, 1) : [])
-    : []
+    : ['good']
+  const keywordsStr = selectedKeywords.join(' and ')
 
-  // Simple length selection
-  const lengths = ['tiny', 'short', 'medium', 'longer']
-  const lengthWeights = [15, 35, 35, 15] // percentages
-  const rand = Math.random() * 100
-  let cumulative = 0
-  let lengthType = 'medium'
-  for (let i = 0; i < lengths.length; i++) {
-    cumulative += lengthWeights[i]
-    if (rand < cumulative) {
-      lengthType = lengths[i]
-      break
-    }
-  }
+  // Review guidance - the owner's custom instructions for what to emphasize
+  // Stored as first element of review_expectations array for backwards compatibility
+  const reviewGuidance = landing.review_expectations?.[0] || ''
+  // Track as array for analytics (backwards compatible)
+  const selectedExpectations = reviewGuidance ? [reviewGuidance] : []
 
-  // Random persona seed (just a number for variety)
-  const personaSeed = Math.floor(Math.random() * 1000)
+  // Random review length profile (real reviews vary wildly)
+  const lengthProfiles = [
+    { type: 'ultra-short', instruction: '6-12 words only. Just a quick one-liner reaction.', weight: 1 },
+    { type: 'ultra-short', instruction: '6-12 words only. Just a quick one-liner reaction.', weight: 1 },
+    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
+    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
+    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
+    { type: 'long', instruction: '5-6 sentences with some detail.', weight: 2 },
+    { type: 'long', instruction: '5-6 sentences with some detail.', weight: 2 },
+    { type: 'extended', instruction: '2 short paragraphs. Tell a story about the experience.', weight: 1 },
+  ]
+  const lengthProfile = pickOne(lengthProfiles)
+
+  // Random character persona
+  const persona = pickOne(CHARACTER_PERSONAS)
   
-  // Handle multiple business types
-  const businessType = landing.business_type 
+  // Random visit reason
+  const visitReason = pickOne(VISIT_REASONS)
+  
+  // Pick a required opener to force variety
+  const requiredOpener = pickOne(REVIEW_OPENERS)
+
+  // Random quirks that real people have
+  const quirks = []
+  if (Math.random() < 0.3) quirks.push('use "lol", "lmao", or "haha" once')
+  if (Math.random() < 0.25) quirks.push('use "gonna", "kinda", "gotta", or "wanna"')
+  if (Math.random() < 0.15) quirks.push('include a minor typo like "teh", "definately", "resturant", or missing apostrophe')
+  if (Math.random() < 0.3) quirks.push('use "..." or "—" mid-thought')
+  if (Math.random() < 0.25) quirks.push('abbreviate something like "bf", "bc", "tbh", "imo", or "ngl"')
+  if (Math.random() < 0.2) quirks.push('start a sentence with "And" or "But" or "So"')
+  if (Math.random() < 0.1) quirks.push('use lowercase "i" instead of "I" once')
+
+  // Pick 2 example reviews to show
+  const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
+
+  // Handle multiple business types (comma-separated)
+  const businessTypeDisplay = landing.business_type 
     ? landing.business_type.split(',').map(t => t.trim()).join(' / ')
-    : 'local business'
+    : 'business'
+    
+  const prompt = `Write a Google/Yelp review for "${landing.store_name}" (a ${businessTypeDisplay}).
 
-  // Build the keyword hint
-  const keywordHint = selectedKeywords.length > 0 
-    ? `Casually mention: ${selectedKeywords.join(', ')}.` 
-    : ''
-  const expectationHint = selectedExpectations.length > 0
-    ? `Touch on: ${selectedExpectations[0]}.`
-    : ''
+YOU ARE: ${persona}
+CONTEXT: ${visitReason}
 
-  // COMPLETELY NEW MINIMAL PROMPT - less is more
-  const prompt = `You're person #${personaSeed} writing a real ${lengthType} Google review for ${landing.store_name} (${businessType}).
+WORK IN NATURALLY: ${keywordsStr}${reviewGuidance ? `
 
-${keywordHint} ${expectationHint}
+OWNER'S GUIDANCE (incorporate naturally): ${reviewGuidance}` : ''}
 
-Write like these REAL reviews (copy the VOICE, not words):
-- "3rd time here this month lol. My kids are obsessed. Parking kinda sucks but whatever"
-- "My coworker kept bugging me to try this place. Finally gave in and damn she was right"
-- "Stopped in on a whim. Nothing groundbreaking but everything was done well"
-- "Not gonna lie almost didn't come in bc it looked empty but so glad I did"
-- "Been meaning to try this spot forever. We got way too much food but no regrets"
+LENGTH: ${lengthProfile.instruction}
 
-${lengthType === 'tiny' ? 'WRITE 5-10 WORDS MAX. Examples: "Finally tried it not disappointed" / "My new go-to tbh" / "Yeah this place is legit"' : ''}
-${lengthType === 'short' ? 'WRITE 1-2 SENTENCES ONLY.' : ''}
-${lengthType === 'medium' ? 'WRITE 2-4 SENTENCES.' : ''}
-${lengthType === 'longer' ? 'WRITE 4-6 SENTENCES, tell a mini story.' : ''}
+**CRITICAL: START YOUR REVIEW WITH "${requiredOpener}" OR A SIMILAR CASUAL OPENING. DO NOT START WITH "Solid" or the business name.**
 
-NEVER USE: "amazing experience" / "perfectly crispy" / "incredibly friendly" / "will definitely be back" / "highly recommend" / "exceeded expectations" / "hidden gem" / "from start to finish" / "friendly staff" / "warm atmosphere"
+${lengthProfile.type === 'ultra-short' ? `ULTRA-SHORT EXAMPLES (match this length and casual vibe):
+"${pickRandom(ULTRA_SHORT_EXAMPLES, 4).join('"\n"')}"` : `HERE ARE REAL HUMAN REVIEWS FOR REFERENCE (match this vibe, NOT the content):
+"${exampleReviews[0]}"
+"${exampleReviews[1]}"`}
 
-Just the review text, nothing else.`
+CRITICAL - SOUND HUMAN BY:
+${quirks.length > 0 ? quirks.map(q => `• ${q}`).join('\n') : '• Write casually like texting a friend'}
+• Use contractions (don't, wasn't, couldn't, it's)
+• VARY YOUR SENTENCE STRUCTURE - don't start multiple sentences the same way
+${lengthProfile.type !== 'ultra-short' ? `• Be specific about ONE thing you liked, not everything
+• It's ok to mention something small that wasn't perfect
+• Write like you're telling a friend, not writing an essay
+• Real people ramble a bit and go off topic` : '• Keep it super casual and brief'}
 
+ABSOLUTE BANNED PHRASES (instant AI detection):
+❌ "I recently visited" / "I had the pleasure" / "I recently had the opportunity"
+❌ "exceptional" / "impeccable" / "delightful" / "exquisite" / "phenomenal"  
+❌ "exceeded expectations" / "went above and beyond" / "top-notch"
+❌ "I highly recommend" / "I would definitely recommend" / "I can't recommend enough"
+❌ "I will definitely be back" / "I'll be returning" / "can't wait to come back"
+❌ "friendly and attentive staff" / "warm and welcoming atmosphere"
+❌ "hidden gem" (overused) / "a must-try" / "a treat for the senses"
+❌ "from start to finish" / "from the moment we walked in"
+❌ Perfect punctuation and grammar throughout
+❌ Listing multiple compliments in a row
+❌ More than one exclamation point total
+❌ Starting with the business name
+❌ Starting with "Solid" or similar generic adjective
+
+Just write the review. No quotes. No "Here's a review:" preamble.`
+
+  // Build metadata object to return with review
   const metadata = {
     keywordsUsed: selectedKeywords,
     expectationsUsed: selectedExpectations,
-    lengthType: lengthType,
-    persona: `seed-${personaSeed}`,
+    lengthType: lengthProfile.type,
+    persona: persona,
   }
 
   try {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 1.8, // Even higher for more variation
+        temperature: 1.5, // Higher for more variation
         topP: 0.98,
         topK: 60,
       },
@@ -558,13 +598,12 @@ Just the review text, nothing else.`
   } catch (error) {
     console.error('Gemini API error:', error)
     // Varied fallback reviews if API fails
-    const keyword = selectedKeywords[0] || 'vibe'
     const fallbacks = [
-      `Finally tried this place. The ${keyword} was solid, would come back.`,
-      `Pretty impressed with ${landing.store_name} tbh. Good ${keyword}.`,
-      `Not gonna lie, better than I expected. The ${keyword} is legit.`,
-      `Been here twice now. Consistently good. No complaints.`,
-      `My friend kept telling me to try this spot. Glad I listened.`,
+      `${requiredOpener} I tried this place and the ${selectedKeywords[0] || 'experience'} was great. Would come back.`,
+      `Finally checked out ${landing.store_name}. Pretty impressed with the ${selectedKeywords[0] || 'vibe'} tbh.`,
+      `Not gonna lie, this place exceeded what I expected. The ${selectedKeywords[0] || 'quality'} is legit.`,
+      `Been here a few times now. Consistently good ${selectedKeywords[0] || 'stuff'}. No complaints.`,
+      `My friend kept telling me to try this spot. Glad I listened, the ${selectedKeywords[0] || 'service'} was on point.`,
     ]
     return { review: pickOne(fallbacks), metadata }
   }
@@ -734,6 +773,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           
           // Different message for free users
           if (userTier === SubscriptionTier.FREE && !isDemo) {
+            // Increment blocked_regenerations counter for free users
+            try {
+              await sql`
+                UPDATE landing_pages 
+                SET blocked_regenerations = COALESCE(blocked_regenerations, 0) + 1
+                WHERE id = ${id}
+              `
+            } catch (error) {
+              console.error('Failed to increment blocked_regenerations:', error)
+            }
+            
             return res.status(429).json({ 
               error: 'Free plan rate limit', 
               message: `Free plan allows 1 regeneration per hour. Upgrade to Pro for 10/hour! Try again in ${minutes} minutes.`,
