@@ -54,12 +54,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Delete the user (CASCADE will delete stores and landing pages)
-    await sql`DELETE FROM users WHERE id = ${session.user.id}`
+    // Soft delete the user (set deleted_at, data retained for 7 days)
+    await sql`
+      UPDATE users 
+      SET deleted_at = NOW(), subscription_tier = 'free'
+      WHERE id = ${session.user.id}
+    `
 
     return res.status(200).json({ 
       success: true,
-      message: 'Account deleted successfully. You will be signed out.'
+      message: 'Account scheduled for deletion. Your data will be permanently removed in 7 days. Sign in again within 7 days to recover your account.'
     })
   } catch (error) {
     console.error('Delete account error:', error)

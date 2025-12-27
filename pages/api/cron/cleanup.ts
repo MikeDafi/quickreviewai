@@ -1,11 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { sql } from '@/lib/db'
 
-// This endpoint is called by Vercel Cron to clean up old review events
+// This endpoint is called by Vercel Cron to:
+// 1. Clean up old review events (90 day retention)
+// 2. Permanently delete soft-deleted accounts after 7 days
 // Schedule: Once per day
-// Retention: 90 days
 
-const RETENTION_DAYS = 90
+const REVIEW_RETENTION_DAYS = 90
+const ACCOUNT_DELETION_DAYS = 7
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Verify this is from Vercel Cron (in production)
@@ -19,19 +21,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Delete review events older than 90 days
-    const result = await sql`
+    // 1. Delete review events older than 90 days
+    const reviewResult = await sql`
       DELETE FROM review_events
-      WHERE created_at < NOW() - INTERVAL '1 day' * ${RETENTION_DAYS}
+      WHERE created_at < NOW() - INTERVAL '1 day' * ${REVIEW_RETENTION_DAYS}
     `
+    const deletedReviewEvents = reviewResult.rowCount || 0
 
-    const deletedCount = result.rowCount || 0
-    console.log(`Cleanup: Deleted ${deletedCount} review events older than ${RETENTION_DAYS} days`)
+    // 2. Permanently delete soft-deleted accounts after 7 days
+    // CASCADE will automatically delete their stores, landing pages, and review events
+    const { rows: deletedUsers } = await sql`
+      DELETE FROM users 
+      WHERE deleted_at IS NOT NULL 
+        AND deleted_at < NOW() - INTERVAL '1 day' * ${ACCOUNT_DELETION_DAYS}
+      RETURNING id, email
+    `
+    const deletedAccountCount = deletedUsers.length
+
+    if (deletedReviewEvents > 0) {
+      console.log(`Cleanup: Deleted ${deletedReviewEvents} review events older than ${REVIEW_RETENTION_DAYS} days`)
+    }
+    if (deletedAccountCount > 0) {
+      console.log(`Cleanup: Permanently deleted ${deletedAccountCount} accounts:`, deletedUsers.map(u => u.email))
+    }
 
     return res.status(200).json({ 
       success: true, 
-      deletedCount,
-      retentionDays: RETENTION_DAYS
+      deletedReviewEvents,
+      deletedAccounts: deletedAccountCount,
+      deletedAccountEmails: deletedUsers.map(u => u.email),
     })
   } catch (error) {
     console.error('Cleanup error:', error)

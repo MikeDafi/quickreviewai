@@ -12,6 +12,7 @@ CREATE TABLE users (
   period_scans INT DEFAULT 0,
   period_copies INT DEFAULT 0,
   period_start TIMESTAMP,
+  deleted_at TIMESTAMP,  -- Soft delete: NULL = active, set = scheduled for deletion
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -72,6 +73,9 @@ CREATE INDEX idx_review_events_store_time ON review_events(store_id, created_at 
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS period_scans INT DEFAULT 0;
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS period_copies INT DEFAULT 0;
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS period_start TIMESTAMP;
+
+-- Migration: Add soft delete support to users table
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
 
 -- Migration: Add review_events table
 -- CREATE TABLE review_events (
