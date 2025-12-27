@@ -62,6 +62,8 @@ export default function Dashboard() {
           yelpUrl: s.yelp_url,
           landing_page_count: s.landing_page_count,
           landing_page_id: s.landing_page_id,
+          viewCount: s.view_count || 0,
+          copyCount: s.copy_count || 0,
         }));
         setStores(mappedStores);
       }
@@ -238,7 +240,7 @@ export default function Dashboard() {
                 <Copy className="w-5 h-5 text-blue-500" />
               </div>
               <div className="text-3xl font-bold text-gray-900">{stats.reviewsCopied}</div>
-              <p className="text-sm text-gray-500 mt-1">AI reviews used by customers</p>
+              <p className="text-sm text-gray-500 mt-1">This month</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-gray-200">

@@ -108,12 +108,14 @@ export async function upsertUser(user: { id: string; email: string; name?: strin
   return rows[0]
 }
 
-// Get stores for a user
+// Get stores for a user with analytics
 export async function getStores(userId: string) {
   const { rows } = await sql`
     SELECT s.*, 
       (SELECT COUNT(*) FROM landing_pages WHERE store_id = s.id) as landing_page_count,
-      (SELECT id FROM landing_pages WHERE store_id = s.id ORDER BY created_at LIMIT 1) as landing_page_id
+      (SELECT id FROM landing_pages WHERE store_id = s.id ORDER BY created_at LIMIT 1) as landing_page_id,
+      COALESCE((SELECT SUM(view_count) FROM landing_pages WHERE store_id = s.id), 0)::int as view_count,
+      COALESCE((SELECT SUM(copy_count) FROM landing_pages WHERE store_id = s.id), 0)::int as copy_count
     FROM stores s 
     WHERE s.user_id = ${userId}
     ORDER BY s.created_at DESC

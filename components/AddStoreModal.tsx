@@ -689,6 +689,237 @@ const keywordSuggestions: Record<string, string[]> = {
     'diamond', 'ruby', 'sapphire', 'emerald', 'pearl', 'opal', 'birthstone', 'moissanite', 'lab grown', 'natural',
     'repair', 'resize', 'cleaning', 'appraisal', 'custom design', 'engraving', 'financing', 'layaway', 'trade in', 'gift wrap'
   ],
+  'Florist': [
+    'flowers', 'bouquet', 'arrangement', 'roses', 'lilies', 'tulips', 'sunflowers', 'orchids', 'carnations', 'mixed flowers',
+    'wedding flowers', 'bridal bouquet', 'bridesmaid', 'boutonniere', 'corsage', 'centerpiece', 'ceremony', 'reception', 'arch', 'installation',
+    'funeral flowers', 'sympathy', 'casket spray', 'standing spray', 'wreath', 'tribute', 'memorial', 'service', 'church', 'cemetery',
+    'birthday', 'anniversary', 'valentines', 'mothers day', 'get well', 'thank you', 'congratulations', 'new baby', 'just because', 'apology',
+    'delivery', 'same day delivery', 'local delivery', 'nationwide', 'pickup', 'vase', 'gift', 'plant', 'succulent', 'subscription'
+  ],
+  'Pet Store': [
+    'pet store', 'dog', 'cat', 'fish', 'bird', 'reptile', 'small animal', 'hamster', 'guinea pig', 'rabbit',
+    'dog food', 'cat food', 'treats', 'kibble', 'wet food', 'raw', 'grain free', 'prescription diet', 'puppy food', 'senior food',
+    'toys', 'beds', 'crate', 'kennel', 'carrier', 'leash', 'collar', 'harness', 'bowl', 'feeder',
+    'grooming', 'shampoo', 'brush', 'nail clippers', 'flea', 'tick', 'heartworm', 'supplements', 'vitamins', 'dental',
+    'aquarium', 'tank', 'filter', 'heater', 'substrate', 'decoration', 'live fish', 'freshwater', 'saltwater', 'supplies'
+  ],
+  'Bookstore': [
+    'books', 'fiction', 'nonfiction', 'bestseller', 'new release', 'paperback', 'hardcover', 'ebook', 'audiobook', 'used books',
+    'mystery', 'romance', 'thriller', 'sci-fi', 'fantasy', 'horror', 'biography', 'memoir', 'history', 'self help',
+    'kids books', 'children', 'young adult', 'YA', 'picture book', 'chapter book', 'middle grade', 'teen', 'educational', 'textbook',
+    'author event', 'book signing', 'reading', 'book club', 'recommendations', 'staff picks', 'gift card', 'gift wrap', 'special order', 'preorder',
+    'coffee', 'cafe', 'seating', 'browse', 'local', 'independent', 'indie', 'loyalty program', 'rewards', 'membership'
+  ],
+  'Gift Shop': [
+    'gifts', 'gift shop', 'souvenirs', 'keepsake', 'memento', 'present', 'unique gifts', 'local gifts', 'handmade', 'artisan',
+    'cards', 'greeting cards', 'birthday', 'thank you', 'sympathy', 'wedding', 'baby', 'graduation', 'holiday', 'seasonal',
+    'home decor', 'candles', 'picture frames', 'ornaments', 'figurines', 'wall art', 'kitchen', 'garden', 'seasonal decor', 'holiday decor',
+    'jewelry', 'accessories', 'scarves', 'bags', 'wallets', 'keychains', 'magnets', 'stickers', 'postcards', 'apparel',
+    'gift wrap', 'gift basket', 'gift box', 'custom', 'personalized', 'engraved', 'monogram', 'corporate gifts', 'bulk', 'wholesale'
+  ],
+  'Furniture Store': [
+    'furniture', 'sofa', 'couch', 'sectional', 'loveseat', 'recliner', 'chair', 'ottoman', 'coffee table', 'end table',
+    'bedroom', 'bed', 'mattress', 'dresser', 'nightstand', 'headboard', 'bed frame', 'king', 'queen', 'full',
+    'dining', 'dining table', 'dining chairs', 'buffet', 'hutch', 'bar stool', 'counter stool', 'bench', 'kitchen table', 'dinette',
+    'office', 'desk', 'office chair', 'bookcase', 'filing cabinet', 'home office', 'entertainment center', 'TV stand', 'media console', 'shelving',
+    'delivery', 'assembly', 'financing', 'layaway', 'clearance', 'sale', 'floor model', 'custom order', 'fabric', 'leather'
+  ],
+  'Electronics Store': [
+    'electronics', 'TV', 'television', 'computer', 'laptop', 'tablet', 'phone', 'smartphone', 'headphones', 'speakers',
+    'gaming', 'PlayStation', 'Xbox', 'Nintendo', 'PC gaming', 'monitor', 'keyboard', 'mouse', 'controller', 'VR',
+    'camera', 'DSLR', 'mirrorless', 'GoPro', 'drone', 'lens', 'memory card', 'tripod', 'lighting', 'accessories',
+    'smart home', 'Alexa', 'Google Home', 'smart TV', 'streaming', 'Roku', 'Apple TV', 'Fire Stick', 'soundbar', 'home theater',
+    'warranty', 'protection plan', 'trade in', 'financing', 'price match', 'open box', 'refurbished', 'clearance', 'new release', 'preorder'
+  ],
+  'Hardware Store': [
+    'hardware', 'tools', 'power tools', 'hand tools', 'drill', 'saw', 'hammer', 'screwdriver', 'wrench', 'pliers',
+    'lumber', 'wood', 'plywood', 'boards', '2x4', 'trim', 'molding', 'drywall', 'cement', 'concrete',
+    'plumbing', 'pipes', 'fittings', 'faucet', 'toilet', 'sink', 'water heater', 'PVC', 'copper', 'PEX',
+    'electrical', 'wire', 'outlet', 'switch', 'breaker', 'panel', 'lighting', 'bulbs', 'LED', 'fixtures',
+    'paint', 'stain', 'primer', 'brush', 'roller', 'tape', 'sandpaper', 'caulk', 'adhesive', 'fasteners'
+  ],
+  'Sporting Goods': [
+    'sports', 'sporting goods', 'athletic', 'fitness', 'outdoor', 'camping', 'hiking', 'fishing', 'hunting', 'cycling',
+    'football', 'basketball', 'baseball', 'soccer', 'golf', 'tennis', 'hockey', 'volleyball', 'lacrosse', 'swimming',
+    'shoes', 'cleats', 'running shoes', 'basketball shoes', 'training', 'apparel', 'jersey', 'shorts', 'pants', 'jacket',
+    'equipment', 'balls', 'bats', 'gloves', 'helmets', 'pads', 'racket', 'clubs', 'accessories', 'bags',
+    'team orders', 'custom', 'screen printing', 'embroidery', 'fitting', 'clearance', 'sale', 'brands', 'Nike', 'Adidas'
+  ],
+  'Bicycle Shop': [
+    'bicycle', 'bike', 'road bike', 'mountain bike', 'hybrid', 'cruiser', 'BMX', 'kids bike', 'electric bike', 'e-bike',
+    'Trek', 'Specialized', 'Giant', 'Cannondale', 'Santa Cruz', 'Schwinn', 'Raleigh', 'GT', 'Felt', 'Scott',
+    'helmet', 'lock', 'lights', 'pump', 'water bottle', 'cage', 'rack', 'basket', 'fenders', 'kickstand',
+    'repair', 'tune up', 'flat fix', 'brake adjustment', 'gear adjustment', 'wheel true', 'overhaul', 'fitting', 'assembly', 'maintenance',
+    'new', 'used', 'trade in', 'financing', 'test ride', 'layaway', 'clearance', 'sale', 'accessories', 'apparel'
+  ],
+  'Outdoor Store': [
+    'outdoor', 'camping', 'hiking', 'backpacking', 'climbing', 'fishing', 'hunting', 'kayaking', 'paddling', 'skiing',
+    'tent', 'sleeping bag', 'sleeping pad', 'backpack', 'daypack', 'cooler', 'stove', 'lantern', 'headlamp', 'chair',
+    'boots', 'hiking boots', 'trail shoes', 'sandals', 'waders', 'rain gear', 'jacket', 'base layer', 'fleece', 'down',
+    'fishing rod', 'reel', 'tackle', 'bait', 'lures', 'line', 'net', 'license', 'hunting gear', 'camo',
+    'REI', 'Patagonia', 'North Face', 'Columbia', 'Osprey', 'rental', 'gear rental', 'expert advice', 'classes', 'events'
+  ],
+  'Thrift Store': [
+    'thrift', 'secondhand', 'used', 'pre-owned', 'consignment', 'resale', 'vintage', 'retro', 'antique', 'donation',
+    'clothing', 'shoes', 'accessories', 'handbags', 'jewelry', 'mens', 'womens', 'kids', 'baby', 'maternity',
+    'furniture', 'home goods', 'kitchenware', 'decor', 'art', 'books', 'records', 'CDs', 'DVDs', 'electronics',
+    'toys', 'games', 'sports equipment', 'tools', 'appliances', 'linens', 'bedding', 'curtains', 'rugs', 'lamps',
+    'cheap', 'deals', 'bargain', 'discount', 'sale day', 'color tag', 'donation drop off', 'tax receipt', 'nonprofit', 'charity'
+  ],
+  'Consignment Shop': [
+    'consignment', 'resale', 'secondhand', 'pre-owned', 'gently used', 'like new', 'designer', 'brand name', 'high end', 'luxury',
+    'clothing', 'womens', 'mens', 'kids', 'maternity', 'plus size', 'formal', 'casual', 'business', 'athletic',
+    'handbags', 'purses', 'designer bags', 'Louis Vuitton', 'Gucci', 'Chanel', 'Coach', 'shoes', 'jewelry', 'accessories',
+    'furniture', 'home decor', 'art', 'antiques', 'collectibles', 'vintage', 'estate', 'downsizing', 'moving sale', 'estate sale',
+    'sell', 'consign', 'seller', 'split', 'percentage', 'payout', 'appointment', 'drop off', 'pickup', 'selling tips'
+  ],
+  'Antique Store': [
+    'antiques', 'antique', 'vintage', 'collectibles', 'estate', 'retro', 'mid century', 'victorian', 'art deco', 'primitive',
+    'furniture', 'dresser', 'table', 'chair', 'cabinet', 'armoire', 'desk', 'bed', 'mirror', 'clock',
+    'china', 'porcelain', 'glassware', 'crystal', 'silverware', 'silver', 'brass', 'copper', 'pewter', 'pottery',
+    'jewelry', 'watches', 'coins', 'stamps', 'postcards', 'books', 'maps', 'prints', 'paintings', 'artwork',
+    'toys', 'dolls', 'militaria', 'sports memorabilia', 'advertising', 'signs', 'lighting', 'lamps', 'rugs', 'textiles'
+  ],
+  'Art Gallery': [
+    'art', 'gallery', 'artwork', 'paintings', 'sculpture', 'photography', 'prints', 'drawings', 'mixed media', 'installation',
+    'contemporary', 'modern', 'abstract', 'realism', 'impressionism', 'pop art', 'street art', 'folk art', 'fine art', 'local art',
+    'artist', 'local artist', 'emerging artist', 'established artist', 'featured artist', 'solo show', 'group show', 'exhibition', 'opening', 'reception',
+    'original', 'limited edition', 'signed', 'numbered', 'framed', 'unframed', 'canvas', 'paper', 'custom framing', 'commission',
+    'buy', 'collect', 'invest', 'price range', 'affordable', 'high end', 'consultation', 'corporate art', 'art rental', 'appraisal'
+  ],
+  'Frame Shop': [
+    'framing', 'custom framing', 'picture frame', 'frame', 'mat', 'matting', 'mounting', 'glass', 'museum glass', 'UV glass',
+    'wood frame', 'metal frame', 'ornate', 'modern', 'rustic', 'contemporary', 'traditional', 'gilded', 'black', 'white',
+    'photo', 'art', 'print', 'poster', 'diploma', 'certificate', 'jersey', 'memorabilia', 'shadow box', 'canvas stretch',
+    'conservation', 'archival', 'acid free', 'preservation', 'restoration', 'repair', 'reframe', 'dry mount', 'float mount', 'hinge mount',
+    'ready made', 'standard size', 'custom size', 'quick turnaround', 'same day', 'rush', 'bulk', 'corporate', 'wholesale', 'delivery'
+  ],
+  'Music Store': [
+    'music', 'instruments', 'guitar', 'acoustic', 'electric', 'bass', 'ukulele', 'banjo', 'mandolin', 'strings',
+    'piano', 'keyboard', 'synthesizer', 'organ', 'digital piano', 'drums', 'drum set', 'cymbals', 'percussion', 'electronic drums',
+    'band', 'orchestra', 'violin', 'cello', 'viola', 'flute', 'clarinet', 'saxophone', 'trumpet', 'trombone',
+    'amplifier', 'amp', 'pedals', 'effects', 'cables', 'picks', 'straps', 'cases', 'stands', 'accessories',
+    'lessons', 'rentals', 'repair', 'setup', 'trade in', 'used', 'vintage', 'new', 'financing', 'layaway'
+  ],
+  'Video Game Store': [
+    'video games', 'games', 'gaming', 'PlayStation', 'PS5', 'PS4', 'Xbox', 'Series X', 'Nintendo', 'Switch',
+    'PC games', 'Steam', 'digital', 'physical', 'disc', 'download code', 'gift card', 'PSN', 'Xbox Live', 'Nintendo eShop',
+    'new games', 'used games', 'preowned', 'trade in', 'sell games', 'buy games', 'preorder', 'release date', 'midnight release', 'collector edition',
+    'console', 'controller', 'headset', 'accessories', 'charging', 'storage', 'gaming chair', 'monitor', 'capture card', 'streaming',
+    'retro', 'classic', 'NES', 'SNES', 'N64', 'GameCube', 'Wii', 'collectibles', 'figures', 'merchandise'
+  ],
+  'Comic Book Store': [
+    'comics', 'comic books', 'graphic novels', 'manga', 'DC', 'Marvel', 'Image', 'Dark Horse', 'indie', 'independent',
+    'new comics', 'back issues', 'variant', 'cover', 'first print', 'key issue', 'graded', 'CGC', 'CBCS', 'slabbed',
+    'pull list', 'subscription', 'new comic day', 'Wednesday', 'FCBD', 'Free Comic Book Day', 'sale', 'discount', 'clearance', 'dollar bin',
+    'collectibles', 'statues', 'figures', 'action figures', 'Funko Pop', 'posters', 'prints', 'art', 't-shirts', 'merchandise',
+    'games', 'trading cards', 'Pokemon', 'Magic', 'Yu-Gi-Oh', 'D&D', 'RPG', 'board games', 'events', 'tournaments'
+  ],
+  'Toy Store': [
+    'toys', 'games', 'kids', 'children', 'baby', 'toddler', 'preschool', 'educational', 'STEM', 'learning',
+    'dolls', 'action figures', 'Barbie', 'LEGO', 'Hot Wheels', 'Nerf', 'Play-Doh', 'board games', 'puzzles', 'stuffed animals',
+    'outdoor toys', 'bikes', 'scooters', 'ride on', 'swing set', 'playhouse', 'sandbox', 'water toys', 'sports', 'balls',
+    'arts and crafts', 'building toys', 'remote control', 'RC', 'electronics', 'video games', 'costumes', 'dress up', 'party supplies', 'favors',
+    'birthday', 'gift', 'gift wrap', 'registry', 'wish list', 'new arrivals', 'clearance', 'sale', 'brands', 'quality'
+  ],
+  'Baby Store': [
+    'baby', 'infant', 'newborn', 'toddler', 'nursery', 'maternity', 'pregnancy', 'expecting', 'new parent', 'registry',
+    'stroller', 'car seat', 'carrier', 'wrap', 'bassinet', 'crib', 'pack n play', 'high chair', 'bouncer', 'swing',
+    'diapers', 'wipes', 'formula', 'bottles', 'breast pump', 'nursing', 'feeding', 'pacifier', 'teething', 'bibs',
+    'clothes', 'onesies', 'sleepers', 'shoes', 'hats', 'blankets', 'swaddle', 'bedding', 'sheets', 'mattress',
+    'toys', 'books', 'monitors', 'gates', 'safety', 'bath', 'skincare', 'gear', 'travel', 'gift'
+  ],
+  'Bridal Shop': [
+    'bridal', 'wedding dress', 'wedding gown', 'bride', 'bridesmaid', 'mother of bride', 'mother of groom', 'flower girl', 'formal', 'gown',
+    'designer', 'Vera Wang', 'David\'s Bridal', 'Maggie Sottero', 'Pronovias', 'Allure', 'Mori Lee', 'Justin Alexander', 'Stella York', 'Essence',
+    'A-line', 'ballgown', 'mermaid', 'sheath', 'fit and flare', 'empire', 'tea length', 'short', 'plus size', 'petite',
+    'veil', 'headpiece', 'tiara', 'jewelry', 'shoes', 'accessories', 'shapewear', 'lingerie', 'garter', 'something blue',
+    'appointment', 'fitting', 'alterations', 'rush', 'sample sale', 'trunk show', 'consignment', 'preservation', 'cleaning', 'storage'
+  ],
+  'Shoe Store': [
+    'shoes', 'sneakers', 'boots', 'heels', 'flats', 'sandals', 'loafers', 'oxfords', 'athletic', 'dress shoes',
+    'Nike', 'Adidas', 'Converse', 'Vans', 'New Balance', 'Skechers', 'Clarks', 'Steve Madden', 'Sam Edelman', 'Cole Haan',
+    'mens', 'womens', 'kids', 'wide', 'narrow', 'size', 'half size', 'fitting', 'measure', 'orthotics',
+    'running', 'walking', 'training', 'basketball', 'soccer', 'cleats', 'work boots', 'steel toe', 'slip resistant', 'waterproof',
+    'clearance', 'sale', 'BOGO', 'discount', 'rewards', 'gift card', 'return policy', 'exchange', 'comfort', 'style'
+  ],
+  'Sunglasses Store': [
+    'sunglasses', 'eyewear', 'shades', 'frames', 'lenses', 'prescription sunglasses', 'polarized', 'UV protection', 'mirrored', 'gradient',
+    'Ray-Ban', 'Oakley', 'Maui Jim', 'Costa', 'Gucci', 'Prada', 'Tom Ford', 'Versace', 'Dior', 'Persol',
+    'aviator', 'wayfarer', 'round', 'square', 'cat eye', 'sport', 'wrap', 'oversized', 'classic', 'modern',
+    'mens', 'womens', 'unisex', 'kids', 'fitting', 'adjustment', 'repair', 'nose pads', 'temple tips', 'case',
+    'insurance', 'FSA', 'HSA', 'vision plan', 'warranty', 'replacement', 'scratch resistant', 'anti-reflective', 'transitions', 'clip on'
+  ],
+  'Watch Store': [
+    'watches', 'watch', 'timepiece', 'luxury watch', 'designer watch', 'sport watch', 'dress watch', 'smart watch', 'analog', 'digital',
+    'Rolex', 'Omega', 'TAG Heuer', 'Breitling', 'Cartier', 'Seiko', 'Citizen', 'Tissot', 'Fossil', 'Michael Kors',
+    'automatic', 'mechanical', 'quartz', 'chronograph', 'diver', 'pilot', 'skeleton', 'moonphase', 'GMT', 'tourbillon',
+    'mens', 'womens', 'unisex', 'gold', 'silver', 'stainless steel', 'leather band', 'metal bracelet', 'rubber strap', 'NATO',
+    'battery', 'repair', 'service', 'overhaul', 'sizing', 'band replacement', 'water resistance', 'warranty', 'trade in', 'consignment'
+  ],
+  'Luggage Store': [
+    'luggage', 'suitcase', 'carry on', 'checked bag', 'duffel', 'backpack', 'travel bag', 'tote', 'garment bag', 'weekender',
+    'Samsonite', 'Tumi', 'Rimowa', 'Away', 'Briggs & Riley', 'Travelpro', 'Delsey', 'American Tourister', 'Victorinox', 'Hartmann',
+    'hardside', 'softside', 'spinner', 'wheeled', '2 wheel', '4 wheel', 'expandable', 'lightweight', 'durable', 'TSA lock',
+    'travel accessories', 'packing cubes', 'toiletry bag', 'neck pillow', 'luggage tag', 'passport holder', 'adapter', 'scale', 'organizer', 'compression',
+    'set', 'matching', 'warranty', 'repair', 'replacement', 'sale', 'clearance', 'new arrivals', 'brands', 'quality'
+  ],
+  'Mattress Store': [
+    'mattress', 'bed', 'memory foam', 'innerspring', 'hybrid', 'latex', 'pillow top', 'firm', 'medium', 'plush',
+    'king', 'queen', 'full', 'twin', 'twin XL', 'California king', 'split king', 'adjustable base', 'foundation', 'box spring',
+    'Tempur-Pedic', 'Sealy', 'Serta', 'Beautyrest', 'Purple', 'Casper', 'Sleep Number', 'Stearns & Foster', 'Simmons', 'Nectar',
+    'pillow', 'sheets', 'mattress protector', 'bed frame', 'headboard', 'bedding', 'comforter', 'duvet', 'blanket', 'accessories',
+    'trial period', 'warranty', 'financing', 'delivery', 'setup', 'removal', 'sale', 'clearance', 'floor model', 'comfort guarantee'
+  ],
+  'Appliance Store': [
+    'appliances', 'refrigerator', 'fridge', 'washer', 'dryer', 'dishwasher', 'stove', 'oven', 'range', 'microwave',
+    'freezer', 'ice maker', 'wine cooler', 'beverage center', 'garbage disposal', 'trash compactor', 'hood', 'vent', 'cooktop', 'wall oven',
+    'Samsung', 'LG', 'Whirlpool', 'GE', 'KitchenAid', 'Maytag', 'Frigidaire', 'Bosch', 'Viking', 'Sub-Zero',
+    'stainless steel', 'black stainless', 'white', 'black', 'slate', 'panel ready', 'counter depth', 'french door', 'side by side', 'top freezer',
+    'delivery', 'installation', 'haul away', 'warranty', 'extended warranty', 'financing', 'rebate', 'sale', 'clearance', 'open box'
+  ],
+  'Lighting Store': [
+    'lighting', 'lights', 'chandelier', 'pendant', 'ceiling light', 'flush mount', 'semi-flush', 'wall sconce', 'lamp', 'table lamp',
+    'floor lamp', 'desk lamp', 'track lighting', 'recessed', 'under cabinet', 'landscape', 'outdoor lighting', 'porch light', 'security light', 'LED',
+    'modern', 'contemporary', 'traditional', 'transitional', 'farmhouse', 'industrial', 'crystal', 'brass', 'bronze', 'chrome',
+    'bulbs', 'LED bulbs', 'smart bulbs', 'dimmer', 'switch', 'transformer', 'shade', 'globes', 'glass', 'fabric',
+    'design consultation', 'showroom', 'custom', 'special order', 'delivery', 'installation', 'sale', 'clearance', 'trade discount', 'wholesale'
+  ],
+  'Rug Store': [
+    'rugs', 'rug', 'carpet', 'area rug', 'runner', 'oriental', 'Persian', 'Turkish', 'Moroccan', 'kilim',
+    'modern', 'contemporary', 'traditional', 'transitional', 'shag', 'flatweave', 'hand knotted', 'hand tufted', 'machine made', 'vintage',
+    'wool', 'silk', 'cotton', 'jute', 'sisal', 'synthetic', 'polypropylene', 'polyester', 'nylon', 'viscose',
+    'living room', 'bedroom', 'dining room', 'entryway', 'kitchen', 'bathroom', 'outdoor', 'patio', 'kids', 'nursery',
+    'custom size', 'padding', 'rug pad', 'cleaning', 'repair', 'restoration', 'appraisal', 'trade in', 'consignment', 'delivery'
+  ],
+  'Kitchen Store': [
+    'kitchen', 'cookware', 'pots', 'pans', 'skillet', 'dutch oven', 'bakeware', 'sheet pan', 'roasting pan', 'casserole',
+    'knives', 'knife set', 'cutting board', 'utensils', 'spatula', 'whisk', 'tongs', 'ladle', 'measuring cups', 'mixing bowls',
+    'small appliances', 'blender', 'mixer', 'food processor', 'toaster', 'coffee maker', 'instant pot', 'air fryer', 'juicer', 'stand mixer',
+    'gadgets', 'tools', 'peeler', 'grater', 'mandoline', 'thermometer', 'timer', 'scale', 'opener', 'storage',
+    'registry', 'gift', 'brands', 'Le Creuset', 'All-Clad', 'KitchenAid', 'Cuisinart', 'OXO', 'sale', 'clearance'
+  ],
+  'Bath Store': [
+    'bath', 'bathroom', 'towels', 'bath towels', 'hand towels', 'washcloths', 'bath mat', 'rug', 'shower curtain', 'liner',
+    'accessories', 'soap dispenser', 'toothbrush holder', 'tumbler', 'tissue holder', 'trash can', 'toilet brush', 'hooks', 'robe hook', 'towel bar',
+    'shower', 'showerhead', 'rain shower', 'handheld', 'body jets', 'faucet', 'sink', 'toilet', 'bidet', 'vanity',
+    'storage', 'cabinet', 'shelf', 'organizer', 'basket', 'caddy', 'mirror', 'medicine cabinet', 'lighting', 'exhaust fan',
+    'robes', 'slippers', 'spa', 'candles', 'diffuser', 'bath bombs', 'salts', 'oils', 'luxury', 'gift'
+  ],
+  'Doggy Daycare': [
+    'dog daycare', 'doggy daycare', 'daycare', 'play', 'playtime', 'socialization', 'exercise', 'supervision', 'group play', 'pack',
+    'small dog', 'large dog', 'puppy', 'senior', 'temperament', 'evaluation', 'assessment', 'trial day', 'meet and greet', 'compatibility',
+    'indoor', 'outdoor', 'play yard', 'climate controlled', 'AC', 'heat', 'clean', 'safe', 'secure', 'fenced',
+    'half day', 'full day', 'package', 'monthly', 'weekly', 'drop in', 'early drop off', 'late pickup', 'hours', 'schedule',
+    'webcam', 'report card', 'photos', 'updates', 'feeding', 'medication', 'nap time', 'rest', 'vaccination', 'requirements'
+  ],
+  'Pet Sitter': [
+    'pet sitter', 'pet sitting', 'in home', 'house sitting', 'overnight', 'drop in', 'visit', 'dog walking', 'walk', 'potty break',
+    'dog', 'cat', 'bird', 'fish', 'reptile', 'small animal', 'exotic', 'multiple pets', 'special needs', 'senior pet',
+    'feeding', 'medication', 'insulin', 'subcutaneous', 'pills', 'liquid', 'eye drops', 'ear drops', 'bandage', 'wound care',
+    'daily rate', 'per visit', 'overnight rate', 'holiday rate', 'last minute', 'recurring', 'regular', 'backup', 'trusted', 'insured',
+    'bonded', 'background check', 'references', 'reviews', 'experience', 'certified', 'first aid', 'CPR', 'photos', 'updates'
+  ],
   // Services
   'Dry Cleaner': [
     'dry cleaning', 'laundry', 'wash and fold', 'shirts', 'pants', 'suits', 'dresses', 'coats', 'jackets', 'sweaters',
@@ -710,6 +941,97 @@ const keywordSuggestions: Record<string, string[]> = {
     'repair', 'installation', 'upgrade', 'replacement', 'troubleshooting', 'inspection', 'code compliance', 'permit', 'rewire', 'whole house',
     'EV charger', 'generator', 'surge protector', 'smart home', 'thermostat', 'smoke detector', 'carbon monoxide', 'doorbell', 'intercom', 'security',
     'emergency', '24 hour', 'same day', 'estimate', 'free estimate', 'licensed', 'insured', 'residential', 'commercial', 'industrial'
+  ],
+  'Laundromat': [
+    'laundromat', 'laundry', 'self service', 'coin laundry', 'wash', 'dry', 'washer', 'dryer', 'machines', 'capacity',
+    'large capacity', 'triple load', 'front load', 'top load', 'commercial', 'industrial', 'speed queen', 'clean', 'well maintained', 'working',
+    'detergent', 'fabric softener', 'dryer sheets', 'bleach', 'stain remover', 'vending', 'change machine', 'quarters', 'card', 'app pay',
+    'wash and fold', 'drop off', 'pickup', 'delivery', 'same day', 'next day', 'by the pound', 'service', 'attendant', 'staffed',
+    'hours', 'open late', '24 hour', 'parking', 'seating', 'TV', 'wifi', 'air conditioned', 'safe', 'well lit'
+  ],
+  'Tailor': [
+    'tailor', 'alterations', 'sewing', 'hemming', 'hem', 'pants', 'jeans', 'dress', 'suit', 'jacket',
+    'shortening', 'lengthening', 'taking in', 'letting out', 'tapering', 'slimming', 'waist', 'seat', 'sleeves', 'shoulders',
+    'zipper', 'zipper repair', 'zipper replacement', 'buttons', 'button replacement', 'patching', 'mending', 'relining', 'cuffs', 'lapels',
+    'wedding dress', 'bridesmaid', 'formal wear', 'prom dress', 'suit alterations', 'custom suit', 'bespoke', 'made to measure', 'fitting', 'consultation',
+    'rush', 'same day', 'next day', 'turnaround', 'pickup', 'delivery', 'pricing', 'quality', 'experienced', 'skilled'
+  ],
+  'Locksmith': [
+    'locksmith', 'locks', 'keys', 'lockout', 'locked out', 'car lockout', 'house lockout', 'office lockout', 'emergency', '24 hour',
+    'key cutting', 'key copy', 'duplicate', 'rekey', 'rekeying', 'lock change', 'lock repair', 'lock installation', 'deadbolt', 'smart lock',
+    'car keys', 'transponder', 'chip key', 'key fob', 'remote', 'ignition', 'broken key', 'key extraction', 'programming', 'replacement',
+    'residential', 'commercial', 'automotive', 'safe', 'safe opening', 'safe installation', 'master key', 'access control', 'security', 'high security',
+    'mobile', 'on site', 'fast', 'quick response', 'licensed', 'bonded', 'insured', 'upfront pricing', 'no hidden fees', 'warranty'
+  ],
+  'Moving Company': [
+    'moving', 'movers', 'moving company', 'relocation', 'local move', 'long distance', 'interstate', 'cross country', 'international', 'residential',
+    'commercial', 'office move', 'apartment', 'house', 'condo', 'storage', 'packing', 'unpacking', 'loading', 'unloading',
+    'boxes', 'supplies', 'tape', 'bubble wrap', 'blankets', 'dollies', 'truck', 'van', 'crew', 'labor only',
+    'hourly rate', 'flat rate', 'estimate', 'free estimate', 'in home estimate', 'binding quote', 'insurance', 'valuation', 'liability', 'claims',
+    'licensed', 'insured', 'DOT', 'USDOT', 'bonded', 'reviews', 'references', 'same day', 'last minute', 'scheduling'
+  ],
+  'Storage Facility': [
+    'storage', 'self storage', 'storage unit', 'mini storage', 'storage locker', 'storage space', 'warehouse', 'climate controlled', 'temperature controlled', 'humidity controlled',
+    'small unit', 'medium unit', 'large unit', '5x5', '5x10', '10x10', '10x15', '10x20', '10x30', 'drive up',
+    'indoor', 'outdoor', 'ground floor', 'elevator', 'accessible', 'first month free', 'move in special', 'discount', 'month to month', 'long term',
+    'secure', 'gated', 'keypad', 'code', 'camera', 'surveillance', 'on site manager', '24 hour access', 'extended hours', 'office hours',
+    'boxes', 'supplies', 'truck rental', 'moving truck', 'insurance', 'coverage', 'auto pay', 'online payment', 'reservation', 'tour'
+  ],
+  'Printing Shop': [
+    'printing', 'print', 'copies', 'copy', 'color copies', 'black and white', 'scanning', 'scan', 'fax', 'binding',
+    'business cards', 'flyers', 'brochures', 'postcards', 'posters', 'banners', 'signs', 'vinyl', 'stickers', 'labels',
+    'invitations', 'announcements', 'wedding', 'graduation', 'holiday cards', 'thank you cards', 'envelopes', 'letterhead', 'notepads', 'forms',
+    'booklets', 'catalogs', 'manuals', 'presentations', 'reports', 'laminating', 'mounting', 'foam board', 'canvas', 'wide format',
+    'same day', 'rush', 'turnaround', 'digital', 'offset', 'bulk', 'quantity', 'quote', 'file upload', 'design'
+  ],
+  'Shipping Store': [
+    'shipping', 'package', 'mail', 'send', 'ship', 'UPS', 'FedEx', 'USPS', 'DHL', 'freight',
+    'ground', 'express', 'overnight', 'priority', 'international', 'domestic', 'tracking', 'insurance', 'signature', 'delivery confirmation',
+    'packing', 'supplies', 'boxes', 'tape', 'bubble wrap', 'peanuts', 'fragile', 'custom crate', 'palletize', 'shrink wrap',
+    'mailbox', 'PO box', 'mail forwarding', 'package receiving', 'hold for pickup', 'notification', 'virtual address', 'business address', 'mail scanning', 'open mail',
+    'notary', 'passport photos', 'printing', 'copies', 'fax', 'shredding', 'office supplies', 'packing service', 'pickup', 'drop off'
+  ],
+  'Notary': [
+    'notary', 'notary public', 'notarize', 'notarization', 'signature', 'witness', 'acknowledgment', 'jurat', 'oath', 'affirmation',
+    'documents', 'legal documents', 'contracts', 'deeds', 'title', 'power of attorney', 'POA', 'wills', 'trusts', 'affidavits',
+    'real estate', 'closing', 'loan signing', 'refinance', 'mortgage', 'home equity', 'reverse mortgage', 'mobile notary', 'traveling notary', 'remote',
+    'RON', 'remote online notarization', 'same day', 'appointment', 'walk in', 'after hours', 'weekend', 'emergency', 'rush', 'expedited',
+    'certified', 'commissioned', 'bonded', 'insured', 'NNA', 'background check', 'fee', 'pricing', 'per signature', 'travel fee'
+  ],
+  'Shoe Repair': [
+    'shoe repair', 'cobbler', 'heel repair', 'sole repair', 'resole', 'half sole', 'full sole', 'heel replacement', 'heel tap', 'lift',
+    'leather repair', 'stitching', 'patching', 'glue', 'conditioning', 'cleaning', 'polish', 'shine', 'dyeing', 'color change',
+    'zipper repair', 'zipper replacement', 'stretch', 'stretching', 'widening', 'orthopedic', 'lift', 'modification', 'custom', 'insole',
+    'boots', 'dress shoes', 'heels', 'sandals', 'athletic', 'work boots', 'designer', 'luxury', 'vintage', 'restoration',
+    'purse repair', 'handbag', 'belt repair', 'luggage repair', 'leather goods', 'quick', 'while you wait', 'drop off', 'pickup', 'quality'
+  ],
+  'Watch Repair': [
+    'watch repair', 'watch service', 'battery', 'battery replacement', 'crystal', 'glass', 'band', 'strap', 'bracelet', 'link',
+    'sizing', 'adjustment', 'clasp', 'crown', 'stem', 'movement', 'clean', 'overhaul', 'service', 'maintenance',
+    'mechanical', 'automatic', 'quartz', 'chronograph', 'water resistance', 'pressure test', 'gasket', 'seal', 'restoration', 'refinish',
+    'Rolex', 'Omega', 'TAG', 'Breitling', 'Cartier', 'Swiss', 'vintage', 'antique', 'luxury', 'high end',
+    'estimate', 'diagnostic', 'warranty', 'certified', 'trained', 'experienced', 'master', 'same day', 'quick service', 'drop off'
+  ],
+  'Appliance Repair': [
+    'appliance repair', 'repair', 'service', 'fix', 'technician', 'refrigerator', 'fridge', 'freezer', 'washer', 'dryer',
+    'dishwasher', 'oven', 'stove', 'range', 'cooktop', 'microwave', 'garbage disposal', 'ice maker', 'wine cooler', 'hood',
+    'not cooling', 'not heating', 'not spinning', 'not draining', 'leaking', 'noisy', 'error code', 'not starting', 'tripping breaker', 'diagnostic',
+    'Samsung', 'LG', 'Whirlpool', 'GE', 'Maytag', 'KitchenAid', 'Frigidaire', 'Bosch', 'Sub-Zero', 'all brands',
+    'same day', 'next day', 'emergency', 'appointment', 'estimate', 'diagnostic fee', 'parts', 'warranty', 'licensed', 'insured'
+  ],
+  'Jewelry Repair': [
+    'jewelry repair', 'ring repair', 'necklace repair', 'bracelet repair', 'earring repair', 'clasp', 'chain', 'solder', 'welding', 'prong',
+    'stone setting', 'reset', 'tighten', 'replace stone', 'missing stone', 'diamond', 'gemstone', 'pearl restringing', 'knotting', 'beading',
+    'sizing', 'ring sizing', 'sizing up', 'sizing down', 'stretch', 'cut off', 'stuck ring', 'engraving', 'inscription', 'custom',
+    'polishing', 'cleaning', 'rhodium', 'plating', 'refinishing', 'restoration', 'antique', 'vintage', 'heirloom', 'estate',
+    'appraisal', 'insurance appraisal', 'estimate', 'same day', 'while you wait', 'rush', 'quality', 'experienced', 'certified', 'GIA'
+  ],
+  'Alterations': [
+    'alterations', 'tailoring', 'sewing', 'hemming', 'hem', 'pants', 'jeans', 'dress', 'skirt', 'shorts',
+    'taking in', 'letting out', 'tapering', 'slimming', 'shorten', 'lengthen', 'sleeves', 'waist', 'inseam', 'cuffs',
+    'zipper', 'buttons', 'lining', 'patch', 'mend', 'repair', 'rip', 'tear', 'seam', 'split',
+    'wedding dress', 'bridesmaid', 'prom', 'formal', 'suit', 'jacket', 'coat', 'leather', 'denim', 'uniform',
+    'fitting', 'consultation', 'rush', 'same day', 'next day', 'turnaround', 'pricing', 'quality', 'experienced', 'skilled'
   ],
   // Professional Services
   'Dental Office': [

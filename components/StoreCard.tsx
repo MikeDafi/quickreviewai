@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit, Trash2, QrCode, ChevronDown, ChevronUp } from 'lucide-react';
+import { Edit, Trash2, QrCode, ChevronDown, ChevronUp, Eye, Copy } from 'lucide-react';
 import { Store } from '@/lib/types';
 
 interface StoreCardProps {
@@ -54,6 +54,32 @@ export default function StoreCard({ store, onEdit, onDelete, onShowQR }: StoreCa
             </div>
           )}
         </div>
+      </div>
+
+      {/* Analytics Row */}
+      <div className="flex gap-4 mb-4 py-3 border-y border-gray-100">
+        <div className="flex items-center gap-2">
+          <Eye className="w-4 h-4 text-gray-400" />
+          <div>
+            <div className="text-lg font-semibold text-gray-900">{store.viewCount || 0}</div>
+            <div className="text-xs text-gray-500">QR Scans</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Copy className="w-4 h-4 text-gray-400" />
+          <div>
+            <div className="text-lg font-semibold text-gray-900">{store.copyCount || 0}</div>
+            <div className="text-xs text-gray-500">Reviews Copied</div>
+          </div>
+        </div>
+        {(store.viewCount || 0) > 0 && (
+          <div className="ml-auto text-right">
+            <div className="text-lg font-semibold text-emerald-600">
+              {Math.round(((store.copyCount || 0) / (store.viewCount || 1)) * 100)}%
+            </div>
+            <div className="text-xs text-gray-500">Conversion</div>
+          </div>
+        )}
       </div>
 
       {/* Keywords Row */}
