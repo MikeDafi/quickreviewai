@@ -293,7 +293,7 @@ export default function Home() {
                 period="month"
                 features={[
                   'Unlimited locations',
-                  'Unlimited keyword-rich reviews',
+                  'Customers get unlimited review regenerations',
                   'Unlimited QR scans',
                   'Target specific keywords you want to rank for',
                   'Tell the AI exactly what to highlight in every review',

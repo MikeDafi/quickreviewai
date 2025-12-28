@@ -61,7 +61,7 @@ export default function Upgrade() {
 
   const proFeatures = [
     { icon: Store, text: 'Unlimited store locations', color: 'emerald' },
-    { icon: RefreshCw, text: 'Unlimited AI review regenerations', color: 'blue' },
+    { icon: RefreshCw, text: 'Customers get unlimited review regenerations', color: 'blue' },
     { icon: QrCode, text: 'Unlimited QR scans', color: 'teal' },
     { icon: Zap, text: 'Review Guidance - tell AI exactly what to highlight', color: 'violet' },
     { icon: BarChart3, text: 'Analytics dashboard - track keyword performance', color: 'indigo' },
