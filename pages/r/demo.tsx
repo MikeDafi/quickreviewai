@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
-import { Copy, RefreshCw, ExternalLink, Check, Sparkles, Lock, X } from 'lucide-react';
+import { Copy, RefreshCw, ExternalLink, Check, Lock, X, ArrowDown } from 'lucide-react';
 
 const DEMO_REVIEWS = [
   "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back next week with my friends.",
@@ -81,7 +80,16 @@ export default function DemoLandingPage() {
           </div>
 
           {/* Review Card */}
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
+          <div className={`bg-white rounded-2xl shadow-xl border-2 p-6 sm:p-8 mb-6 transition-all ${
+            copied ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-gray-100'
+          }`}>
+            {/* Helpful hint about the review */}
+            <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <p className="text-sm text-emerald-800 text-center">
+                ✨ <span className="font-medium">Feel free to use this pre-generated review!</span> Edit it or use as-is.
+              </p>
+            </div>
+            
             <div className="mb-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-gray-600">AI-Generated Review</span>
@@ -101,7 +109,11 @@ export default function DemoLandingPage() {
 
             <button
               onClick={handleCopy}
-              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40"
+              className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-medium transition-all ${
+                copied 
+                  ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-700/30' 
+                  : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40'
+              }`}
             >
               {copied ? (
                 <>
@@ -139,6 +151,17 @@ export default function DemoLandingPage() {
             </button>
           </div>
 
+          {/* Instruction after copying */}
+          {copied && (
+            <div className="mb-4 text-center animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium">
+                <ArrowDown className="w-4 h-4 animate-bounce" />
+                Now click a button below to paste your review!
+                <ArrowDown className="w-4 h-4 animate-bounce" />
+              </div>
+            </div>
+          )}
+
           {/* Limit Toast */}
           {showLimitToast && (
             <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-gray-900 text-white rounded-xl p-4 shadow-2xl z-50 animate-slide-up">
@@ -175,7 +198,11 @@ export default function DemoLandingPage() {
               href="https://g.page/r/CYbhqyxqIqguEBM/review"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
+              className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
+                copied 
+                  ? 'border-blue-400 shadow-lg shadow-blue-200 ring-2 ring-blue-200' 
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+              }`}
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path
@@ -195,39 +222,26 @@ export default function DemoLandingPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span className="text-gray-700 font-medium">Post on Google</span>
-              <ExternalLink className="w-4 h-4 text-gray-400 ml-auto" />
+              <span className={`font-medium ${copied ? 'text-blue-700' : 'text-gray-700'}`}>Paste on Google Review</span>
+              <ExternalLink className={`w-4 h-4 ml-auto ${copied ? 'text-blue-400' : 'text-gray-400'}`} />
             </a>
 
             <a
               href="https://www.yelp.com/writeareview/biz/dx3-uI6A5bIXptySpOSaZg"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
+              className={`flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-xl border-2 transition-all ${
+                copied 
+                  ? 'border-red-400 shadow-lg shadow-red-200 ring-2 ring-red-200' 
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+              }`}
             >
               <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M21.111 18.226c-.141.969-2.119 3.483-3.029 3.847-.311.124-.611.094-.85-.09-.154-.12-.314-.365-2.447-3.827l-.633-1.032c-.244-.37-.199-.857.104-1.229.297-.37.756-.478 1.158-.274l1.099.534c3.334 1.62 3.463 1.725 3.553 1.846.219.292.247.657.045 1.225zM18.093 9.944c-.318.396-.79.544-1.197.377l-1.143-.478c-3.521-1.478-3.638-1.562-3.749-1.67-.274-.265-.345-.633-.2-1.22.237-.956 2.454-3.334 3.392-3.636.321-.102.626-.055.856.127.148.116.33.351 2.768 3.66l.723.989c.259.35.243.847-.026 1.231-.181.25-.411.502-1.424.62zM9.839 9.633c.307.395.323.888.041 1.253-.28.36-.729.508-1.134.362L7.6 10.78c-3.442-1.617-3.567-1.713-3.671-1.831-.253-.281-.298-.65-.127-1.221.284-.95 2.598-3.241 3.553-3.499.326-.087.629-.022.848.18.142.127.312.387 2.588 3.888l.69 1.05c.108.178.237.293.358.286zM8.473 15.587c.074.403-.091.802-.434 1.012-.263.166-.539.17-.842.013-.141-.073-.321-.234-2.934-3.537l-.797-1.024c-.283-.343-.295-.82-.031-1.212.265-.396.71-.568 1.124-.428l1.14.42c3.455 1.269 3.579 1.345 3.696 1.459.295.265.389.632.297 1.212l-.219 2.085zM13.548 16.46l.186 2.084c.045.512-.15.917-.515 1.075-.271.118-.538.099-.812-.056-.144-.081-.345-.26-3.215-3.327l-.871-.931c-.31-.318-.374-.796-.161-1.208.21-.407.635-.623 1.072-.541l1.193.211c3.631.657 3.77.708 3.9.814.32.258.434.621.35 1.212-.06.48-.127.667-.127.667z" />
               </svg>
-              <span className="text-gray-700 font-medium">Post on Yelp</span>
-              <ExternalLink className="w-4 h-4 text-gray-400 ml-auto" />
+              <span className={`font-medium ${copied ? 'text-red-700' : 'text-gray-700'}`}>Paste on Yelp Review</span>
+              <ExternalLink className={`w-4 h-4 ml-auto ${copied ? 'text-red-400' : 'text-gray-400'}`} />
             </a>
-          </div>
-
-          {/* CTA to Sign Up */}
-          <div className="bg-white rounded-2xl border border-emerald-200 p-6 text-center mb-6">
-            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <Sparkles className="w-6 h-6 text-emerald-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Want this for your business?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Create your own QR code and start collecting 5-star reviews today.
-            </p>
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-all"
-            >
-              Get Started Free
-            </Link>
           </div>
 
           {/* Footer */}

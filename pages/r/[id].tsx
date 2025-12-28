@@ -298,7 +298,16 @@ export default function LandingPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
+            <div className={`bg-white rounded-2xl shadow-xl border-2 p-6 sm:p-8 mb-6 transition-all ${
+              copied ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-gray-100'
+            }`}>
+              {/* Helpful hint about the review */}
+              <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                <p className="text-sm text-emerald-800 text-center">
+                  ✨ <span className="font-medium">Feel free to use this pre-generated review!</span> Edit it or use as-is.
+                </p>
+              </div>
+              
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-gray-600">AI-Generated Review</span>
