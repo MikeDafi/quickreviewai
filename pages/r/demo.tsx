@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Copy, RefreshCw, ExternalLink, Check, Lock, X, ArrowDown } from 'lucide-react';
+import Link from 'next/link';
+import { Copy, RefreshCw, ExternalLink, Check, Lock, X, ArrowDown, Sparkles } from 'lucide-react';
 
 const DEMO_REVIEWS = [
   "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back next week with my friends.",

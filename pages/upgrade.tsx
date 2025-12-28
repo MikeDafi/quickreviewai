@@ -60,11 +60,11 @@ export default function Upgrade() {
   if (!session) return null;
 
   const proFeatures = [
-    { icon: Store, text: 'Unlimited store locations', color: 'emerald' },
-    { icon: RefreshCw, text: 'Customers get unlimited review regenerations', color: 'blue' },
-    { icon: QrCode, text: 'Unlimited QR scans', color: 'teal' },
-    { icon: Zap, text: 'Review Guidance - tell AI exactly what to highlight', color: 'violet' },
-    { icon: BarChart3, text: 'Analytics dashboard - track keyword performance', color: 'indigo' },
+    { icon: Store, text: 'Unlimited stores', color: 'emerald' },
+    { icon: QrCode, text: 'Unlimited QR scans with AI reviews', color: 'teal' },
+    { icon: RefreshCw, text: 'Customers can regenerate reviews until satisfied', color: 'blue' },
+    { icon: Zap, text: 'Review Guidance: control exactly what AI highlights', color: 'violet' },
+    { icon: BarChart3, text: 'Analytics dashboard with conversion tracking', color: 'indigo' },
     { icon: Shield, text: 'All platforms: Google, Yelp, TripAdvisor & more', color: 'gray' },
   ];
 

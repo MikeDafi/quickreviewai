@@ -569,7 +569,7 @@ interface ReviewResult {
 }
 
 async function generateReview(landing: LandingWithStore): Promise<ReviewResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
   
   // Pick 1-2 keywords weighted by performance stats
   const keywordCount = Math.random() < 0.6 ? 1 : 2
@@ -683,6 +683,60 @@ ABSOLUTE BANNED PHRASES (instant AI detection):
 ❌ More than one exclamation point total
 ❌ Starting with the business name
 ❌ Starting with "Solid" or similar generic adjective
+
+MORE BANNED AI WORDS (these scream AI-generated):
+❌ "delve" / "delve into" / "delved"
+❌ "underscore" / "underscores" / "underscored"
+❌ "pivotal" / "pivotal role"
+❌ "realm" 
+❌ "harness" / "harnessing"
+❌ "illuminate" / "illuminating"
+❌ "facilitate" / "facilitated"
+❌ "bolster" / "bolstered"
+❌ "streamline" / "streamlined"
+❌ "revolutionize" / "revolutionary"
+❌ "innovative" / "innovation"
+❌ "cutting-edge" / "state-of-the-art"
+❌ "game-changing" / "game changer"
+❌ "transformative" / "transformed"
+❌ "seamless" / "seamlessly"
+❌ "scalable"
+❌ "leverage" / "leveraging"
+❌ "robust"
+❌ "comprehensive"
+❌ "meticulous" / "meticulously"
+❌ "elevate" / "elevated"
+❌ "curated"
+❌ "bespoke"
+❌ "paramount"
+❌ "myriad"
+❌ "plethora"
+❌ "nuanced"
+❌ "holistic"
+❌ "synergy"
+❌ "paradigm"
+
+BANNED TRANSITION PHRASES:
+❌ "That being said" / "That said"
+❌ "At its core"
+❌ "To put it simply"
+❌ "This underscores"
+❌ "A key takeaway"
+❌ "From a broader perspective"
+❌ "Generally speaking"
+❌ "Broadly speaking"
+❌ "Shed light on"
+❌ "It's worth noting"
+❌ "It goes without saying"
+❌ "Needless to say"
+❌ "In conclusion"
+❌ "All in all"
+
+BANNED HEDGING PHRASES:
+❌ "Arguably"
+❌ "To some extent"
+❌ "tends to"
+❌ "It's important to note"
 
 Just write the review. No quotes. No "Here's a review:" preamble.`
 

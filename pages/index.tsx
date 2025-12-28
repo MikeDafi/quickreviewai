@@ -1,10 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Sparkles, QrCode, TrendingUp, Shield, BarChart3, Check, Smartphone, Star, ExternalLink, Copy, MousePointerClick, ClipboardPaste, Send } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
+
+// Lazy load the LiveActivityBanner
+const LiveActivityBanner = dynamic(() => import('@/components/LiveActivityBanner'), { ssr: false });
 
 const DEMO_LANDING_PAGE_URL = '/r/demo';
 
@@ -276,11 +280,12 @@ export default function Home() {
                 price="$0"
                 period="forever"
                 features={[
-                  '1 store location',
-                  '1 keyword-rich review per user',
-                  '15 QR scans per month',
-                  'Google & Yelp posting',
-                  'Email support'
+                  '1 store per account',
+                  '15 QR scans per month with AI review generation',
+                  '1 extra review regeneration per store',
+                  'Target specific keywords for each store',
+                  'Set your business type for relevant reviews',
+                  'Google & Yelp posting'
                 ]}
                 buttonText="Start Free"
                 buttonVariant="secondary"
@@ -292,14 +297,13 @@ export default function Home() {
                 price="$9.99"
                 period="month"
                 features={[
-                  'Unlimited locations',
-                  'Customers get unlimited review regenerations',
-                  'Unlimited QR scans',
-                  'Target specific keywords you want to rank for',
-                  'Tell the AI exactly what to highlight in every review',
+                  'Unlimited stores',
+                  'Unlimited QR scans with AI reviews',
+                  'Customers can regenerate reviews until satisfied',
+                  'Review Guidance: control exactly what AI highlights',
+                  'Target specific keywords for each store',
                   'Google, Yelp, TripAdvisor, Facebook, OpenTable',
-                  'Analytics dashboard',
-                  'Priority support'
+                  'Analytics dashboard with conversion tracking'
                 ]}
                 buttonText="Get Pro"
                 buttonVariant="primary"
@@ -315,6 +319,9 @@ export default function Home() {
         </section>
 
         <Footer />
+        
+        {/* Live Activity Banner - shows recent review activity */}
+        <LiveActivityBanner />
       </div>
     </>
   );
