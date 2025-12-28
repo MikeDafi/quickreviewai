@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { Sparkles, QrCode, TrendingUp, Zap, Shield, BarChart3, Check, Store, Smartphone, Star, ExternalLink } from 'lucide-react';
+import { Sparkles, QrCode, TrendingUp, Zap, Shield, BarChart3, Check, Store, Smartphone, Star, ExternalLink, Copy, MousePointerClick, ClipboardPaste, Send } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -193,7 +193,7 @@ export default function Home() {
                 </div>
 
                 {/* Bottom Row */}
-                <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-4 md:gap-6">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
                   {/* Card 3: Customer Scans */}
                   <div className="w-full md:w-80 bg-white rounded-2xl p-5 shadow-lg border border-emerald-100">
                     <div className="flex items-center gap-2 mb-4">

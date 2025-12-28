@@ -45,6 +45,7 @@ export default function Dashboard() {
     totalScans: 0, 
     reviewsCopied: 0, 
     blockedRegenerations: 0, 
+    exceededScans: 0,
     storeCount: 0, 
     tier: SubscriptionTier.FREE as string, 
     storeLimit: 1 as number | null,
@@ -106,6 +107,7 @@ export default function Dashboard() {
           viewCount: s.view_count || 0,
           copyCount: s.copy_count || 0,
           blockedRegenerations: s.blocked_regenerations || 0,
+          exceededScans: s.exceeded_scans || 0,
         }));
         setStores(mappedStores);
       }
@@ -355,10 +357,10 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 py-8">
           {/* Stats Cards */}
-          <div className={`grid gap-6 mb-8 ${stats.tier === SubscriptionTier.FREE ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+          <div className={`grid gap-6 mb-8 ${stats.tier === SubscriptionTier.FREE ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-2'}`}>
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600">QR Code Scans</span>
+                <span className="text-gray-600">QR Code Scans w/ AI Review</span>
                 <QrCode className="w-5 h-5 text-emerald-500" />
               </div>
               <div className="text-3xl font-bold text-gray-900">
@@ -381,12 +383,34 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Blocked Regenerations - always show for free users */}
+            {/* Exceeded Scans - customers who got NO AI review (critical - in red) */}
+            {stats.tier === SubscriptionTier.FREE && (
+              <div className={`rounded-xl p-6 border-2 ${stats.exceededScans > 0 ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={stats.exceededScans > 0 ? 'text-red-700 font-medium' : 'text-gray-600'}>
+                    Missed Out on AI Reviews
+                  </span>
+                  <AlertCircle className={`w-5 h-5 ${stats.exceededScans > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+                </div>
+                <div className={`text-3xl font-bold ${stats.exceededScans > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                  {stats.exceededScans}
+                </div>
+                <p className={`text-sm mt-1 ${stats.exceededScans > 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                  {stats.exceededScans > 0 ? (
+                    <>
+                      After {getPlanLimits(SubscriptionTier.FREE).scansPerMonth} QR Code Scans, no AI reviews in the Scan
+                    </>
+                  ) : 'None yet'}
+                </p>
+              </div>
+            )}
+
+            {/* Blocked Regenerations - customers who wanted a different review */}
             {stats.tier === SubscriptionTier.FREE && (
               <div className={`rounded-xl p-6 border-2 ${stats.blockedRegenerations > 0 ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-200'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className={stats.blockedRegenerations > 0 ? 'text-amber-700 font-medium' : 'text-gray-600'}>
-                    Number of Times Customers Wanted Different Reviews but Hit the Free Limit
+                    Blocked Regenerations
                   </span>
                   <AlertCircle className={`w-5 h-5 ${stats.blockedRegenerations > 0 ? 'text-amber-500' : 'text-gray-400'}`} />
                 </div>
@@ -394,7 +418,7 @@ export default function Dashboard() {
                   {stats.blockedRegenerations}
                 </div>
                 <p className={`text-sm mt-1 ${stats.blockedRegenerations > 0 ? 'text-amber-600' : 'text-gray-500'}`}>
-                  {stats.blockedRegenerations > 0 ? 'Customers wanted different review options' : 'None yet'}
+                  {stats.blockedRegenerations > 0 ? 'Customers Wanted Different Reviews but Hit the Free Limit' : 'None yet'}
                 </p>
               </div>
             )}

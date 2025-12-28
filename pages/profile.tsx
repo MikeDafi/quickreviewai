@@ -214,13 +214,6 @@ export default function Profile() {
                   Pricing
                 </Link>
               )}
-              
-              {/* Tier badge - only show for Pro */}
-              {subscription?.tier === SubscriptionTier.PRO && (
-                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-400 text-amber-900">
-                  Pro
-                </span>
-              )}
             </div>
           </div>
         </nav>

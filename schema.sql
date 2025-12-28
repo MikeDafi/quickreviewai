@@ -15,6 +15,7 @@ CREATE TABLE users (
   first_subscribed_at TIMESTAMP,          -- First time ever subscribed (for refund eligibility)
   period_scans INT DEFAULT 0,             -- QR scans this billing period
   period_copies INT DEFAULT 0,            -- Reviews copied this billing period
+  exceeded_scans INT DEFAULT 0,           -- QR scans that hit the limit (no AI review generated)
   period_start TIMESTAMP,                 -- Start of current billing period
   deleted_at TIMESTAMP,                   -- Soft delete: NULL = active, set = scheduled for deletion
   created_at TIMESTAMP DEFAULT NOW()
@@ -52,6 +53,7 @@ CREATE TABLE landing_pages (
   view_count INT DEFAULT 0,               -- Total QR scans
   copy_count INT DEFAULT 0,               -- Total reviews copied
   blocked_regenerations INT DEFAULT 0,    -- Times free users tried to regenerate
+  exceeded_scans INT DEFAULT 0,           -- QR scans that hit the limit (no AI review)
   click_counts JSONB DEFAULT '{}',        -- Platform clicks: {"google": 5, "yelp": 3}
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW()

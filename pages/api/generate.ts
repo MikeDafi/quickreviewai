@@ -824,6 +824,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!isDemo) {
       const { rows: [scanCheck] } = await sql`
         SELECT 
+          u.id as user_id,
           COALESCE(u.subscription_tier, 'free') as tier,
           COALESCE(u.period_scans, 0) + COALESCE(SUM(lp.view_count), 0) as total_scans
         FROM landing_pages lp
@@ -839,6 +840,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const totalScans = parseInt(scanCheck.total_scans) || 0
         
         if (totalScans >= limit) {
+          // Increment exceeded_scans counter for user AND landing page
+          await Promise.all([
+            sql`UPDATE users SET exceeded_scans = COALESCE(exceeded_scans, 0) + 1 WHERE id = ${scanCheck.user_id}`,
+            sql`UPDATE landing_pages SET exceeded_scans = COALESCE(exceeded_scans, 0) + 1 WHERE id = ${id}`,
+          ]).catch(err => console.error('Failed to increment exceeded_scans:', err))
+          
           return res.status(403).json({
             error: 'Scan limit reached',
             message: 'No AI generations left this month. Let the owner know!',

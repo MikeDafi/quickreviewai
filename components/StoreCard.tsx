@@ -95,19 +95,42 @@ export default function StoreCard({ store, tier, onEdit, onDelete, onShowQR, onS
             <div className="text-xs text-gray-500">Conversion</div>
           </div>
         )}
+        {/* Exceeded Scans - Only show for Free users with > 0 exceeded (in red) */}
+        {tier === SubscriptionTier.FREE && (store.exceededScans || 0) > 0 && (
+          <div className="text-right">
+            <div className="text-lg font-semibold text-red-600 flex items-center gap-1 justify-end">
+              <AlertTriangle className="w-4 h-4" />
+              {store.exceededScans}
+            </div>
+            <div className="text-xs text-red-600">Missed AI Reviews</div>
+          </div>
+        )}
         {/* Blocked Regenerations - Only show for Free users with > 0 blocked */}
         {tier === SubscriptionTier.FREE && (store.blockedRegenerations || 0) > 0 && (
-          <div className="ml-auto text-right">
+          <div className={`text-right ${(store.exceededScans || 0) > 0 ? '' : 'ml-auto'}`}>
             <div className="text-lg font-semibold text-amber-600 flex items-center gap-1 justify-end">
               <AlertTriangle className="w-4 h-4" />
               {store.blockedRegenerations}
             </div>
-            <div className="text-xs text-amber-600">Missed Reviews</div>
+            <div className="text-xs text-amber-600">Blocked Regenerations</div>
           </div>
         )}
       </div>
       
-      {/* Upgrade prompt for missed reviews */}
+      {/* Upgrade prompt for exceeded scans (in red) */}
+      {tier === SubscriptionTier.FREE && (store.exceededScans || 0) > 0 && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800">
+            <strong>{store.exceededScans} customer{(store.exceededScans || 0) > 1 ? 's' : ''}</strong> scanned your QR code but got no AI review (free limit reached).{' '}
+            <Link href="/upgrade?returnUrl=/dashboard" className="text-red-700 underline hover:text-red-900 font-medium">
+              Upgrade to Pro
+            </Link>{' '}
+            for unlimited AI reviews!
+          </p>
+        </div>
+      )}
+      
+      {/* Upgrade prompt for blocked regenerations */}
       {tier === SubscriptionTier.FREE && (store.blockedRegenerations || 0) > 0 && (
         <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
           <p className="text-sm text-amber-800">

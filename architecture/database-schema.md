@@ -16,7 +16,8 @@
 │ first_subscribed_at │       │ google_url          │  │
 │ period_scans        │       │ yelp_url            │  │
 │ period_copies       │       │ created_at          │  │
-│ period_start        │       └─────────────────────┘  │
+│ exceeded_scans      │       └─────────────────────┘  │
+│ period_start        │                                │
 │ deleted_at          │                  │             │
 │ created_at          │                  │             │
 └─────────────────────┘                  │             │
@@ -73,6 +74,7 @@ Primary user account table with subscription and billing info.
 | `first_subscribed_at` | TIMESTAMP | First ever subscription (refund eligibility) |
 | `period_scans` | INT | Scans used this billing period |
 | `period_copies` | INT | Copies this billing period |
+| `exceeded_scans` | INT | QR scans that hit the limit (no AI review) |
 | `period_start` | TIMESTAMP | Billing period start date |
 | `deleted_at` | TIMESTAMP | Soft delete timestamp |
 | `created_at` | TIMESTAMP | Account creation |

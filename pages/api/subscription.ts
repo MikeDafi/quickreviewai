@@ -111,9 +111,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : Infinity
     const eligibleForRefund = isFirstTimeSubscriber && subscriptionAge < BILLING.REFUND_WINDOW_MS
 
-    // Calculate days as subscriber
+    // Calculate days as subscriber (ensure non-negative to handle timezone edge cases)
     const memberSinceDays = user.subscription_started_at
-      ? Math.floor((Date.now() - new Date(user.subscription_started_at).getTime()) / (24 * 60 * 60 * 1000))
+      ? Math.max(0, Math.floor((Date.now() - new Date(user.subscription_started_at).getTime()) / (24 * 60 * 60 * 1000)))
       : 0
 
     return res.status(200).json({

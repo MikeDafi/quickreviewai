@@ -14,6 +14,7 @@ export interface Store {
   viewCount?: number;
   copyCount?: number;
   blockedRegenerations?: number; // Times users tried to regenerate but hit free plan limit
+  exceededScans?: number; // QR scans where limit was hit - no AI review generated
 }
 
 export interface LandingPage {

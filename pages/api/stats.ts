@@ -60,6 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         u.period_start,
         COALESCE(u.period_scans, 0)::int as period_scans,
         COALESCE(u.period_copies, 0)::int as period_copies,
+        COALESCE(u.exceeded_scans, 0)::int as exceeded_scans,
         u.subscription_tier,
         COALESCE(SUM(lp.view_count), 0)::int as current_scans,
         COALESCE(SUM(lp.copy_count), 0)::int as current_copies,
@@ -69,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       LEFT JOIN stores s ON s.user_id = u.id
       LEFT JOIN landing_pages lp ON lp.store_id = s.id
       WHERE u.id = ${userId}
-      GROUP BY u.id, u.created_at, u.period_start, u.period_scans, u.period_copies, u.subscription_tier
+      GROUP BY u.id, u.created_at, u.period_start, u.period_scans, u.period_copies, u.exceeded_scans, u.subscription_tier
     `
     
     const data = rows[0]
@@ -108,6 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       totalScans,
       reviewsCopied,
       blockedRegenerations: data.blocked_regenerations || 0,
+      exceededScans: data.exceeded_scans || 0,
       storeCount: data.store_count,
       tier,
       scanLimit,

@@ -112,21 +112,44 @@ export async function upsertUser(user: { id: string; email: string; name?: strin
 
 // Get stores for a user with analytics (optimized with JOINs instead of subqueries)
 export async function getStores(userId: string) {
-  const { rows } = await sql`
-    SELECT 
-      s.*,
-      COUNT(lp.id)::int as landing_page_count,
-      MIN(lp.id) as landing_page_id,
-      COALESCE(SUM(lp.view_count), 0)::int as view_count,
-      COALESCE(SUM(lp.copy_count), 0)::int as copy_count,
-      COALESCE(SUM(lp.blocked_regenerations), 0)::int as blocked_regenerations
-    FROM stores s
-    LEFT JOIN landing_pages lp ON lp.store_id = s.id
-    WHERE s.user_id = ${userId}
-    GROUP BY s.id
-    ORDER BY s.created_at DESC
-  `
-  return rows
+  try {
+    // Try query with exceeded_scans column
+    const { rows } = await sql`
+      SELECT 
+        s.*,
+        COUNT(lp.id)::int as landing_page_count,
+        MIN(lp.id) as landing_page_id,
+        COALESCE(SUM(lp.view_count), 0)::int as view_count,
+        COALESCE(SUM(lp.copy_count), 0)::int as copy_count,
+        COALESCE(SUM(lp.blocked_regenerations), 0)::int as blocked_regenerations,
+        COALESCE(SUM(lp.exceeded_scans), 0)::int as exceeded_scans
+      FROM stores s
+      LEFT JOIN landing_pages lp ON lp.store_id = s.id
+      WHERE s.user_id = ${userId}
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+    `
+    return rows
+  } catch (error) {
+    // Fallback query without exceeded_scans (for databases that haven't been migrated)
+    console.warn('getStores: exceeded_scans column may not exist, falling back to query without it', error)
+    const { rows } = await sql`
+      SELECT 
+        s.*,
+        COUNT(lp.id)::int as landing_page_count,
+        MIN(lp.id) as landing_page_id,
+        COALESCE(SUM(lp.view_count), 0)::int as view_count,
+        COALESCE(SUM(lp.copy_count), 0)::int as copy_count,
+        COALESCE(SUM(lp.blocked_regenerations), 0)::int as blocked_regenerations,
+        0 as exceeded_scans
+      FROM stores s
+      LEFT JOIN landing_pages lp ON lp.store_id = s.id
+      WHERE s.user_id = ${userId}
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+    `
+    return rows
+  }
 }
 
 // Get a single store
