@@ -52,7 +52,8 @@ export default function DemoLandingPage() {
   async function handleCopy() {
     await navigator.clipboard.writeText(review);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    // Keep copied state for 30 seconds so user has time to click a button
+    setTimeout(() => setCopied(false), 30000);
   }
 
   return (

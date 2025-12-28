@@ -694,30 +694,63 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
     persona: persona,
   }
 
-  try {
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 1.5, // Higher for more variation
-        topP: 0.98,
-        topK: 60,
-      },
-    })
-    const response = result.response
-    const reviewText = response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
-    return { review: reviewText, metadata }
-  } catch (error) {
-    console.error('Gemini API error:', error)
-    // Varied fallback reviews if API fails
-    const fallbacks = [
-      `${requiredOpener} I tried this place and the ${selectedKeywords[0] || 'experience'} was great. Would come back.`,
-      `Finally checked out ${landing.store_name}. Pretty impressed with the ${selectedKeywords[0] || 'vibe'} tbh.`,
-      `Not gonna lie, this place exceeded what I expected. The ${selectedKeywords[0] || 'quality'} is legit.`,
-      `Been here a few times now. Consistently good ${selectedKeywords[0] || 'stuff'}. No complaints.`,
-      `My friend kept telling me to try this spot. Glad I listened, the ${selectedKeywords[0] || 'service'} was on point.`,
-    ]
-    return { review: pickOne(fallbacks), metadata }
+  // Retry logic with exponential backoff
+  const MAX_RETRIES = 3
+  let lastError: unknown = null
+  
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 1.5, // Higher for more variation
+          topP: 0.98,
+          topK: 60,
+        },
+      })
+      const response = result.response
+      const reviewText = response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
+      return { review: reviewText, metadata }
+    } catch (error: unknown) {
+      lastError = error
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      
+      console.warn(`Gemini API attempt ${attempt}/${MAX_RETRIES} failed:`, errorMessage)
+      
+      // Don't retry on certain errors
+      if (errorMessage.includes('API key') || errorMessage.includes('quota') || errorMessage.includes('blocked')) {
+        break // These won't be fixed by retrying
+      }
+      
+      if (attempt < MAX_RETRIES) {
+        // Exponential backoff: 500ms, 1000ms, 2000ms
+        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt - 1)))
+      }
+    }
   }
+  
+  // All retries failed - log detailed error
+  const errorMessage = lastError instanceof Error ? lastError.message : String(lastError)
+  const errorStack = lastError instanceof Error ? lastError.stack : undefined
+  const errorName = lastError instanceof Error ? lastError.name : 'Unknown'
+  
+  console.error('Gemini API failed after all retries:', {
+    name: errorName,
+    message: errorMessage,
+    stack: errorStack,
+    storeName: landing.store_name,
+    keywords: selectedKeywords,
+  })
+  
+  // Varied fallback reviews if API fails
+  const fallbacks = [
+    `${requiredOpener} I tried this place and the ${selectedKeywords[0] || 'experience'} was great. Would come back.`,
+    `Finally checked out ${landing.store_name}. Pretty impressed with the ${selectedKeywords[0] || 'vibe'} tbh.`,
+    `Not gonna lie, this place exceeded what I expected. The ${selectedKeywords[0] || 'quality'} is legit.`,
+    `Been here a few times now. Consistently good ${selectedKeywords[0] || 'stuff'}. No complaints.`,
+    `My friend kept telling me to try this spot. Glad I listened, the ${selectedKeywords[0] || 'service'} was on point.`,
+  ]
+  return { review: pickOne(fallbacks), metadata }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
