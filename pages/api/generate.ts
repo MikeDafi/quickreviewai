@@ -573,16 +573,16 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
     lengthType: lengthProfile.type,
     persona: persona,
   }
-  
+
   // Retry logic with exponential backoff
   let lastError: unknown = null
   
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
+  try {
       const result = await withTimeout(
         model.generateContent({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
             temperature: 1.2, // Balanced: creative but controlled
             topP: 0.95,
             topK: 50,
@@ -597,7 +597,7 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
       // Output validation - check for problematic content
       reviewText = validateAndCleanOutput(reviewText, safeStoreName)
       
-      return { review: reviewText, metadata }
+    return { review: reviewText, metadata }
     } catch (error: unknown) {
       lastError = error
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -629,14 +629,14 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
   
   // Return fallback review (avoiding store name to prevent any injection issues)
   const safeKeyword = sanitizedKeywords[0] || 'experience'
-  const fallbacks = [
+    const fallbacks = [
     `${requiredOpener} I tried this place and the ${safeKeyword} was great. Would come back.`,
     `Finally checked out this spot. Pretty impressed with the ${safeKeyword} tbh.`,
     `Not gonna lie, this place exceeded what I expected. The ${safeKeyword} is legit.`,
     `Been here a few times now. Consistently good ${safeKeyword}. No complaints.`,
     `My friend kept telling me to try this spot. Glad I listened, the ${safeKeyword} was on point.`,
-  ]
-  return { review: pickOne(fallbacks), metadata }
+    ]
+    return { review: pickOne(fallbacks), metadata }
 }
 
 // ============================================
@@ -655,21 +655,21 @@ async function handleCopyAction(
   reviewEventId: string | undefined,
   ip: string
 ): Promise<TrackingResult> {
-  const ipHash = hashIP(ip)
-  const copyRateLimitKey = `copy_limit:${ipHash}:${id}`
-  
-  const alreadyCopied = await kv.get<boolean>(copyRateLimitKey)
-  
-  if (!alreadyCopied) {
-    await incrementCopyCount(id)
-    await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
-  }
-  
-  if (reviewEventId) {
-    await sql`
-      UPDATE review_events 
-      SET was_copied = true 
-      WHERE id = ${reviewEventId}
+        const ipHash = hashIP(ip)
+        const copyRateLimitKey = `copy_limit:${ipHash}:${id}`
+        
+        const alreadyCopied = await kv.get<boolean>(copyRateLimitKey)
+        
+        if (!alreadyCopied) {
+        await incrementCopyCount(id)
+          await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
+        }
+        
+        if (reviewEventId) {
+          await sql`
+            UPDATE review_events 
+            SET was_copied = true 
+            WHERE id = ${reviewEventId}
     `.catch(() => {}) // Silently fail if table doesn't exist
   }
   
@@ -682,50 +682,50 @@ async function handleClickAction(
   platform: string,
   reviewEventId: string | undefined
 ): Promise<TrackingResult> {
-  if (!VALID_PLATFORMS.includes(platform as Platform)) {
+        if (!VALID_PLATFORMS.includes(platform as Platform)) {
     return { 
       success: false, 
       error: `Invalid platform: ${platform}. Must be one of: ${VALID_PLATFORMS.join(', ')}` 
     }
-  }
-  
-  const platformKey = platform as Platform
-  
+        }
+        
+        const platformKey = platform as Platform
+        
   // Update click count in JSON column
-  await sql`
-    UPDATE landing_pages 
-    SET click_counts = click_counts || jsonb_build_object(${platformKey}::text, COALESCE((click_counts->${platformKey}::text)::int, 0) + 1)
-    WHERE id = ${id}
-  `
+        await sql`
+          UPDATE landing_pages 
+          SET click_counts = click_counts || jsonb_build_object(${platformKey}::text, COALESCE((click_counts->${platformKey}::text)::int, 0) + 1)
+          WHERE id = ${id}
+        `
   
   // Mark as "pasted" only if the review was copied first
-  if (reviewEventId && typeof reviewEventId === 'string') {
-    try {
-      switch (platformKey) {
-        case Platform.GOOGLE: {
-          const result = await sql`
-            UPDATE review_events 
-            SET was_pasted_google = true 
-            WHERE id = ${reviewEventId} AND was_copied = true
-            RETURNING id
-          `
+        if (reviewEventId && typeof reviewEventId === 'string') {
+          try {
+            switch (platformKey) {
+              case Platform.GOOGLE: {
+                const result = await sql`
+                  UPDATE review_events 
+                  SET was_pasted_google = true 
+                  WHERE id = ${reviewEventId} AND was_copied = true
+                  RETURNING id
+                `
           console.log('Updated was_pasted_google:', reviewEventId, 'rows:', result.rowCount)
-          break
-        }
-        case Platform.YELP: {
-          const result = await sql`
-            UPDATE review_events 
-            SET was_pasted_yelp = true 
-            WHERE id = ${reviewEventId} AND was_copied = true
-            RETURNING id
-          `
+                break
+              }
+              case Platform.YELP: {
+                const result = await sql`
+                  UPDATE review_events 
+                  SET was_pasted_yelp = true 
+                  WHERE id = ${reviewEventId} AND was_copied = true
+                  RETURNING id
+                `
           console.log('Updated was_pasted_yelp:', reviewEventId, 'rows:', result.rowCount)
-          break
-        }
-      }
-    } catch (error) {
-      console.error('Failed to update review_events paste tracking:', error)
-    }
+                break
+              }
+            }
+          } catch (error) {
+            console.error('Failed to update review_events paste tracking:', error)
+          }
   }
   
   return { success: true }

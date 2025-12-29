@@ -42,6 +42,19 @@ const MAX_KEYWORD_SEARCHES = 3;
 const GEOLOCATION_TIMEOUT = 5000;
 const GEOLOCATION_CACHE_MS = 600000; // 10 minutes
 
+// Common US cities - if query contains one, skip geolocation and let Yelp match by name
+const COMMON_CITIES = [
+  'chicago', 'new york', 'nyc', 'los angeles', 'houston', 'phoenix',
+  'philadelphia', 'san antonio', 'san diego', 'dallas', 'austin', 'san jose',
+  'fort worth', 'jacksonville', 'columbus', 'charlotte', 'indianapolis',
+  'san francisco', 'seattle', 'denver', 'boston', 'nashville', 'detroit',
+  'portland', 'las vegas', 'memphis', 'louisville', 'baltimore', 'milwaukee',
+  'albuquerque', 'tucson', 'fresno', 'sacramento', 'atlanta', 'miami',
+  'oakland', 'minneapolis', 'tulsa', 'cleveland', 'new orleans', 'tampa',
+  'honolulu', 'anaheim', 'st louis', 'pittsburgh', 'cincinnati', 'orlando',
+  'brooklyn', 'manhattan', 'queens', 'bronx',
+];
+
 // Category keywords -> Business type mapping
 // More specific patterns first to avoid false matches
 const CATEGORY_TO_TYPE_MAP: Array<{ keywords: string[]; type: string }> = [
@@ -232,8 +245,14 @@ export function useBusinessSearch(userLocation: { lat: number; lng: number } | n
     debounceRef.current = setTimeout(async () => {
       setState(s => ({ ...s, loading: true }));
       
+      // Check if query contains a city name - if so, don't use geolocation
+      const queryLower = state.query.toLowerCase();
+      const hasLocationHint = COMMON_CITIES.some(city => queryLower.includes(city));
+      
       let url = `/api/yelp-business-search?name=${encodeURIComponent(state.query)}`;
-      if (userLocation) {
+      
+      // Only use geolocation if query doesn't contain a city name
+      if (userLocation && !hasLocationHint) {
         url += `&latitude=${userLocation.lat}&longitude=${userLocation.lng}`;
       }
       
