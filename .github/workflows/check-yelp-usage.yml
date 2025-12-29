@@ -1,0 +1,65 @@
+name: Check Yelp API Usage
+
+on:
+  schedule:
+    # Run daily at 9am UTC (adjust to your timezone)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-yelp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Yelp API Status
+        env:
+          YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
+        run: |
+          echo "🔍 Checking Yelp Fusion API status..."
+          
+          # Make a simple test call to verify API key is working
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer $YELP_API_KEY" \
+            "https://api.yelp.com/v3/businesses/search?term=coffee&location=Seattle&limit=1")
+          
+          # Extract HTTP status code (last line)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Yelp API is working correctly"
+            echo ""
+            echo "📊 REMINDER: Check your usage at:"
+            echo "   https://www.yelp.com/developers/v3/manage_app"
+            echo ""
+            echo "Free tier: 5,000 calls/day"
+          elif [ "$HTTP_CODE" = "429" ]; then
+            echo "🚨 ALERT: Rate limit exceeded!"
+            echo "You've hit the daily limit of 5,000 API calls."
+            echo ""
+            echo "Check usage: https://www.yelp.com/developers/v3/manage_app"
+            exit 1
+          elif [ "$HTTP_CODE" = "401" ]; then
+            echo "🚨 ALERT: API key is invalid or expired!"
+            echo "Check your YELP_API_KEY secret in GitHub."
+            exit 1
+          else
+            echo "⚠️ Unexpected response: $HTTP_CODE"
+            echo "Body: $BODY"
+            exit 1
+          fi
+
+      - name: Send Slack Alert on Failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"🚨 Yelp API Alert: Check failed! Review at https://www.yelp.com/developers/v3/manage_app"}' \
+              "$SLACK_WEBHOOK"
+          else
+            echo "No Slack webhook configured. Skipping notification."
+          fi
+
