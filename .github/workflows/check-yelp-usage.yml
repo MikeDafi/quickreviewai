@@ -10,14 +10,15 @@ jobs:
   check-yelp:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Yelp API Status
+      - name: Check Yelp API Status and Quota
         env:
           YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
         run: |
-          echo "🔍 Checking Yelp Fusion API status..."
+          echo "🔍 Checking Yelp Fusion API status and quota..."
           
-          # Make a simple test call to verify API key is working
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
+          # Make a test call and capture headers + body separately
+          HEADERS_FILE=$(mktemp)
+          RESPONSE=$(curl -s -D "$HEADERS_FILE" -w "\n%{http_code}" \
             -H "Authorization: Bearer $YELP_API_KEY" \
             "https://api.yelp.com/v3/businesses/search?term=coffee&location=Seattle&limit=1")
           
@@ -30,23 +31,64 @@ jobs:
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Yelp API is working correctly"
             echo ""
-            echo "📊 REMINDER: Check your usage at:"
-            echo "   https://www.yelp.com/developers/v3/manage_app"
+            
+            # Parse rate limit headers
+            DAILY_LIMIT=$(grep -i "ratelimit-dailylimit" "$HEADERS_FILE" | tr -d '\r' | awk '{print $2}')
+            REMAINING=$(grep -i "ratelimit-remaining" "$HEADERS_FILE" | tr -d '\r' | awk '{print $2}')
+            RESET_TIME=$(grep -i "ratelimit-resettime" "$HEADERS_FILE" | tr -d '\r' | cut -d' ' -f2-)
+            
+            echo "📊 Rate Limit Status:"
+            echo "   Daily Limit: $DAILY_LIMIT"
+            echo "   Remaining: $REMAINING"
+            echo "   Resets at: $RESET_TIME"
             echo ""
-            echo "Free tier: 5,000 calls/day"
+            
+            # Calculate usage percentage if headers are present
+            if [ -n "$DAILY_LIMIT" ] && [ -n "$REMAINING" ] && [ "$DAILY_LIMIT" -gt 0 ]; then
+              USED=$((DAILY_LIMIT - REMAINING))
+              USAGE_PERCENT=$((USED * 100 / DAILY_LIMIT))
+              
+              echo "   Used: $USED / $DAILY_LIMIT ($USAGE_PERCENT%)"
+              echo ""
+              
+              # Alert if usage is at 80% or more
+              if [ "$USAGE_PERCENT" -ge 80 ]; then
+                echo "🚨 ALERT: API usage is at $USAGE_PERCENT% (threshold: 80%)"
+                echo "   Only $REMAINING calls remaining today!"
+                echo ""
+                echo "Check usage: https://www.yelp.com/developers/v3/manage_app"
+                rm -f "$HEADERS_FILE"
+                exit 1
+              elif [ "$USAGE_PERCENT" -ge 60 ]; then
+                echo "⚠️ WARNING: API usage is at $USAGE_PERCENT%"
+                echo "   Consider monitoring more closely."
+              else
+                echo "✅ Usage is healthy at $USAGE_PERCENT%"
+              fi
+            else
+              echo "⚠️ Could not parse rate limit headers. Check manually:"
+              echo "   https://www.yelp.com/developers/v3/manage_app"
+              cat "$HEADERS_FILE"
+            fi
+            
+            rm -f "$HEADERS_FILE"
+            
           elif [ "$HTTP_CODE" = "429" ]; then
             echo "🚨 ALERT: Rate limit exceeded!"
-            echo "You've hit the daily limit of 5,000 API calls."
+            echo "You've hit the daily limit of API calls."
             echo ""
             echo "Check usage: https://www.yelp.com/developers/v3/manage_app"
+            rm -f "$HEADERS_FILE"
             exit 1
           elif [ "$HTTP_CODE" = "401" ]; then
             echo "🚨 ALERT: API key is invalid or expired!"
             echo "Check your YELP_API_KEY secret in GitHub."
+            rm -f "$HEADERS_FILE"
             exit 1
           else
             echo "⚠️ Unexpected response: $HTTP_CODE"
             echo "Body: $BODY"
+            rm -f "$HEADERS_FILE"
             exit 1
           fi
 
@@ -57,9 +99,8 @@ jobs:
         run: |
           if [ -n "$SLACK_WEBHOOK" ]; then
             curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"🚨 Yelp API Alert: Check failed! Review at https://www.yelp.com/developers/v3/manage_app"}' \
+              --data '{"text":"🚨 Yelp API Alert: Usage at 80%+ or check failed! Review at https://www.yelp.com/developers/v3/manage_app"}' \
               "$SLACK_WEBHOOK"
           else
             echo "No Slack webhook configured. Skipping notification."
           fi
-
