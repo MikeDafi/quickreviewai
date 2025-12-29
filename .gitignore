@@ -37,3 +37,6 @@ next-env.d.ts
 .env.*check
 .env.verify
 .env.prod*
+
+# Local scripts (not part of the app)
+/scripts/
