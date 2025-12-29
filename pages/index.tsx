@@ -7,8 +7,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
 
-// Lazy load the LiveActivityBanner
+// Lazy load components
 const LiveActivityBanner = dynamic(() => import('@/components/LiveActivityBanner'), { ssr: false });
+const KeywordGapDemo = dynamic(() => import('@/components/KeywordGapDemo'), { ssr: false });
 
 const DEMO_LANDING_PAGE_URL = '/r/demo';
 
@@ -35,6 +36,11 @@ export default function Home() {
               Have Your Google Business Show Up Everywhere
             </h1>
           </div>
+        </section>
+
+        {/* Keyword Gap Demo */}
+        <section className="px-4 py-12 sm:py-16 bg-white">
+          <KeywordGapDemo />
         </section>
 
         {/* How It Works - Simple Steps */}

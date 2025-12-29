@@ -42,8 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Sanitize and validate returnUrl (must be relative path starting with /)
   let safeReturnUrl = '/dashboard'
-  if (returnUrl && typeof returnUrl === 'string' && returnUrl.startsWith('/')) {
-    // Only allow relative paths, no external URLs
+  if (returnUrl && typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+    // Only allow relative paths, block protocol-relative URLs (//evil.com)
     safeReturnUrl = returnUrl
   }
 

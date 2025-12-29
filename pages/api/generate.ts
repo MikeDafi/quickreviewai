@@ -7,13 +7,25 @@ import {
   PLAN_LIMITS, 
   DEMO_REGENERATIONS_PER_HOUR,
   RATE_LIMIT,
-  GenerateAction,
   Platform,
   VALID_PLATFORMS,
 } from '@/lib/constants'
-import crypto from 'crypto'
+import { getClientIP, hashIP } from '@/lib/ip'
+import {
+  CHARACTER_PERSONAS,
+  VISIT_REASONS,
+  EXAMPLE_HUMAN_REVIEWS,
+  ULTRA_SHORT_EXAMPLES,
+  REVIEW_OPENERS,
+  LENGTH_PROFILES,
+  REVIEW_QUIRKS,
+  KEYWORD_SELECTION,
+} from '@/lib/reviewData'
 
-// Validate required environment variables at module load
+// ============================================
+// Environment & Configuration
+// ============================================
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 if (!GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY environment variable is required')
@@ -21,63 +33,145 @@ if (!GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
 
-// Hash IP for privacy
-function hashIP(ip: string): string {
-  return crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16)
+/** Maximum time to wait for Gemini API response */
+const API_TIMEOUT_MS = 15000
+
+/** Maximum retries for Gemini API calls */
+const MAX_RETRIES = 3
+
+// ============================================
+// Prompt Injection Protection
+// ============================================
+
+/** Patterns that could be used for prompt injection attacks */
+const PROMPT_INJECTION_PATTERNS = [
+  /ignore\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)/gi,
+  /disregard\s+(all\s+)?(previous|above|prior)/gi,
+  /forget\s+(everything|all|what)/gi,
+  /new\s+instructions?:/gi,
+  /system\s*:/gi,
+  /assistant\s*:/gi,
+  /user\s*:/gi,
+  /\[INST\]/gi,
+  /\[\/INST\]/gi,
+  /<\|im_start\|>/gi,
+  /<\|im_end\|>/gi,
+  /```\s*(system|assistant|user)/gi,
+  /role\s*:\s*(system|assistant|user)/gi,
+  /pretend\s+(you\s+are|to\s+be|you're)/gi,
+  /act\s+as\s+(if|though)/gi,
+  /you\s+are\s+now\s+a/gi,
+  /from\s+now\s+on/gi,
+  /override\s+(your|the|all)/gi,
+]
+
+/**
+ * Sanitize a string for safe inclusion in AI prompts.
+ * Removes prompt injection patterns, control characters, and truncates to max length.
+ */
+function sanitizeForPrompt(input: string | undefined | null, maxLength: number = 200): string {
+  if (!input) return ''
+  
+  let sanitized = input.trim()
+  
+  for (const pattern of PROMPT_INJECTION_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '')
+  }
+  
+  sanitized = sanitized
+    .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
+    .replace(/\s+/g, ' ') // Collapse whitespace
+    .trim()
+    .replace(/"/g, "'") // Replace double quotes with single
+    .replace(/`/g, "'") // Replace backticks
+  
+  if (sanitized.length > maxLength) {
+    sanitized = sanitized.slice(0, maxLength).trim()
+  }
+  
+  return sanitized
 }
 
-// Get real client IP - use Vercel's trusted headers (cannot be spoofed)
-function getClientIP(req: NextApiRequest): string {
-  // x-real-ip is set by Vercel's edge network and is trustworthy
-  const realIp = req.headers['x-real-ip'] as string
-  if (realIp) return realIp
+/** Sanitize an array of strings (like keywords) */
+function sanitizeArrayForPrompt(inputs: string[] | undefined | null, maxPerItem: number = 50): string[] {
+  if (!inputs || !Array.isArray(inputs)) return []
   
-  // x-vercel-forwarded-for is also set by Vercel and trustworthy
-  const vercelForwardedFor = req.headers['x-vercel-forwarded-for'] as string
-  if (vercelForwardedFor) return vercelForwardedFor.split(',')[0].trim()
-  
-  // In development or non-Vercel environments, use socket address
-  // Do NOT trust x-forwarded-for as it can be spoofed by clients
-  return req.socket.remoteAddress || 'unknown'
+  return inputs
+    .map(item => sanitizeForPrompt(item, maxPerItem))
+    .filter(item => item.length > 0)
+    .slice(0, 10) // Max 10 items
 }
 
-// Get regeneration rate limit for a tier
+// ============================================
+// Utility Functions
+// ============================================
+
+/** Wrap a promise with a timeout */
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => 
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    )
+  ])
+}
+
+/** Get regeneration rate limit for a tier */
 function getRegenerationLimit(tier: SubscriptionTier | 'demo'): number {
   if (tier === 'demo') return DEMO_REGENERATIONS_PER_HOUR
   return PLAN_LIMITS[tier]?.regenerationsPerHour ?? PLAN_LIMITS[SubscriptionTier.FREE].regenerationsPerHour
 }
 
-// Get monthly scan limit for a tier
+/** Get monthly scan limit for a tier */
 function getScanLimit(tier: SubscriptionTier): number {
   return PLAN_LIMITS[tier]?.scansPerMonth ?? PLAN_LIMITS[SubscriptionTier.FREE].scansPerMonth
 }
 
-async function checkRateLimit(ip: string, landingId: string, maxRequests: number): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
+/** Pick random items from an array */
+function pickRandom<T>(arr: readonly T[], count: number): T[] {
+  if (arr.length === 0) return []
+  const shuffled = [...arr].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, Math.min(count, arr.length))
+}
+
+/** Pick one random item from an array */
+function pickOne<T>(arr: readonly T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+// ============================================
+// Rate Limiting
+// ============================================
+
+interface RateLimitResult {
+  allowed: boolean
+  remaining: number
+  resetIn: number
+}
+
+/**
+ * Check rate limit using atomic increment in Vercel KV.
+ * Uses atomic operations to prevent race conditions.
+ */
+async function checkRateLimit(ip: string, landingId: string, maxRequests: number): Promise<RateLimitResult> {
   const key = `ratelimit:${ip}:${landingId}`
   
   try {
-    // Atomic increment - this avoids race conditions
-    // incr returns the NEW value after incrementing
+    // Atomic increment - returns the NEW value after incrementing
     const newCount = await kv.incr(key)
     
     // Set expiry on first request (when newCount = 1)
-    // Using a separate call, but if it fails, the key will eventually be cleaned up
-    // by subsequent successful expire calls or we can handle it
     if (newCount === 1) {
-      // Set TTL - if this fails, try to delete the key to avoid permanent blocks
       try {
         await kv.expire(key, RATE_LIMIT.WINDOW_SECONDS)
       } catch (expireError) {
         console.error('Failed to set rate limit expiry, deleting key:', expireError)
         await kv.del(key).catch(() => {})
-        // Allow this request since we couldn't set up rate limiting properly
         return { allowed: true, remaining: maxRequests - 1, resetIn: RATE_LIMIT.WINDOW_SECONDS * 1000 }
       }
     }
     
-    // Check if over limit AFTER incrementing (atomic check)
     if (newCount > maxRequests) {
-      // Get TTL to know when it resets
       const ttl = await kv.ttl(key)
       return { allowed: false, remaining: 0, resetIn: Math.max(ttl, 0) * 1000 }
     }
@@ -88,239 +182,24 @@ async function checkRateLimit(ip: string, landingId: string, maxRequests: number
       resetIn: RATE_LIMIT.WINDOW_SECONDS * 1000 
     }
   } catch (error) {
-    // If KV fails, allow the request (fail open)
+    // Fail open - if KV fails, allow the request
     console.error('Rate limit check failed:', error)
     return { allowed: true, remaining: maxRequests, resetIn: RATE_LIMIT.WINDOW_SECONDS * 1000 }
   }
 }
 
-interface LandingWithStore {
-  id: string
-  store_id: string
-  store_name: string
-  business_type: string
-  keywords: string[]
-  review_expectations?: string[]
-  google_url?: string
-  yelp_url?: string
-}
+// ============================================
+// Keyword Performance Analytics
+// ============================================
 
-// Character personas for variety
-const CHARACTER_PERSONAS = [
-  // Regular customers
-  'a regular local customer who visits often',
-  'been coming here for years and finally writing a review',
-  'a loyal customer who keeps coming back every week',
-  'someone who lives nearby and walks here all the time',
-  
-  // First timers
-  'a first-time visitor who was pleasantly surprised',
-  'skeptical at first but totally converted now',
-  'finally tried this place after walking past it a hundred times',
-  'tourist visiting the area who stumbled upon this gem',
-  
-  // Professionals
-  'a busy professional who values efficiency and quality',
-  'work nearby and this has become my go-to spot',
-  'grabbed lunch here between meetings',
-  'remote worker who needed a change of scenery',
-  
-  // Parents and families
-  'a parent with young kids who appreciates kid-friendly places',
-  'brought the whole family including picky eaters',
-  'mom of three looking for places that work for everyone',
-  'grandparent taking grandkids out for a treat',
-  
-  // Age groups
-  'an older customer who appreciates good old-fashioned service',
-  'young adult who found this through TikTok actually',
-  'college student on a budget',
-  'retiree with time to enjoy the little things',
-  
-  // Social situations
-  'someone celebrating a special occasion',
-  'brought my date here and wanted to impress them',
-  'met up with old friends I hadn\'t seen in months',
-  'hosting out-of-town relatives',
-  'girls night out with my friends',
-  'guys trip and we needed fuel',
-  
-  // Personalities
-  'a non-native English speaker who moved here recently',
-  'someone who doesn\'t usually write reviews but felt compelled to',
-  'a skeptic who was won over despite low expectations',
-  'a foodie/enthusiast who knows quality when I see it',
-  'quiet introvert who appreciated the chill atmosphere',
-  'someone who\'s tried basically every place in town',
-  'picky eater who\'s hard to please',
-  'someone with dietary restrictions who usually struggles',
-  
-  // Situational
-  'someone in a rush who was impressed by speed',
-  'had a rough day and needed something to cheer me up',
-  'recovering from being sick and this hit the spot',
-  'jet-lagged traveler who needed exactly this',
-  'hungover and desperate for good food',
-  'pregnant and dealing with weird cravings',
-  'post-workout and starving',
-  'killing time before a movie nearby',
-  
-  // Referral types
-  'my coworker wouldn\'t stop talking about this place',
-  'my partner dragged me here and I\'m glad they did',
-  'saw this on Instagram and had to check it out',
-  'Yelp recommended this and for once it was right',
-  'read about this in a local blog',
-  
-  // Quirky/specific
-  'night owl who appreciates late hours',
-  'morning person who needs early options',
-  'someone who judges places by their bathroom cleanliness',
-  'former industry worker who knows what good service looks like',
-  'someone who\'s lived in 5 different cities and has high standards',
-]
-
-// Reasons for visiting
-const VISIT_REASONS = [
-  // Work related
-  'stopped by on my lunch break',
-  'came here after a long day at work',
-  'needed coffee before a big meeting',
-  'grabbed something quick between appointments',
-  'working remotely and needed to get out of the house',
-  'celebrating finally finishing a big project',
-  'stress eating after a rough day at the office',
-  
-  // Social
-  'my friend recommended this place months ago',
-  'came here for a birthday celebration',
-  'met up with friends I hadn\'t seen in forever',
-  'first date and wanted somewhere casual but good',
-  'anniversary dinner with my partner',
-  'catching up with an old college roommate',
-  'team lunch with coworkers',
-  'baby shower for my sister',
-  'post-funeral gathering needed comfort food',
-  
-  // Discovery
-  'found it while walking around the neighborhood',
-  'saw good reviews online and had to try it',
-  'drove past this place every day and finally stopped',
-  'Google maps said this was nearby when I was starving',
-  'the place I usually go to was closed so tried this instead',
-  'taking a different route home and spotted it',
-  'Uber driver recommended it actually',
-  
-  // Repeat visits
-  'been coming here for years honestly',
-  'this is probably my tenth time here',
-  'came back after a great first experience last month',
-  'dragged my family here because I couldn\'t stop talking about it',
-  'brought friends from out of town to show off the local spots',
-  
-  // Timing
-  'needed something quick before catching a flight',
-  'late night craving hit hard',
-  'early morning before everyone else woke up',
-  'rainy day and needed somewhere cozy',
-  'it was hot outside and needed AC and cold drinks',
-  'waiting for my car at the shop nearby',
-  'killing time before a doctor\'s appointment',
-  
-  // Circumstantial  
-  'treating myself after a long week',
-  'reward for hitting the gym this morning',
-  'comfort food after a breakup honestly',
-  'celebrating getting a new job',
-  'needed to get out of the house during renovations',
-  'first outing after being sick for a week',
-  'wanted to try something new instead of cooking',
-  'groceries looked sad so decided to eat out instead',
-  
-  // Family
-  'brought my family here for dinner',
-  'kids were begging to go somewhere',
-  'needed to entertain visiting in-laws',
-  'took my mom out for Mother\'s Day',
-  'dad was in town and wanted to show him around',
-  'family tradition every Sunday',
-  
-  // Specific needs
-  'needed a place with good wifi to work',
-  'looking for somewhere with outdoor seating',
-  'wanted to try their new menu items',
-  'heard they had vegan options finally',
-  'craving specifically what they make here',
-  'only place open this late that looked decent',
-]
-
-// Helper to pick random items from array
-function pickRandom<T>(arr: T[], count: number): T[] {
-  if (arr.length === 0) return []
-  const shuffled = [...arr].sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, Math.min(count, arr.length))
-}
-
-// Weighted random selection based on keyword performance
 interface KeywordWeight {
   keyword: string
   weight: number
 }
 
-function pickWeightedRandom(keywords: string[], weights: KeywordWeight[], count: number): string[] {
-  if (keywords.length === 0) return []
-  if (keywords.length <= count) return keywords
-  
-  // Build weight map with paste rate as performance metric
-  // Keywords with higher paste rates get higher weights
-  // New keywords (not in stats) get a baseline weight to ensure they're tried
-  const weightMap = new Map<string, number>()
-  const baselineWeight = 1.0 // Baseline for keywords with no data
-  
-  for (const kw of keywords) {
-    const stat = weights.find(w => w.keyword.toLowerCase() === kw.toLowerCase())
-    if (stat) {
-      // Weight = paste rate + baseline (so even 0% paste rate keywords have a chance)
-      // This ensures exploration while favoring proven keywords
-      weightMap.set(kw, stat.weight + baselineWeight)
-    } else {
-      // New keywords get slightly higher weight to encourage exploration
-      weightMap.set(kw, baselineWeight * 1.5)
-    }
-  }
-  
-  // Weighted random selection without replacement
-  const selected: string[] = []
-  const remaining = [...keywords]
-  
-  for (let i = 0; i < count && remaining.length > 0; i++) {
-    // Calculate total weight of remaining keywords
-    const totalWeight = remaining.reduce((sum, kw) => sum + (weightMap.get(kw) || baselineWeight), 0)
-    
-    // Pick a random point
-    let random = Math.random() * totalWeight
-    
-    // Find which keyword this corresponds to
-    for (let j = 0; j < remaining.length; j++) {
-      const kw = remaining[j]
-      const weight = weightMap.get(kw) || baselineWeight
-      random -= weight
-      
-      if (random <= 0) {
-        selected.push(kw)
-        remaining.splice(j, 1)
-        break
-      }
-    }
-  }
-  
-  return selected
-}
-
-// Fetch keyword performance stats for a store
+/** Fetch keyword performance stats for weighted selection */
 async function getKeywordStats(storeId: string): Promise<KeywordWeight[]> {
   try {
-    // Get stats from last 30 days
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     
@@ -338,226 +217,76 @@ async function getKeywordStats(storeId: string): Promise<KeywordWeight[]> {
     
     return rows.map(r => ({
       keyword: r.keyword,
-      // Weight is paste rate (0-1), with minimum of 0.1 for keywords that have data but 0 pastes
+      // Weight = paste rate (0-1), minimum 0.1 for keywords with data but 0 pastes
       weight: r.usage_count > 0 
         ? Math.max(0.1, parseInt(r.pasted_count) / parseInt(r.usage_count))
         : 0.5
     }))
   } catch (error) {
     console.error('Failed to fetch keyword stats:', error)
-    return [] // Fall back to equal weights
+    return []
   }
 }
 
-// Helper to pick one random item
-function pickOne<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+/**
+ * Pick keywords using weighted random selection based on paste performance.
+ * Keywords with higher paste rates are more likely to be selected.
+ */
+function pickWeightedRandom(keywords: string[], weights: KeywordWeight[], count: number): string[] {
+  if (keywords.length === 0) return []
+  if (keywords.length <= count) return keywords
+  
+  const BASELINE_WEIGHT = 1.0
+  const NEW_KEYWORD_BONUS = 1.5 // New keywords get higher weight to encourage exploration
+  
+  const weightMap = new Map<string, number>()
+  
+  for (const kw of keywords) {
+    const stat = weights.find(w => w.keyword.toLowerCase() === kw.toLowerCase())
+    if (stat) {
+      weightMap.set(kw, stat.weight + BASELINE_WEIGHT)
+    } else {
+      weightMap.set(kw, BASELINE_WEIGHT * NEW_KEYWORD_BONUS)
+    }
+  }
+  
+  const selected: string[] = []
+  const remaining = [...keywords]
+  
+  for (let i = 0; i < count && remaining.length > 0; i++) {
+    const totalWeight = remaining.reduce((sum, kw) => sum + (weightMap.get(kw) || BASELINE_WEIGHT), 0)
+    let random = Math.random() * totalWeight
+    
+    for (let j = 0; j < remaining.length; j++) {
+      const kw = remaining[j]
+      random -= weightMap.get(kw) || BASELINE_WEIGHT
+      
+      if (random <= 0) {
+        selected.push(kw)
+        remaining.splice(j, 1)
+        break
+      }
+    }
+  }
+  
+  return selected
 }
 
-// Example REAL human reviews to guide the model
-const EXAMPLE_HUMAN_REVIEWS = [
-  "Ok so I was skeptical but my coworker kept bugging me to try this place. Finally gave in last Tuesday and damn, she was right. Got the chicken sandwich and it was honestly really good. Nothing fancy but just solid food you know?",
-  "Came here with my bf for our anniversary. Wasn't sure what to expect but the waiter was super nice and helped us pick out wine. Food took a while but worth the wait imo",
-  "3rd time here this month lol. Can't stop thinking about their tacos. My kids are obsessed too which is rare because they're picky af. Parking kinda sucks but whatever",
-  "Finally a place that gets it right. I've tried like 5 other spots in the area and this one actually knows what they're doing. The owner remembered my name on my second visit which was cool",
-  "Not gonna lie, I almost didn't come in bc it looked empty but so glad I did. Super chill vibe, good music playing, and the coffee was strong without being bitter. New go-to for sure",
-  "My mom recommended this place and she's usually wrong about restaurants lmao but this time she nailed it. We shared a few dishes and everything was fresh. Waitress was a little slow but no big deal",
-  "Stopped in on a whim while waiting for my car at the shop next door. Pleasantly surprised! Nothing groundbreaking but everything was done well. The soup hit different on a cold day like today",
-  "Been meaning to try this spot forever. Finally made it last weekend with some friends. We got way too much food but no regrets. That dessert though... I'm still thinking about it",
-]
+// ============================================
+// Review Generation
+// ============================================
 
-// Ultra-short examples for very brief reviews (NO repeated openers!)
-const ULTRA_SHORT_EXAMPLES = [
-  "Finally tried it, not disappointed",
-  "My new go-to honestly",
-  "The hype is real ngl",
-  "Better than expected tbh",
-  "Came for the reviews, staying for the food",
-  "Worth the wait fr",
-  "10/10 would come back",
-  "Exactly what I needed today",
-  "Can't complain at all",
-  "Slaps every time",
-  "Pretty decent actually",
-  "They know what they're doing",
-  "Hit the spot perfectly",
-  "This place gets it",
-  "Yep. Coming back",
-  "A+ vibes here",
-  "No notes tbh",
-  "Just what I was looking for",
-  "Lived up to expectations",
-  "Good find right here",
-  "Why did I wait so long",
-  "Yeah this place is legit",
-  "Consider me a regular now",
-  "Take my money already",
-  "Instant favorite",
-  "Where has this been all my life",
-  "Nailed it",
-  "Didn't disappoint",
-  "Checks all the boxes",
-  "I'm sold",
-]
+interface LandingWithStore {
+  id: string
+  store_id: string
+  store_name: string
+  business_type: string
+  keywords: string[]
+  review_expectations?: string[]
+  google_url?: string
+  yelp_url?: string
+}
 
-// Different opening phrases to force variety (100 unique openers)
-const REVIEW_OPENERS = [
-  // Casual conversation starters
-  "Ok so",
-  "Honestly",
-  "Not gonna lie",
-  "Real talk",
-  "Listen",
-  "Look",
-  "Alright so",
-  "Here's the thing",
-  "So basically",
-  "Let me tell you",
-  "I gotta say",
-  "Gotta be honest",
-  "Truth be told",
-  "For real though",
-  "No cap",
-  "Straight up",
-  "Lowkey",
-  "Highkey",
-  "Legit",
-  
-  // Time-based openers
-  "Finally",
-  "Just",
-  "Recently",
-  "Last week",
-  "Yesterday",
-  "The other day",
-  "This morning",
-  "Tonight",
-  "Earlier today",
-  "A few days ago",
-  "Been meaning to",
-  "After months of",
-  "Took me forever to",
-  
-  // Action-based openers
-  "Came here",
-  "Stopped by",
-  "Dropped in",
-  "Swung by",
-  "Checked out",
-  "Tried",
-  "Just tried",
-  "Had to try",
-  "Decided to try",
-  "Walked in",
-  "Popped in",
-  "Grabbed",
-  "Got",
-  "Ordered",
-  "Picked up",
-  
-  // Social/referral openers
-  "My friend",
-  "My coworker",
-  "My partner",
-  "My mom",
-  "Someone told me",
-  "Heard about",
-  "Everyone kept saying",
-  "People weren't lying",
-  "The reviews were right",
-  "Yelp said",
-  "Google led me here",
-  "TikTok made me",
-  "Instagram brought me",
-  "A friend dragged me",
-  "My bf/gf recommended",
-  
-  // Discovery openers
-  "Found this",
-  "Stumbled upon",
-  "Discovered",
-  "Walked past",
-  "Drove by",
-  "Never noticed",
-  "Hidden away",
-  "Tucked in",
-  "Right around the corner",
-  "Down the street",
-  
-  // Emotion/reaction openers
-  "So glad",
-  "Super happy",
-  "Pleasantly surprised",
-  "Wasn't expecting",
-  "Didn't think",
-  "Who knew",
-  "Can't believe",
-  "Mind blown",
-  "Impressed",
-  "Wow",
-  "Whoa",
-  "Damn",
-  "Man",
-  "Dude",
-  "Yo",
-  "Y'all",
-  "Omg",
-  "Bruh",
-  
-  // Skeptic/convert openers
-  "I was skeptical",
-  "Wasn't sure",
-  "Had my doubts",
-  "Almost didn't",
-  "Nearly skipped",
-  "Hesitated but",
-  "Took a chance",
-  "Gave it a shot",
-  "Worth the risk",
-  
-  // Context openers
-  "After a long day",
-  "On my lunch break",
-  "Needed something",
-  "Was craving",
-  "In the mood for",
-  "Looking for",
-  "Searching for",
-  "Hungry and",
-  "Starving so",
-  
-  // Qualifier openers
-  "Quick review",
-  "Short version",
-  "Long story short",
-  "TLDR",
-  "In a nutshell",
-  "Bottom line",
-  "Main takeaway",
-  
-  // Casual intros
-  "This place",
-  "These guys",
-  "The team here",
-  "The folks here",
-  "The people",
-  "The staff",
-  "The owner",
-  
-  // Emphasis openers
-  "Actually",
-  "Seriously",
-  "Genuinely",
-  "Truly",
-  "Really",
-  "Definitely",
-  "Absolutely",
-  "Can confirm",
-  "100%",
-  "10/10",
-]
-
-// Review generation result with metadata for analytics
 interface ReviewResult {
   review: string
   metadata: {
@@ -568,81 +297,49 @@ interface ReviewResult {
   }
 }
 
-async function generateReview(landing: LandingWithStore): Promise<ReviewResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+/** Build the list of quirks to add based on probabilities */
+function buildQuirksList(): string[] {
+  const quirks: string[] = []
   
-  // Pick 1-2 keywords weighted by performance stats
-  const keywordCount = Math.random() < 0.6 ? 1 : 2
-  
-  let selectedKeywords: string[]
-  if (landing.keywords && landing.keywords.length > 0) {
-    // Fetch keyword performance stats
-    const keywordStats = await getKeywordStats(landing.store_id)
-    
-    if (keywordStats.length > 0) {
-      // Use weighted selection based on paste rates
-      selectedKeywords = pickWeightedRandom(landing.keywords, keywordStats, keywordCount)
-    } else {
-      // No stats yet, use pure random
-      selectedKeywords = pickRandom(landing.keywords, keywordCount)
-    }
-  } else {
-    selectedKeywords = ['good']
+  if (Math.random() < REVIEW_QUIRKS.LOL_EXPRESSIONS.probability) {
+    quirks.push(REVIEW_QUIRKS.LOL_EXPRESSIONS.instruction)
+  }
+  if (Math.random() < REVIEW_QUIRKS.CASUAL_CONTRACTIONS.probability) {
+    quirks.push(REVIEW_QUIRKS.CASUAL_CONTRACTIONS.instruction)
+  }
+  if (Math.random() < REVIEW_QUIRKS.MINOR_TYPOS.probability) {
+    quirks.push(REVIEW_QUIRKS.MINOR_TYPOS.instruction)
+  }
+  if (Math.random() < REVIEW_QUIRKS.TRAILING_PUNCTUATION.probability) {
+    quirks.push(REVIEW_QUIRKS.TRAILING_PUNCTUATION.instruction)
+  }
+  if (Math.random() < REVIEW_QUIRKS.ABBREVIATIONS.probability) {
+    quirks.push(REVIEW_QUIRKS.ABBREVIATIONS.instruction)
+  }
+  if (Math.random() < REVIEW_QUIRKS.CONJUNCTION_STARTS.probability) {
+    quirks.push(REVIEW_QUIRKS.CONJUNCTION_STARTS.instruction)
+  }
+  if (Math.random() < REVIEW_QUIRKS.LOWERCASE_I.probability) {
+    quirks.push(REVIEW_QUIRKS.LOWERCASE_I.instruction)
   }
   
-  const keywordsStr = selectedKeywords.join(' and ')
+  return quirks
+}
 
-  // Review guidance - the owner's custom instructions for what to emphasize
-  // Stored as first element of review_expectations array for backwards compatibility
-  const reviewGuidance = landing.review_expectations?.[0] || ''
-  // Track as array for analytics (backwards compatible)
-  const selectedExpectations = reviewGuidance ? [reviewGuidance] : []
-
-  // Random review length profile (real reviews vary wildly)
-  const lengthProfiles = [
-    { type: 'ultra-short', instruction: '6-12 words only. Just a quick one-liner reaction.', weight: 1 },
-    { type: 'ultra-short', instruction: '6-12 words only. Just a quick one-liner reaction.', weight: 1 },
-    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
-    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
-    { type: 'short', instruction: '1-2 sentences. Brief but gets the point across.', weight: 2 },
-    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
-    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
-    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
-    { type: 'medium', instruction: '3-4 sentences. Standard review length.', weight: 3 },
-    { type: 'long', instruction: '5-6 sentences with some detail.', weight: 2 },
-    { type: 'long', instruction: '5-6 sentences with some detail.', weight: 2 },
-    { type: 'extended', instruction: '2 short paragraphs. Tell a story about the experience.', weight: 1 },
-  ]
-  const lengthProfile = pickOne(lengthProfiles)
-
-  // Random character persona
-  const persona = pickOne(CHARACTER_PERSONAS)
-  
-  // Random visit reason
-  const visitReason = pickOne(VISIT_REASONS)
-  
-  // Pick a required opener to force variety
-  const requiredOpener = pickOne(REVIEW_OPENERS)
-
-  // Random quirks that real people have
-  const quirks = []
-  if (Math.random() < 0.3) quirks.push('use "lol", "lmao", or "haha" once')
-  if (Math.random() < 0.25) quirks.push('use "gonna", "kinda", "gotta", or "wanna"')
-  if (Math.random() < 0.15) quirks.push('include a minor typo like "teh", "definately", "resturant", or missing apostrophe')
-  if (Math.random() < 0.3) quirks.push('use "..." or "—" mid-thought')
-  if (Math.random() < 0.25) quirks.push('abbreviate something like "bf", "bc", "tbh", "imo", or "ngl"')
-  if (Math.random() < 0.2) quirks.push('start a sentence with "And" or "But" or "So"')
-  if (Math.random() < 0.1) quirks.push('use lowercase "i" instead of "I" once')
-
-  // Pick 2 example reviews to show
-  const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
-
-  // Handle multiple business types (comma-separated)
-  const businessTypeDisplay = landing.business_type 
-    ? landing.business_type.split(',').map(t => t.trim()).join(' / ')
-    : 'business'
-    
-  const prompt = `Write a Google/Yelp review for "${landing.store_name}" (a ${businessTypeDisplay}).
+/** Build the AI prompt for review generation */
+function buildPrompt(
+  safeStoreName: string,
+  businessTypeDisplay: string,
+  persona: string,
+  visitReason: string,
+  keywordsStr: string,
+  reviewGuidance: string,
+  lengthProfile: typeof LENGTH_PROFILES[number],
+  requiredOpener: string,
+  quirks: string[],
+  exampleReviews: string[]
+): string {
+  return `Write a Google/Yelp review for "${safeStoreName}" (a ${businessTypeDisplay}).
 
 YOU ARE: ${persona}
 CONTEXT: ${visitReason}
@@ -739,31 +436,92 @@ BANNED HEDGING PHRASES:
 ❌ "It's important to note"
 
 Just write the review. No quotes. No "Here's a review:" preamble.`
+}
 
-  // Build metadata object to return with review
+/** Generate a review using the Gemini AI model */
+async function generateReview(landing: LandingWithStore): Promise<ReviewResult> {
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  
+  // Select keywords (60% chance of 1, 40% chance of 2)
+  const keywordCount = Math.random() < KEYWORD_SELECTION.SINGLE_KEYWORD_PROBABILITY ? 1 : 2
+  
+  let selectedKeywords: string[]
+  if (landing.keywords && landing.keywords.length > 0) {
+    const keywordStats = await getKeywordStats(landing.store_id)
+    
+    if (keywordStats.length > 0) {
+      selectedKeywords = pickWeightedRandom(landing.keywords, keywordStats, keywordCount)
+    } else {
+      selectedKeywords = pickRandom(landing.keywords, keywordCount)
+    }
+  } else {
+    selectedKeywords = ['good']
+  }
+  
+  // Sanitize inputs for prompt injection protection
+  const sanitizedKeywords = sanitizeArrayForPrompt(selectedKeywords)
+  const keywordsStr = sanitizedKeywords.join(' and ') || 'quality'
+  
+  const rawGuidance = landing.review_expectations?.[0] || ''
+  const reviewGuidance = sanitizeForPrompt(rawGuidance, 300)
+  const selectedExpectations = rawGuidance ? [rawGuidance] : []
+  
+  const safeStoreName = sanitizeForPrompt(landing.store_name, 100) || 'this business'
+  const safeBusinessType = sanitizeForPrompt(landing.business_type, 100) || 'business'
+  
+  // Select random elements for variety
+  const lengthProfile = pickOne(LENGTH_PROFILES)
+  const persona = pickOne(CHARACTER_PERSONAS)
+  const visitReason = pickOne(VISIT_REASONS)
+  const requiredOpener = pickOne(REVIEW_OPENERS)
+  const quirks = buildQuirksList()
+  const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
+  
+  const businessTypeDisplay = safeBusinessType
+    .split(',')
+    .map(t => t.trim())
+    .filter(t => t.length > 0)
+    .join(' / ') || 'business'
+  
+  const prompt = buildPrompt(
+    safeStoreName,
+    businessTypeDisplay,
+    persona,
+    visitReason,
+    keywordsStr,
+    reviewGuidance,
+    lengthProfile,
+    requiredOpener,
+    quirks,
+    exampleReviews
+  )
+  
   const metadata = {
     keywordsUsed: selectedKeywords,
     expectationsUsed: selectedExpectations,
     lengthType: lengthProfile.type,
     persona: persona,
   }
-
+  
   // Retry logic with exponential backoff
-  const MAX_RETRIES = 3
   let lastError: unknown = null
   
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 1.5, // Higher for more variation
-          topP: 0.98,
-          topK: 60,
-        },
-      })
-      const response = result.response
-      const reviewText = response.text().trim().replace(/^["']|["']$/g, '') // Remove any wrapping quotes
+      const result = await withTimeout(
+        model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 1.2, // Balanced: creative but controlled
+            topP: 0.95,
+            topK: 50,
+          },
+        }),
+        API_TIMEOUT_MS,
+        `Gemini API request timed out after ${API_TIMEOUT_MS}ms`
+      )
+      
+      const reviewText = result.response.text().trim().replace(/^["']|["']$/g, '')
       return { review: reviewText, metadata }
     } catch (error: unknown) {
       lastError = error
@@ -772,8 +530,11 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
       console.warn(`Gemini API attempt ${attempt}/${MAX_RETRIES} failed:`, errorMessage)
       
       // Don't retry on certain errors
-      if (errorMessage.includes('API key') || errorMessage.includes('quota') || errorMessage.includes('blocked')) {
-        break // These won't be fixed by retrying
+      if (errorMessage.includes('API key') || 
+          errorMessage.includes('quota') || 
+          errorMessage.includes('blocked') ||
+          errorMessage.includes('timed out')) {
+        break
       }
       
       if (attempt < MAX_RETRIES) {
@@ -783,29 +544,121 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
     }
   }
   
-  // All retries failed - log detailed error
-  const errorMessage = lastError instanceof Error ? lastError.message : String(lastError)
-  const errorStack = lastError instanceof Error ? lastError.stack : undefined
-  const errorName = lastError instanceof Error ? lastError.name : 'Unknown'
-  
+  // Log detailed error after all retries fail
   console.error('Gemini API failed after all retries:', {
-    name: errorName,
-    message: errorMessage,
-    stack: errorStack,
+    name: lastError instanceof Error ? lastError.name : 'Unknown',
+    message: lastError instanceof Error ? lastError.message : String(lastError),
     storeName: landing.store_name,
     keywords: selectedKeywords,
   })
   
-  // Varied fallback reviews if API fails
+  // Return fallback review
+  const safeKeyword = sanitizedKeywords[0] || 'experience'
   const fallbacks = [
-    `${requiredOpener} I tried this place and the ${selectedKeywords[0] || 'experience'} was great. Would come back.`,
-    `Finally checked out ${landing.store_name}. Pretty impressed with the ${selectedKeywords[0] || 'vibe'} tbh.`,
-    `Not gonna lie, this place exceeded what I expected. The ${selectedKeywords[0] || 'quality'} is legit.`,
-    `Been here a few times now. Consistently good ${selectedKeywords[0] || 'stuff'}. No complaints.`,
-    `My friend kept telling me to try this spot. Glad I listened, the ${selectedKeywords[0] || 'service'} was on point.`,
+    `${requiredOpener} I tried this place and the ${safeKeyword} was great. Would come back.`,
+    `Finally checked out ${safeStoreName}. Pretty impressed with the ${safeKeyword} tbh.`,
+    `Not gonna lie, this place exceeded what I expected. The ${safeKeyword} is legit.`,
+    `Been here a few times now. Consistently good ${safeKeyword}. No complaints.`,
+    `My friend kept telling me to try this spot. Glad I listened, the ${safeKeyword} was on point.`,
   ]
   return { review: pickOne(fallbacks), metadata }
 }
+
+// ============================================
+// Tracking Actions (POST Handlers)
+// ============================================
+
+interface TrackingResult {
+  success: boolean
+  counted?: boolean
+  error?: string
+}
+
+/** Handle copy action tracking */
+async function handleCopyAction(
+  id: string,
+  reviewEventId: string | undefined,
+  ip: string
+): Promise<TrackingResult> {
+  const ipHash = hashIP(ip)
+  const copyRateLimitKey = `copy_limit:${ipHash}:${id}`
+  
+  const alreadyCopied = await kv.get<boolean>(copyRateLimitKey)
+  
+  if (!alreadyCopied) {
+    await incrementCopyCount(id)
+    await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
+  }
+  
+  if (reviewEventId) {
+    await sql`
+      UPDATE review_events 
+      SET was_copied = true 
+      WHERE id = ${reviewEventId}
+    `.catch(() => {}) // Silently fail if table doesn't exist
+  }
+  
+  return { success: true, counted: !alreadyCopied }
+}
+
+/** Handle click action tracking (paste to Google/Yelp) */
+async function handleClickAction(
+  id: string,
+  platform: string,
+  reviewEventId: string | undefined
+): Promise<TrackingResult> {
+  if (!VALID_PLATFORMS.includes(platform as Platform)) {
+    return { 
+      success: false, 
+      error: `Invalid platform: ${platform}. Must be one of: ${VALID_PLATFORMS.join(', ')}` 
+    }
+  }
+  
+  const platformKey = platform as Platform
+  
+  // Update click count in JSON column
+  await sql`
+    UPDATE landing_pages 
+    SET click_counts = click_counts || jsonb_build_object(${platformKey}::text, COALESCE((click_counts->${platformKey}::text)::int, 0) + 1)
+    WHERE id = ${id}
+  `
+  
+  // Mark as "pasted" only if the review was copied first
+  if (reviewEventId && typeof reviewEventId === 'string') {
+    try {
+      switch (platformKey) {
+        case Platform.GOOGLE: {
+          const result = await sql`
+            UPDATE review_events 
+            SET was_pasted_google = true 
+            WHERE id = ${reviewEventId} AND was_copied = true
+            RETURNING id
+          `
+          console.log('Updated was_pasted_google:', reviewEventId, 'rows:', result.rowCount)
+          break
+        }
+        case Platform.YELP: {
+          const result = await sql`
+            UPDATE review_events 
+            SET was_pasted_yelp = true 
+            WHERE id = ${reviewEventId} AND was_copied = true
+            RETURNING id
+          `
+          console.log('Updated was_pasted_yelp:', reviewEventId, 'rows:', result.rowCount)
+          break
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update review_events paste tracking:', error)
+    }
+  }
+  
+  return { success: true }
+}
+
+// ============================================
+// Main API Handler
+// ============================================
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id, regenerate, action, platform } = req.query
@@ -815,86 +668,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Handle tracking actions (POST requests)
+    // Handle POST tracking actions
     if (req.method === 'POST') {
       const { reviewEventId } = req.body || {}
+      const ip = getClientIP(req)
       
       if (action === 'copy') {
-        // Rate limit copy counts: 1 per IP per landing page per hour
-        const ip = getClientIP(req)
-        const ipHash = hashIP(ip)
-        const copyRateLimitKey = `copy_limit:${ipHash}:${id}`
-        
-        // Check if this IP has already copied from this landing page in the last hour
-        const alreadyCopied = await kv.get<boolean>(copyRateLimitKey)
-        
-        if (!alreadyCopied) {
-          // First copy from this IP in the last hour - count it
-          await incrementCopyCount(id)
-          // Set rate limit flag for 1 hour
-          await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
-        }
-        
-        // Mark the specific review event as copied (for analytics) - always do this
-        if (reviewEventId) {
-          await sql`
-            UPDATE review_events 
-            SET was_copied = true 
-            WHERE id = ${reviewEventId}
-          `.catch(() => {}) // Silently fail if table doesn't exist yet
-        }
-        return res.status(200).json({ success: true, counted: !alreadyCopied })
+        const result = await handleCopyAction(id, reviewEventId, ip)
+        return res.status(200).json(result)
       }
+      
       if (action === 'click' && platform) {
-        // Validate platform is a known value - no defaults!
-        if (!VALID_PLATFORMS.includes(platform as Platform)) {
-          return res.status(400).json({ error: `Invalid platform: ${platform}. Must be one of: ${VALID_PLATFORMS.join(', ')}` })
+        const result = await handleClickAction(id, platform as string, reviewEventId)
+        if (!result.success) {
+          return res.status(400).json({ error: result.error })
         }
-        
-        const platformKey = platform as Platform
-        
-        // Update click count in JSON column - use raw SQL for JSONB operations
-        await sql`
-          UPDATE landing_pages 
-          SET click_counts = click_counts || jsonb_build_object(${platformKey}::text, COALESCE((click_counts->${platformKey}::text)::int, 0) + 1)
-          WHERE id = ${id}
-        `
-        // Only mark as "pasted" if the review was COPIED first
-        // This ensures we only count users who actually had content to paste
-        if (reviewEventId && typeof reviewEventId === 'string') {
-          try {
-            // Use switch to handle each platform explicitly - no default fallback
-            switch (platformKey) {
-              case Platform.GOOGLE: {
-                const result = await sql`
-                  UPDATE review_events 
-                  SET was_pasted_google = true 
-                  WHERE id = ${reviewEventId} AND was_copied = true
-                  RETURNING id
-                `
-                console.log('Updated was_pasted_google for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount, '(only if copied first)')
-                break
-              }
-              case Platform.YELP: {
-                const result = await sql`
-                  UPDATE review_events 
-                  SET was_pasted_yelp = true 
-                  WHERE id = ${reviewEventId} AND was_copied = true
-                  RETURNING id
-                `
-                console.log('Updated was_pasted_yelp for reviewEventId:', reviewEventId, 'rows affected:', result.rowCount, '(only if copied first)')
-                break
-              }
-              // No default case - TypeScript will warn if a Platform value is unhandled
-            }
-          } catch (error) {
-            console.error('Failed to update review_events paste tracking:', error)
-          }
-        } else {
-          console.log('Click tracking: no reviewEventId provided. Body:', JSON.stringify(req.body))
-        }
-        return res.status(200).json({ success: true })
+        return res.status(200).json(result)
       }
+      
       return res.status(400).json({ error: 'Invalid action' })
     }
 
@@ -902,12 +693,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const landing = await getLandingPage(id)
     
     if (!landing) {
-      // Generic error - don't confirm whether ID format is valid
       return res.status(404).json({ error: 'Not found' })
     }
 
-    // Check monthly scan limit for the store owner (skip for demo)
     const isDemo = id === 'demo'
+    
+    // Check monthly scan limit (skip for demo)
     if (!isDemo) {
       const { rows: [scanCheck] } = await sql`
         SELECT 
@@ -927,7 +718,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const totalScans = parseInt(scanCheck.total_scans) || 0
         
         if (totalScans >= limit) {
-          // Increment exceeded_scans counter for user AND landing page
           await Promise.all([
             sql`UPDATE users SET exceeded_scans = COALESCE(exceeded_scans, 0) + 1 WHERE id = ${scanCheck.user_id}`,
             sql`UPDATE landing_pages SET exceeded_scans = COALESCE(exceeded_scans, 0) + 1 WHERE id = ${id}`,
@@ -948,23 +738,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Get visitor's IP address (using trusted headers only)
     const ip = getClientIP(req)
     const ipHash = hashIP(ip)
     
-    // Increment view count in KV (batched, syncs to DB every 10 min)
+    // Increment view count in KV
     try {
       await kv.incr(`views:${id}`)
     } catch (error) {
       console.error('View count increment error:', error)
     }
 
-    // Check for IP-specific cached review in Vercel KV
+    // Check for cached review
     const cacheKey = `review_cache:${id}:${ipHash}`
+    const eventCacheKey = `review_event:${id}:${ipHash}`
+    
     let cachedReview: string | null = null
+    let cachedEventId: string | null = null
     
     try {
       cachedReview = await kv.get<string>(cacheKey)
+      cachedEventId = await kv.get<string>(eventCacheKey)
     } catch (error) {
       console.error('Cache read error:', error)
     }
@@ -972,33 +765,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let review: string
     let reviewEventId: string | null = null
 
-    // Check for cached review event ID
-    const eventCacheKey = `review_event:${id}:${ipHash}`
-    let cachedEventId: string | null = null
-    try {
-      cachedEventId = await kv.get<string>(eventCacheKey)
-    } catch (error) {
-      // Ignore cache errors
-    }
-
     if (cachedReview && !regenerate) {
-      // Use the cached review for this IP
       review = cachedReview
       reviewEventId = cachedEventId
     } else {
-      // Rate limit regenerations (using Vercel KV)
+      // Handle regeneration rate limiting
       if (regenerate) {
-        // Demo page has special handling
-        const isDemo = id === 'demo'
-        
         let userTier: SubscriptionTier | 'demo' = isDemo ? 'demo' : SubscriptionTier.FREE
         let rateLimit: number = getRegenerationLimit('demo')
         
-        if (isDemo) {
-          // Demo page: uses demo rate limit
-          rateLimit = getRegenerationLimit('demo')
-        } else {
-          // Get the store owner's subscription tier
+        if (!isDemo) {
           const { rows: tierRows } = await sql`
             SELECT u.subscription_tier 
             FROM landing_pages lp
@@ -1015,9 +791,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!rateLimitResult.allowed) {
           const minutes = Math.ceil(rateLimitResult.resetIn / 60000)
           
-          // Different message for free users
           if (userTier === SubscriptionTier.FREE && !isDemo) {
-            // Increment blocked_regenerations counter for free users
             try {
               await sql`
                 UPDATE landing_pages 
@@ -1044,14 +818,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
       
-      // Generate new review with metadata
+      // Generate new review
       const result = await generateReview(landing as LandingWithStore)
       review = result.review
       
-      // Save review event to database for analytics (skip demo)
+      // Save review event for analytics (skip demo)
       if (!isDemo && landing.store_id) {
         try {
-          // Convert arrays to JSON strings for PostgreSQL array insertion
           const keywordsJson = JSON.stringify(result.metadata.keywordsUsed || [])
           const expectationsJson = JSON.stringify(result.metadata.expectationsUsed || [])
           
@@ -1081,17 +854,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           `
           reviewEventId = event?.id || null
           
-          // Cache the event ID
           if (reviewEventId) {
             await kv.set(eventCacheKey, reviewEventId, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
           }
         } catch (error) {
-          // Log but don't fail if analytics insert fails (table might not exist yet)
           console.error('Failed to save review event:', error)
         }
       }
       
-      // Cache the review for this specific IP (24 hour TTL)
+      // Cache the review
       try {
         await kv.set(cacheKey, review, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
       } catch (error) {
@@ -1108,11 +879,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         yelp_url: landing.yelp_url,
       },
       review,
-      reviewEventId, // Include for tracking copy/click actions
+      reviewEventId,
     })
   } catch (error) {
     console.error('Generate API error:', error)
-    // Generic error - don't leak internal details
     return res.status(500).json({ error: 'Something went wrong' })
   }
 }

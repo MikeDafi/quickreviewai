@@ -260,7 +260,18 @@ export async function updateStore(storeId: string, userId: string, data: {
 
 // Delete a store (preserves scan/copy counts in user's current billing period)
 export async function deleteStore(storeId: string, userId: string) {
-  // First, get the scan/copy counts from landing pages for this store
+  // SECURITY: First verify ownership before any operations
+  const { rows: [store] } = await sql`
+    SELECT id FROM stores WHERE id = ${storeId} AND user_id = ${userId}
+  `
+  
+  if (!store) {
+    // Store doesn't exist or user doesn't own it - fail silently to prevent enumeration
+    return
+  }
+  
+  // Now safe to proceed - user owns this store
+  // Get the scan/copy counts from landing pages for this store
   const { rows: statsRows } = await sql`
     SELECT 
       COALESCE(SUM(view_count), 0)::int as scans,
