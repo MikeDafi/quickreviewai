@@ -342,19 +342,15 @@ export function useYelpRanking() {
     keyword: string,
     business: YelpBusiness
   ): Promise<{ rank: number | null; results: SearchResult[] }> => {
-    // Define search locations: center, 1 mile N/S/E/W, 2 miles N/S/E/W
+    // Define search locations: center, 1 mile N/S, 2 miles N/S (reduced to 5 total to stay within rate limits)
     const searchLocations = [
       { lat: business.lat, lng: business.lng, name: 'center' },
-      // 1 mile searches
+      // 1 mile searches (N/S only)
       { lat: business.lat + ONE_MILE_LAT, lng: business.lng, name: '1mi-N' },
       { lat: business.lat - ONE_MILE_LAT, lng: business.lng, name: '1mi-S' },
-      { lat: business.lat, lng: business.lng + ONE_MILE_LNG, name: '1mi-E' },
-      { lat: business.lat, lng: business.lng - ONE_MILE_LNG, name: '1mi-W' },
-      // 2 mile searches
+      // 2 mile searches (N/S only)
       { lat: business.lat + TWO_MILES_LAT, lng: business.lng, name: '2mi-N' },
       { lat: business.lat - TWO_MILES_LAT, lng: business.lng, name: '2mi-S' },
-      { lat: business.lat, lng: business.lng + TWO_MILES_LNG, name: '2mi-E' },
-      { lat: business.lat, lng: business.lng - TWO_MILES_LNG, name: '2mi-W' },
     ];
     
     // Search from all locations
