@@ -499,8 +499,11 @@ export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: strin
 
 export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string): string {
   if (!business || !keyword) return '';
-  // Use the business center location - matches what's displayed in UI
-  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${business.lat},${business.lng}`;
+  // Use the business center location with wide radius to match UI results
+  // UI searches: center (1mi), 2mi N/S (2mi radius), 3mi N/S (3mi radius)
+  // Total coverage: ~6 miles, so redirect uses similar area
+  const location = `${business.city}, ${business.state}`;
+  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${encodeURIComponent(location)}`;
 }
 
 // ============ Rank Badge Styling ============
