@@ -36,7 +36,7 @@ export interface SearchResult {
 // ============ Constants ============
 
 const MILES_TO_METERS = 1609;
-export const SEARCH_RADIUS_METERS = MILES_TO_METERS; // 1 mile
+export const SEARCH_RADIUS_METERS = MILES_TO_METERS * 10; // 10 mile radius
 const DEBOUNCE_MS = 600;
 const MAX_KEYWORD_SEARCHES = 3;
 const GEOLOCATION_TIMEOUT = 5000;
@@ -45,10 +45,10 @@ const GEOLOCATION_CACHE_MS = 600000; // 10 minutes
 // Coordinate offsets for multi-location search
 // 1 degree latitude ≈ 69 miles, so 1 mile ≈ 0.0145 degrees
 // 1 degree longitude ≈ 53-69 miles (varies by latitude), using 0.0189 for mid-latitudes
-const ONE_MILE_LAT = 0.0145;
-const ONE_MILE_LNG = 0.0189;
-const TWO_MILES_LAT = 0.029;
-const TWO_MILES_LNG = 0.0378;
+const TEN_MILES_LAT = 0.145;
+const TEN_MILES_LNG = 0.189;
+const TWENTY_MILES_LAT = 0.29;
+const TWENTY_MILES_LNG = 0.378;
 
 // Common US cities - if query contains one, skip geolocation and let Yelp match by name
 const COMMON_CITIES = [
@@ -342,15 +342,15 @@ export function useYelpRanking() {
     keyword: string,
     business: YelpBusiness
   ): Promise<{ rank: number | null; results: SearchResult[] }> => {
-    // Define search locations: center, 1 mile N/S, 2 miles N/S (reduced to 5 total to stay within rate limits)
+    // Define search locations: center, 10 miles N/S, 20 miles N/S (reduced to 5 total to stay within rate limits)
     const searchLocations = [
       { lat: business.lat, lng: business.lng, name: 'center' },
-      // 1 mile searches (N/S only)
-      { lat: business.lat + ONE_MILE_LAT, lng: business.lng, name: '1mi-N' },
-      { lat: business.lat - ONE_MILE_LAT, lng: business.lng, name: '1mi-S' },
-      // 2 mile searches (N/S only)
-      { lat: business.lat + TWO_MILES_LAT, lng: business.lng, name: '2mi-N' },
-      { lat: business.lat - TWO_MILES_LAT, lng: business.lng, name: '2mi-S' },
+      // 10 mile searches (N/S only)
+      { lat: business.lat + TEN_MILES_LAT, lng: business.lng, name: '10mi-N' },
+      { lat: business.lat - TEN_MILES_LAT, lng: business.lng, name: '10mi-S' },
+      // 20 mile searches (N/S only)
+      { lat: business.lat + TWENTY_MILES_LAT, lng: business.lng, name: '20mi-N' },
+      { lat: business.lat - TWENTY_MILES_LAT, lng: business.lng, name: '20mi-S' },
     ];
     
     // Search from all locations
@@ -487,12 +487,15 @@ export function useYelpRanking() {
 
 export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string): string {
   if (!business || !keyword) return '';
-  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${business.lat},${business.lng},14z`;
+  // Zoom 10 shows ~20 mile radius area
+  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${business.lat},${business.lng},10z`;
 }
 
 export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string): string {
   if (!business || !keyword) return '';
-  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${encodeURIComponent(business.address)}`;
+  // Use city/state instead of full address to get broader search area results
+  const location = `${business.city}, ${business.state}`;
+  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${encodeURIComponent(location)}`;
 }
 
 // ============ Rank Badge Styling ============

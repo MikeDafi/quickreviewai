@@ -60,11 +60,11 @@ function FitBounds({ results, center }: { results: SearchResult[]; center: { lat
       // Include the center point in bounds calculation
       const points = [...results.map(r => [r.lat, r.lng] as [number, number]), [center.lat, center.lng] as [number, number]];
       const bounds = L.latLngBounds(points);
-      // Zoom out more to show the 2-mile search radius area
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+      // Zoom out to show the 20-mile search radius area
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 9 });
     } else {
-      // If no results, just center on the location with zoom for 2 mile radius
-      map.setView([center.lat, center.lng], 12);
+      // If no results, just center on the location with zoom for 20 mile radius
+      map.setView([center.lat, center.lng], 9);
     }
   }, [results, center, map]);
   
@@ -75,7 +75,7 @@ export default function ResultsMap({ results, center, userBusinessName, userRank
   return (
     <MapContainer
       center={[center.lat, center.lng]}
-      zoom={12} // Zoom 12 ≈ 2-3 mile view for multi-location search
+      zoom={9} // Zoom 9 ≈ 20-30 mile view for wide-area search
       style={{ height: '100%', width: '100%' }}
       scrollWheelZoom={false}
     >
