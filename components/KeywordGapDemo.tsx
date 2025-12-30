@@ -413,7 +413,7 @@ export default function KeywordGapDemo() {
               </div>
               <div className="flex items-center gap-3">
                 <a
-                  href={buildYelpSearchUrl(businessSearch.selectedBusiness, ranking.currentKeyword, 0.029, 0)}
+                  href={buildYelpSearchUrl(businessSearch.selectedBusiness, ranking.currentKeyword)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700 font-medium"
@@ -423,7 +423,7 @@ export default function KeywordGapDemo() {
                   <ExternalLink className="w-3 h-3" />
                 </a>
                 <a
-                  href={buildGoogleMapsUrl(businessSearch.selectedBusiness, ranking.currentKeyword, 0.029, 0)}
+                  href={buildGoogleMapsUrl(businessSearch.selectedBusiness, ranking.currentKeyword)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -494,8 +494,7 @@ export default function KeywordGapDemo() {
         Rankings powered by{' '}
         <a href="https://www.yelp.com" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:underline">
           Yelp
-        </a>{' '}
-        • 1 mile radius
+        </a>
       </div>
     </div>
   );

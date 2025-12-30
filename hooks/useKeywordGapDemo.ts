@@ -490,21 +490,17 @@ export function useYelpRanking() {
 
 // ============ URL Builders ============
 
-export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string, offsetLat: number = 0, offsetLng: number = 0): string {
+export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string): string {
   if (!business || !keyword) return '';
-  // Use coordinates offset by the specified amount (e.g., 2 miles north)
-  const searchLat = business.lat + offsetLat;
-  const searchLng = business.lng + offsetLng;
-  // Zoom 12 shows ~3-5 mile radius area
-  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${searchLat},${searchLng},12z`;
+  // Use the business center location - matches what's displayed in UI
+  // Zoom 12 shows ~3-5 mile radius area (covers our 2-3 mile search zones)
+  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${business.lat},${business.lng},12z`;
 }
 
-export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string, offsetLat: number = 0, offsetLng: number = 0): string {
+export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string): string {
   if (!business || !keyword) return '';
-  // Use coordinates offset by the specified amount (e.g., 10 miles north)
-  const searchLat = business.lat + offsetLat;
-  const searchLng = business.lng + offsetLng;
-  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${searchLat},${searchLng}`;
+  // Use the business center location - matches what's displayed in UI
+  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${business.lat},${business.lng}`;
 }
 
 // ============ Rank Badge Styling ============
