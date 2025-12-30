@@ -492,9 +492,9 @@ export function useYelpRanking() {
 
 export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string): string {
   if (!business || !keyword) return '';
-  // Use the business center location - matches what's displayed in UI
-  // Zoom 12 shows ~3-5 mile radius area (covers our 2-3 mile search zones)
-  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${business.lat},${business.lng},12z`;
+  // Use the business center location with zoom that shows the full search area
+  // UI searches cover ~6 miles in each direction, so zoom 11 (~7-10 mile view) matches well
+  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${business.lat},${business.lng},11z`;
 }
 
 export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string): string {
