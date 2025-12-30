@@ -373,27 +373,28 @@ export function useYelpRanking() {
       return { rank: null, results: [] };
     }
     
-    // Combine all results and deduplicate by business ID
-    const allResults = results.flatMap(r => r.data?.results || []);
+    // Take top 4 results from each location to ensure geographic diversity
+    // This way we get businesses from all areas: center, 1mi N/S, 2mi N/S
     const uniqueResultsMap = new Map<string, SearchResult>();
     
-    allResults.forEach(result => {
-      if (!uniqueResultsMap.has(result.id)) {
-        uniqueResultsMap.set(result.id, result);
-      }
+    results.forEach(locationResults => {
+      const locationData = locationResults.data?.results || [];
+      // Take top 4 from each location
+      locationData.slice(0, 4).forEach(result => {
+        if (!uniqueResultsMap.has(result.id)) {
+          uniqueResultsMap.set(result.id, result);
+        }
+      });
     });
     
     const searchResults = Array.from(uniqueResultsMap.values());
     
-    // Sort by distance from the original business location
+    // Sort by rating and review count for final ranking
     searchResults.sort((a, b) => {
-      const distA = Math.sqrt(
-        Math.pow(a.lat - business.lat, 2) + Math.pow(a.lng - business.lng, 2)
-      );
-      const distB = Math.sqrt(
-        Math.pow(b.lat - business.lat, 2) + Math.pow(b.lng - business.lng, 2)
-      );
-      return distA - distB;
+      // Higher rating first
+      if (b.rating !== a.rating) return b.rating - a.rating;
+      // Then by review count
+      return b.reviewCount - a.reviewCount;
     });
     
     // Re-rank based on combined results
