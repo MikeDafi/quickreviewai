@@ -42,6 +42,14 @@ const MAX_KEYWORD_SEARCHES = 3;
 const GEOLOCATION_TIMEOUT = 5000;
 const GEOLOCATION_CACHE_MS = 600000; // 10 minutes
 
+// Coordinate offsets for multi-location search
+// 1 degree latitude ≈ 69 miles, so 1 mile ≈ 0.0145 degrees
+// 1 degree longitude ≈ 53-69 miles (varies by latitude), using 0.0189 for mid-latitudes
+const ONE_MILE_LAT = 0.0145;
+const ONE_MILE_LNG = 0.0189;
+const TWO_MILES_LAT = 0.029;
+const TWO_MILES_LNG = 0.0378;
+
 // Common US cities - if query contains one, skip geolocation and let Yelp match by name
 const COMMON_CITIES = [
   'chicago', 'new york', 'nyc', 'los angeles', 'houston', 'phoenix',
@@ -334,20 +342,68 @@ export function useYelpRanking() {
     keyword: string,
     business: YelpBusiness
   ): Promise<{ rank: number | null; results: SearchResult[] }> => {
-    const url = `/api/yelp-search?term=${encodeURIComponent(keyword)}&latitude=${business.lat}&longitude=${business.lng}&radius=${SEARCH_RADIUS_METERS}`;
+    // Define search locations: center, 1 mile N/S/E/W, 2 miles N/S/E/W
+    const searchLocations = [
+      { lat: business.lat, lng: business.lng, name: 'center' },
+      // 1 mile searches
+      { lat: business.lat + ONE_MILE_LAT, lng: business.lng, name: '1mi-N' },
+      { lat: business.lat - ONE_MILE_LAT, lng: business.lng, name: '1mi-S' },
+      { lat: business.lat, lng: business.lng + ONE_MILE_LNG, name: '1mi-E' },
+      { lat: business.lat, lng: business.lng - ONE_MILE_LNG, name: '1mi-W' },
+      // 2 mile searches
+      { lat: business.lat + TWO_MILES_LAT, lng: business.lng, name: '2mi-N' },
+      { lat: business.lat - TWO_MILES_LAT, lng: business.lng, name: '2mi-S' },
+      { lat: business.lat, lng: business.lng + TWO_MILES_LNG, name: '2mi-E' },
+      { lat: business.lat, lng: business.lng - TWO_MILES_LNG, name: '2mi-W' },
+    ];
     
-    const result = await fetchWithRateLimit<{ results: SearchResult[] }>(url);
+    // Search from all locations
+    const searchPromises = searchLocations.map(async (location) => {
+      const url = `/api/yelp-search?term=${encodeURIComponent(keyword)}&latitude=${location.lat}&longitude=${location.lng}&radius=${SEARCH_RADIUS_METERS}`;
+      return fetchWithRateLimit<{ results: SearchResult[] }>(url);
+    });
     
-    if (result.rateLimited) {
+    const results = await Promise.all(searchPromises);
+    
+    // Check for rate limiting
+    const rateLimited = results.some(r => r.rateLimited);
+    if (rateLimited) {
+      const errorResult = results.find(r => r.rateLimited);
       setState(s => ({
         ...s,
         rateLimited: true,
-        error: result.error || '',
+        error: errorResult?.error || '',
       }));
       return { rank: null, results: [] };
     }
     
-    const searchResults = result.data?.results || [];
+    // Combine all results and deduplicate by business ID
+    const allResults = results.flatMap(r => r.data?.results || []);
+    const uniqueResultsMap = new Map<string, SearchResult>();
+    
+    allResults.forEach(result => {
+      if (!uniqueResultsMap.has(result.id)) {
+        uniqueResultsMap.set(result.id, result);
+      }
+    });
+    
+    const searchResults = Array.from(uniqueResultsMap.values());
+    
+    // Sort by distance from the original business location
+    searchResults.sort((a, b) => {
+      const distA = Math.sqrt(
+        Math.pow(a.lat - business.lat, 2) + Math.pow(a.lng - business.lng, 2)
+      );
+      const distB = Math.sqrt(
+        Math.pow(b.lat - business.lat, 2) + Math.pow(b.lng - business.lng, 2)
+      );
+      return distA - distB;
+    });
+    
+    // Re-rank based on combined results
+    searchResults.forEach((result, index) => {
+      result.rank = index + 1;
+    });
     
     // Find user's business in results
     const userIndex = searchResults.findIndex((r) =>
