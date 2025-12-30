@@ -342,20 +342,20 @@ export function useYelpRanking() {
     keyword: string,
     business: YelpBusiness
   ): Promise<{ rank: number | null; results: SearchResult[] }> => {
-    // Define search locations: center, 2 miles N/S, 3 miles N/S (reduced to 5 total to stay within rate limits)
+    // Define search locations with matching radius: center (1mi radius), 2 miles N/S (2mi radius), 3 miles N/S (3mi radius)
     const searchLocations = [
-      { lat: business.lat, lng: business.lng, name: 'center' },
-      // 2 mile searches (N/S only)
-      { lat: business.lat + TWO_MILES_LAT, lng: business.lng, name: '2mi-N' },
-      { lat: business.lat - TWO_MILES_LAT, lng: business.lng, name: '2mi-S' },
-      // 3 mile searches (N/S only)
-      { lat: business.lat + THREE_MILES_LAT, lng: business.lng, name: '3mi-N' },
-      { lat: business.lat - THREE_MILES_LAT, lng: business.lng, name: '3mi-S' },
+      { lat: business.lat, lng: business.lng, name: 'center', radius: MILES_TO_METERS },
+      // 2 mile searches (N/S only) with 2 mile radius
+      { lat: business.lat + TWO_MILES_LAT, lng: business.lng, name: '2mi-N', radius: MILES_TO_METERS * 2 },
+      { lat: business.lat - TWO_MILES_LAT, lng: business.lng, name: '2mi-S', radius: MILES_TO_METERS * 2 },
+      // 3 mile searches (N/S only) with 3 mile radius
+      { lat: business.lat + THREE_MILES_LAT, lng: business.lng, name: '3mi-N', radius: MILES_TO_METERS * 3 },
+      { lat: business.lat - THREE_MILES_LAT, lng: business.lng, name: '3mi-S', radius: MILES_TO_METERS * 3 },
     ];
     
-    // Search from all locations
+    // Search from all locations with their respective radius
     const searchPromises = searchLocations.map(async (location) => {
-      const url = `/api/yelp-search?term=${encodeURIComponent(keyword)}&latitude=${location.lat}&longitude=${location.lng}&radius=${SEARCH_RADIUS_METERS}`;
+      const url = `/api/yelp-search?term=${encodeURIComponent(keyword)}&latitude=${location.lat}&longitude=${location.lng}&radius=${location.radius}`;
       return fetchWithRateLimit<{ results: SearchResult[] }>(url);
     });
     
