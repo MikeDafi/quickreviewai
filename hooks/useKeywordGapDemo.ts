@@ -36,7 +36,7 @@ export interface SearchResult {
 // ============ Constants ============
 
 const MILES_TO_METERS = 1609;
-export const SEARCH_RADIUS_METERS = MILES_TO_METERS * 2; // 2 mile radius
+export const SEARCH_RADIUS_METERS = MILES_TO_METERS; // 1 mile radius
 const DEBOUNCE_MS = 600;
 const MAX_KEYWORD_SEARCHES = 3;
 const GEOLOCATION_TIMEOUT = 5000;
