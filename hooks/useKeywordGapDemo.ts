@@ -50,17 +50,19 @@ const TWO_MILES_LNG = 0.0378;
 const THREE_MILES_LAT = 0.0435;
 const THREE_MILES_LNG = 0.0567;
 
-// Common US cities - if query contains one, skip geolocation and let Yelp match by name
+// Common US cities - if query contains one, use as location search
+// Order matters: more specific matches first (e.g., "new york" before "york")
 const COMMON_CITIES = [
-  'chicago', 'new york', 'nyc', 'los angeles', 'houston', 'phoenix',
-  'philadelphia', 'san antonio', 'san diego', 'dallas', 'austin', 'san jose',
-  'fort worth', 'jacksonville', 'columbus', 'charlotte', 'indianapolis',
-  'san francisco', 'seattle', 'denver', 'boston', 'nashville', 'detroit',
-  'portland', 'las vegas', 'memphis', 'louisville', 'baltimore', 'milwaukee',
+  'new york', 'los angeles', 'san francisco', 'san diego', 'san antonio', 'san jose',
+  'fort worth', 'st louis', 'las vegas', 'new orleans',
+  'chicago', 'houston', 'phoenix', 'philadelphia', 'dallas', 'austin',
+  'jacksonville', 'columbus', 'charlotte', 'indianapolis',
+  'seattle', 'denver', 'boston', 'nashville', 'detroit',
+  'portland', 'memphis', 'louisville', 'baltimore', 'milwaukee',
   'albuquerque', 'tucson', 'fresno', 'sacramento', 'atlanta', 'miami',
-  'oakland', 'minneapolis', 'tulsa', 'cleveland', 'new orleans', 'tampa',
-  'honolulu', 'anaheim', 'st louis', 'pittsburgh', 'cincinnati', 'orlando',
-  'brooklyn', 'manhattan', 'queens', 'bronx',
+  'oakland', 'minneapolis', 'tulsa', 'cleveland', 'tampa',
+  'honolulu', 'anaheim', 'pittsburgh', 'cincinnati', 'orlando',
+  'brooklyn', 'manhattan', 'queens', 'bronx', 'nyc',
 ];
 
 // Category keywords -> Business type mapping
@@ -253,14 +255,17 @@ export function useBusinessSearch(userLocation: { lat: number; lng: number } | n
     debounceRef.current = setTimeout(async () => {
       setState(s => ({ ...s, loading: true }));
       
-      // Check if query contains a city name - if so, don't use geolocation
+      // Check if query contains a city name - if so, extract it and use as location
       const queryLower = state.query.toLowerCase();
-      const hasLocationHint = COMMON_CITIES.some(city => queryLower.includes(city));
+      const matchedCity = COMMON_CITIES.find(city => queryLower.includes(city));
       
       let url = `/api/yelp-business-search?name=${encodeURIComponent(state.query)}`;
       
-      // Only use geolocation if query doesn't contain a city name
-      if (userLocation && !hasLocationHint) {
+      if (matchedCity) {
+        // Use the detected city as location parameter
+        url += `&location=${encodeURIComponent(matchedCity)}`;
+      } else if (userLocation) {
+        // Use geolocation if no city detected
         url += `&latitude=${userLocation.lat}&longitude=${userLocation.lng}`;
       }
       
