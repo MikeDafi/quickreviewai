@@ -485,17 +485,21 @@ export function useYelpRanking() {
 
 // ============ URL Builders ============
 
-export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string): string {
+export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string, offsetLat: number = 0, offsetLng: number = 0): string {
   if (!business || !keyword) return '';
+  // Use coordinates offset by the specified amount (e.g., 10 miles north)
+  const searchLat = business.lat + offsetLat;
+  const searchLng = business.lng + offsetLng;
   // Zoom 10 shows ~20 mile radius area
-  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${business.lat},${business.lng},10z`;
+  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${searchLat},${searchLng},10z`;
 }
 
-export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string): string {
+export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string, offsetLat: number = 0, offsetLng: number = 0): string {
   if (!business || !keyword) return '';
-  // Use city/state instead of full address to get broader search area results
-  const location = `${business.city}, ${business.state}`;
-  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${encodeURIComponent(location)}`;
+  // Use coordinates offset by the specified amount (e.g., 10 miles north)
+  const searchLat = business.lat + offsetLat;
+  const searchLng = business.lng + offsetLng;
+  return `https://www.yelp.com/search?find_desc=${encodeURIComponent(keyword)}&find_loc=${searchLat},${searchLng}`;
 }
 
 // ============ Rank Badge Styling ============
