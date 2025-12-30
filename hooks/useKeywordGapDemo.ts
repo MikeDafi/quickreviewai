@@ -36,7 +36,7 @@ export interface SearchResult {
 // ============ Constants ============
 
 const MILES_TO_METERS = 1609;
-export const SEARCH_RADIUS_METERS = MILES_TO_METERS * 10; // 10 mile radius
+export const SEARCH_RADIUS_METERS = MILES_TO_METERS * 2; // 2 mile radius
 const DEBOUNCE_MS = 600;
 const MAX_KEYWORD_SEARCHES = 3;
 const GEOLOCATION_TIMEOUT = 5000;
@@ -45,10 +45,10 @@ const GEOLOCATION_CACHE_MS = 600000; // 10 minutes
 // Coordinate offsets for multi-location search
 // 1 degree latitude ≈ 69 miles, so 1 mile ≈ 0.0145 degrees
 // 1 degree longitude ≈ 53-69 miles (varies by latitude), using 0.0189 for mid-latitudes
-const TEN_MILES_LAT = 0.145;
-const TEN_MILES_LNG = 0.189;
-const TWENTY_MILES_LAT = 0.29;
-const TWENTY_MILES_LNG = 0.378;
+const TWO_MILES_LAT = 0.029;
+const TWO_MILES_LNG = 0.0378;
+const THREE_MILES_LAT = 0.0435;
+const THREE_MILES_LNG = 0.0567;
 
 // Common US cities - if query contains one, skip geolocation and let Yelp match by name
 const COMMON_CITIES = [
@@ -342,15 +342,15 @@ export function useYelpRanking() {
     keyword: string,
     business: YelpBusiness
   ): Promise<{ rank: number | null; results: SearchResult[] }> => {
-    // Define search locations: center, 10 miles N/S, 20 miles N/S (reduced to 5 total to stay within rate limits)
+    // Define search locations: center, 2 miles N/S, 3 miles N/S (reduced to 5 total to stay within rate limits)
     const searchLocations = [
       { lat: business.lat, lng: business.lng, name: 'center' },
-      // 10 mile searches (N/S only)
-      { lat: business.lat + TEN_MILES_LAT, lng: business.lng, name: '10mi-N' },
-      { lat: business.lat - TEN_MILES_LAT, lng: business.lng, name: '10mi-S' },
-      // 20 mile searches (N/S only)
-      { lat: business.lat + TWENTY_MILES_LAT, lng: business.lng, name: '20mi-N' },
-      { lat: business.lat - TWENTY_MILES_LAT, lng: business.lng, name: '20mi-S' },
+      // 2 mile searches (N/S only)
+      { lat: business.lat + TWO_MILES_LAT, lng: business.lng, name: '2mi-N' },
+      { lat: business.lat - TWO_MILES_LAT, lng: business.lng, name: '2mi-S' },
+      // 3 mile searches (N/S only)
+      { lat: business.lat + THREE_MILES_LAT, lng: business.lng, name: '3mi-N' },
+      { lat: business.lat - THREE_MILES_LAT, lng: business.lng, name: '3mi-S' },
     ];
     
     // Search from all locations
@@ -487,11 +487,11 @@ export function useYelpRanking() {
 
 export function buildGoogleMapsUrl(business: YelpBusiness | null, keyword: string, offsetLat: number = 0, offsetLng: number = 0): string {
   if (!business || !keyword) return '';
-  // Use coordinates offset by the specified amount (e.g., 10 miles north)
+  // Use coordinates offset by the specified amount (e.g., 2 miles north)
   const searchLat = business.lat + offsetLat;
   const searchLng = business.lng + offsetLng;
-  // Zoom 10 shows ~20 mile radius area
-  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${searchLat},${searchLng},10z`;
+  // Zoom 12 shows ~3-5 mile radius area
+  return `https://www.google.com/maps/search/${encodeURIComponent(keyword)}/@${searchLat},${searchLng},12z`;
 }
 
 export function buildYelpSearchUrl(business: YelpBusiness | null, keyword: string, offsetLat: number = 0, offsetLng: number = 0): string {
