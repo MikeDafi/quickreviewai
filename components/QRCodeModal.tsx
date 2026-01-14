@@ -24,6 +24,7 @@ const SIZE_CONFIG: Record<PrintSize, {
   qrBorder: string;
   instructionGap: string;
   qrSize: number;
+  logoSize: string;
 }> = {
   small: {
     label: 'Small',
@@ -37,6 +38,7 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border',
     instructionGap: 'gap-0.5',
     qrSize: 80,
+    logoSize: 'w-5 h-5',
   },
   medium: {
     label: 'Medium',
@@ -50,6 +52,7 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border-2',
     instructionGap: 'gap-1',
     qrSize: 120,
+    logoSize: 'w-8 h-8',
   },
   large: {
     label: 'Large',
@@ -63,6 +66,7 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border-4',
     instructionGap: 'gap-3',
     qrSize: 280,
+    logoSize: 'w-16 h-16',
   },
 };
 
@@ -203,8 +207,14 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               </div>
             </div>
 
+            {/* Platform Logos */}
+            <div className="mt-6 flex items-center justify-between px-4">
+              <img src="/google-logo.svg" alt="Google" className={previewConfig.logoSize} />
+              <img src="/yelp-logo.svg" alt="Yelp" className={previewConfig.logoSize} />
+            </div>
+
             {/* Footer */}
-            <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
               <p className="text-xs text-gray-400">Powered by <a href="/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 hover:underline">QuickReviewAI</a></p>
             </div>
           </div>
@@ -253,8 +263,14 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               </div>
             </div>
 
+            {/* Platform Logos */}
+            <div className="mt-6 flex items-center justify-between px-4">
+              <img src="/google-logo.svg" alt="Google" className={printConfig.logoSize} />
+              <img src="/yelp-logo.svg" alt="Yelp" className={printConfig.logoSize} />
+            </div>
+
             {/* Footer */}
-            <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
               <p className="text-xs text-gray-400">Powered by <a href="/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 hover:underline">QuickReviewAI</a></p>
             </div>
           </div>
