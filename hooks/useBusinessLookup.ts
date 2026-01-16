@@ -60,19 +60,40 @@ export function useBusinessLookup(
   });
   
   // Track if auto-lookup has already been performed
-  const hasAutoLookedUp = useRef(false);
+  const hasAutoLookedUp = useRef(!!opts.existingUrls?.googleUrl || !!opts.existingUrls?.yelpUrl);
   
-  // Reset when existingUrls change (e.g., editing a different store)
+  // Track if user has manually modified URLs (to prevent resetting)
+  const userHasModifiedUrls = useRef(false);
+  
+  // Track the previous store's URLs to detect when editing a different store
+  const prevExistingUrls = useRef({ googleUrl: opts.existingUrls?.googleUrl, yelpUrl: opts.existingUrls?.yelpUrl });
+  
+  // Reset only when editing a DIFFERENT store (not on every render)
   useEffect(() => {
-    setUrlsState({
-      googleUrl: opts.existingUrls?.googleUrl || '',
-      yelpUrl: opts.existingUrls?.yelpUrl || '',
-    });
-    hasAutoLookedUp.current = !!opts.existingUrls?.googleUrl || !!opts.existingUrls?.yelpUrl;
+    const prevGoogle = prevExistingUrls.current.googleUrl;
+    const prevYelp = prevExistingUrls.current.yelpUrl;
+    const newGoogle = opts.existingUrls?.googleUrl;
+    const newYelp = opts.existingUrls?.yelpUrl;
+    
+    // Only reset if we're editing a different store (URLs changed from external source)
+    // AND user hasn't manually modified the URLs yet
+    const isEditingDifferentStore = prevGoogle !== newGoogle || prevYelp !== newYelp;
+    
+    if (isEditingDifferentStore && !userHasModifiedUrls.current) {
+      setUrlsState({
+        googleUrl: newGoogle || '',
+        yelpUrl: newYelp || '',
+      });
+      hasAutoLookedUp.current = !!newGoogle || !!newYelp;
+    }
+    
+    prevExistingUrls.current = { googleUrl: newGoogle, yelpUrl: newYelp };
   }, [opts.existingUrls?.googleUrl, opts.existingUrls?.yelpUrl]);
 
   const setUrls = useCallback((newUrls: Partial<BusinessUrls>) => {
     setUrlsState(prev => ({ ...prev, ...newUrls }));
+    // Mark that user has manually modified URLs (prevents auto-reset)
+    userHasModifiedUrls.current = true;
     // Clear auto-filled flags when user manually changes URLs
     if (newUrls.googleUrl !== undefined) {
       setState(prev => ({ ...prev, googleAutoFilled: false }));
