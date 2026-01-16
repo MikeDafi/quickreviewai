@@ -6,8 +6,8 @@ export interface Store {
   businessTypes?: string[]; // Convenience field for UI (up to 3)
   keywords: string[];
   reviewExpectations?: string[];
-  googleUrl?: string;
-  yelpUrl?: string;
+  googleUrl?: string | null;
+  yelpUrl?: string | null;
   landing_page_count?: number;
   landing_page_id?: string; // ID of the primary landing page (set after creation)
   // Analytics

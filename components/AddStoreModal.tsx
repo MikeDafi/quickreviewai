@@ -340,8 +340,9 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
       businessType: businessTypes.join(', '),
       keywords,
       reviewExpectations: reviewGuidance.trim() ? [reviewGuidance.trim()] : [],
-      googleUrl: urls.googleUrl || undefined,
-      yelpUrl: urls.yelpUrl || undefined
+      // Pass empty string to explicitly clear, undefined would keep old value
+      googleUrl: urls.googleUrl.trim() || null,
+      yelpUrl: urls.yelpUrl.trim() || null
     };
 
     if (store) {

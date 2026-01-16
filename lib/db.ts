@@ -219,17 +219,24 @@ export async function updateStore(storeId: string, userId: string, data: {
   businessType?: string
   keywords?: string[]
   reviewExpectations?: string[]
-  googleUrl?: string
-  yelpUrl?: string
+  googleUrl?: string | null
+  yelpUrl?: string | null
 }) {
   // Sanitize all inputs
   const safeName = sanitizeString(data.name)
   const safeAddress = sanitizeAddress(data.address)
   const safeBusinessType = sanitizeString(data.businessType)
-  const safeGoogleUrl = sanitizeUrl(data.googleUrl)
-  const safeYelpUrl = sanitizeUrl(data.yelpUrl)
   const safeKeywords = data.keywords?.map(k => sanitizeString(k)).filter(Boolean) as string[] | undefined
   const safeExpectations = data.reviewExpectations?.map(e => sanitizeString(e)).filter(Boolean) as string[] | undefined
+  
+  // For URLs: distinguish between "not provided" (undefined) and "explicitly cleared" (null)
+  // - undefined: keep existing value (use COALESCE)
+  // - null: clear the value (set to NULL)
+  // - string: validate and set new value
+  const googleUrlProvided = 'googleUrl' in data
+  const yelpUrlProvided = 'yelpUrl' in data
+  const safeGoogleUrl = googleUrlProvided ? sanitizeUrl(data.googleUrl) : undefined
+  const safeYelpUrl = yelpUrlProvided ? sanitizeUrl(data.yelpUrl) : undefined
   
   const keywordsJson = toJsonArray(safeKeywords)
   const expectationsJson = toJsonArray(safeExpectations)
@@ -250,8 +257,14 @@ export async function updateStore(storeId: string, userId: string, data: {
              ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
         review_expectations
       ),
-      google_url = COALESCE(${safeGoogleUrl}, google_url),
-      yelp_url = COALESCE(${safeYelpUrl}, yelp_url)
+      google_url = CASE 
+        WHEN ${googleUrlProvided} THEN ${safeGoogleUrl}
+        ELSE google_url 
+      END,
+      yelp_url = CASE 
+        WHEN ${yelpUrlProvided} THEN ${safeYelpUrl}
+        ELSE yelp_url 
+      END
     WHERE id = ${storeId} AND user_id = ${userId}
     RETURNING *
   `

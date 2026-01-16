@@ -19,7 +19,7 @@ interface UseBusinessLookupOptions {
   /** Minimum name length to trigger auto-lookup (default: 5) */
   minNameLength?: number;
   /** Skip auto-lookup if editing existing store with URLs */
-  existingUrls?: { googleUrl?: string; yelpUrl?: string };
+  existingUrls?: { googleUrl?: string | null; yelpUrl?: string | null };
 }
 
 interface UseBusinessLookupReturn {
