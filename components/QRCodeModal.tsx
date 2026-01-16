@@ -24,7 +24,7 @@ const SIZE_CONFIG: Record<PrintSize, {
   qrBorder: string;
   instructionGap: string;
   qrSize: number;
-  logoSize: string;
+  overlayLogoSize: number; // Size in pixels for logo overlay on QR
 }> = {
   small: {
     label: 'Small',
@@ -38,7 +38,7 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border',
     instructionGap: 'gap-0.5',
     qrSize: 80,
-    logoSize: 'w-5 h-5',
+    overlayLogoSize: 18,
   },
   medium: {
     label: 'Medium',
@@ -52,7 +52,7 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border-2',
     instructionGap: 'gap-1',
     qrSize: 120,
-    logoSize: 'w-8 h-8',
+    overlayLogoSize: 28,
   },
   large: {
     label: 'Large',
@@ -66,7 +66,7 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border-4',
     instructionGap: 'gap-3',
     qrSize: 280,
-    logoSize: 'w-16 h-16',
+    overlayLogoSize: 56,
   },
 };
 
@@ -83,6 +83,14 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
   const landingUrl = `${window.location.origin}/r/${store.landing_page_id}`;
   const previewConfig = SIZE_CONFIG['medium']; // Always use medium for preview
   const printConfig = SIZE_CONFIG[printSize]; // Use selected size for PDF
+
+  // Check which platforms are configured
+  const hasGoogle = !!store.googleUrl;
+  const hasYelp = !!store.yelpUrl;
+  const hasBothPlatforms = hasGoogle && hasYelp;
+  const hasOnlyGoogle = hasGoogle && !hasYelp;
+  const hasOnlyYelp = hasYelp && !hasGoogle;
+  const hasAnyPlatform = hasGoogle || hasYelp;
 
   const handlePrintPDF = async () => {
     if (!printRef.current) return;
@@ -174,15 +182,74 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               <p className={`text-gray-600 ${previewConfig.subtitleSize}`}>We&apos;d love your feedback!</p>
             </div>
 
-            {/* QR Code */}
+            {/* QR Code with Logo Overlays */}
             <div className="flex justify-center mb-6">
-              <div className={`p-4 bg-white ${previewConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg`}>
+              <div className={`p-4 bg-white ${previewConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg relative`}>
                 <QRCodeSVG
                   value={landingUrl}
                   size={previewConfig.qrSize}
                   level="H"
                   includeMargin={false}
                 />
+                {/* Platform Logo Overlays */}
+                {hasAnyPlatform && (
+                  <>
+                    {hasBothPlatforms && (
+                      <>
+                        <img 
+                          src="/google-logo.svg" 
+                          alt="Google" 
+                          className="absolute bg-white rounded-sm p-0.5"
+                          style={{ 
+                            width: previewConfig.overlayLogoSize, 
+                            height: previewConfig.overlayLogoSize,
+                            bottom: 0,
+                            left: 0,
+                          }} 
+                        />
+                        <img 
+                          src="/yelp-logo.svg" 
+                          alt="Yelp" 
+                          className="absolute bg-white rounded-sm p-0.5"
+                          style={{ 
+                            width: previewConfig.overlayLogoSize, 
+                            height: previewConfig.overlayLogoSize,
+                            bottom: 0,
+                            right: 0,
+                          }} 
+                        />
+                      </>
+                    )}
+                    {hasOnlyGoogle && (
+                      <img 
+                        src="/google-logo.svg" 
+                        alt="Google" 
+                        className="absolute bg-white rounded-sm p-0.5"
+                        style={{ 
+                          width: previewConfig.overlayLogoSize, 
+                          height: previewConfig.overlayLogoSize,
+                          bottom: 0,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                        }} 
+                      />
+                    )}
+                    {hasOnlyYelp && (
+                      <img 
+                        src="/yelp-logo.svg" 
+                        alt="Yelp" 
+                        className="absolute bg-white rounded-sm p-0.5"
+                        style={{ 
+                          width: previewConfig.overlayLogoSize, 
+                          height: previewConfig.overlayLogoSize,
+                          bottom: 0,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                        }} 
+                      />
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
@@ -207,12 +274,6 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               </div>
             </div>
 
-            {/* Platform Logos */}
-            <div className="mt-6 flex items-center justify-between px-4">
-              <img src="/google-logo.svg" alt="Google" className={previewConfig.logoSize} />
-              <img src="/yelp-logo.svg" alt="Yelp" className={previewConfig.logoSize} />
-            </div>
-
             {/* Footer */}
             <div className="mt-4 pt-4 border-t border-gray-100 text-center">
               <p className="text-xs text-gray-400">Powered by <a href="/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 hover:underline">QuickReviewAI</a></p>
@@ -230,15 +291,74 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               <p className={`text-gray-600 ${printConfig.subtitleSize}`}>We&apos;d love your feedback!</p>
             </div>
 
-            {/* QR Code */}
+            {/* QR Code with Logo Overlays */}
             <div className="flex justify-center mb-6">
-              <div className={`p-4 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg`}>
+              <div className={`p-4 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg relative`}>
                 <QRCodeSVG
                   value={landingUrl}
                   size={printConfig.qrSize}
                   level="H"
                   includeMargin={false}
                 />
+                {/* Platform Logo Overlays */}
+                {hasAnyPlatform && (
+                  <>
+                    {hasBothPlatforms && (
+                      <>
+                        <img 
+                          src="/google-logo.svg" 
+                          alt="Google" 
+                          className="absolute bg-white rounded-sm p-0.5"
+                          style={{ 
+                            width: printConfig.overlayLogoSize, 
+                            height: printConfig.overlayLogoSize,
+                            bottom: 0,
+                            left: 0,
+                          }} 
+                        />
+                        <img 
+                          src="/yelp-logo.svg" 
+                          alt="Yelp" 
+                          className="absolute bg-white rounded-sm p-0.5"
+                          style={{ 
+                            width: printConfig.overlayLogoSize, 
+                            height: printConfig.overlayLogoSize,
+                            bottom: 0,
+                            right: 0,
+                          }} 
+                        />
+                      </>
+                    )}
+                    {hasOnlyGoogle && (
+                      <img 
+                        src="/google-logo.svg" 
+                        alt="Google" 
+                        className="absolute bg-white rounded-sm p-0.5"
+                        style={{ 
+                          width: printConfig.overlayLogoSize, 
+                          height: printConfig.overlayLogoSize,
+                          bottom: 0,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                        }} 
+                      />
+                    )}
+                    {hasOnlyYelp && (
+                      <img 
+                        src="/yelp-logo.svg" 
+                        alt="Yelp" 
+                        className="absolute bg-white rounded-sm p-0.5"
+                        style={{ 
+                          width: printConfig.overlayLogoSize, 
+                          height: printConfig.overlayLogoSize,
+                          bottom: 0,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                        }} 
+                      />
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
@@ -263,14 +383,8 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               </div>
             </div>
 
-            {/* Platform Logos */}
-            <div className="mt-6 flex items-center justify-between px-4">
-              <img src="/google-logo.svg" alt="Google" className={printConfig.logoSize} />
-              <img src="/yelp-logo.svg" alt="Yelp" className={printConfig.logoSize} />
-            </div>
-
             {/* Footer */}
-            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+            <div className="mt-6 pt-4 border-t border-gray-100 text-center">
               <p className="text-xs text-gray-400">Powered by <a href="/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 hover:underline">QuickReviewAI</a></p>
             </div>
           </div>
