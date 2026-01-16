@@ -203,7 +203,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                         <img 
                           src="/google-logo.svg" 
                           alt="Google" 
-                          className="absolute bg-white rounded-sm p-0.5"
+                          className="absolute"
                           style={{ 
                             width: previewConfig.overlayLogoSize, 
                             height: previewConfig.overlayLogoSize,
@@ -215,7 +215,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                         <img 
                           src="/yelp-logo.svg" 
                           alt="Yelp" 
-                          className="absolute bg-white rounded-sm p-0.5"
+                          className="absolute"
                           style={{ 
                             width: previewConfig.overlayLogoSize, 
                             height: previewConfig.overlayLogoSize,
@@ -230,7 +230,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                       <img 
                         src="/google-logo.svg" 
                         alt="Google" 
-                        className="absolute bg-white rounded-sm p-0.5"
+                        className="absolute"
                         style={{ 
                           width: previewConfig.overlayLogoSize, 
                           height: previewConfig.overlayLogoSize,
@@ -244,7 +244,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                       <img 
                         src="/yelp-logo.svg" 
                         alt="Yelp" 
-                        className="absolute bg-white rounded-sm p-0.5"
+                        className="absolute"
                         style={{ 
                           width: previewConfig.overlayLogoSize, 
                           height: previewConfig.overlayLogoSize,
@@ -314,7 +314,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                         <img 
                           src="/google-logo.svg" 
                           alt="Google" 
-                          className="absolute bg-white rounded-sm p-0.5"
+                          className="absolute"
                           style={{ 
                             width: printConfig.overlayLogoSize, 
                             height: printConfig.overlayLogoSize,
@@ -326,7 +326,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                         <img 
                           src="/yelp-logo.svg" 
                           alt="Yelp" 
-                          className="absolute bg-white rounded-sm p-0.5"
+                          className="absolute"
                           style={{ 
                             width: printConfig.overlayLogoSize, 
                             height: printConfig.overlayLogoSize,
@@ -341,7 +341,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                       <img 
                         src="/google-logo.svg" 
                         alt="Google" 
-                        className="absolute bg-white rounded-sm p-0.5"
+                        className="absolute"
                         style={{ 
                           width: printConfig.overlayLogoSize, 
                           height: printConfig.overlayLogoSize,
@@ -355,7 +355,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                       <img 
                         src="/yelp-logo.svg" 
                         alt="Yelp" 
-                        className="absolute bg-white rounded-sm p-0.5"
+                        className="absolute"
                         style={{ 
                           width: printConfig.overlayLogoSize, 
                           height: printConfig.overlayLogoSize,

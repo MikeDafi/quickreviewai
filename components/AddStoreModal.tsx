@@ -1,6 +1,6 @@
 import { useState, KeyboardEvent, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Loader2, Sparkles, CheckCircle } from 'lucide-react';
+import { X, Lightbulb, Plus, HelpCircle, ExternalLink, ChevronDown, Loader2, Sparkles, CheckCircle, Search } from 'lucide-react';
 import { Store } from '@/lib/types';
 import { SubscriptionTier } from '@/lib/constants';
 import { BUSINESS_TYPES, keywordSuggestions } from '@/lib/businessData';
@@ -120,6 +120,9 @@ interface UrlInputFieldProps {
   placeholder: string;
   helpContent: React.ReactNode;
   verifyButtonColor: 'blue' | 'red';
+  onLookup?: () => void;
+  lookupLoading?: boolean;
+  storeName?: string;
 }
 
 function UrlInputField({
@@ -133,10 +136,17 @@ function UrlInputField({
   placeholder,
   helpContent,
   verifyButtonColor,
+  onLookup,
+  lookupLoading,
+  storeName,
 }: UrlInputFieldProps) {
   const buttonColorClasses = verifyButtonColor === 'blue'
     ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
     : 'bg-red-50 text-red-700 hover:bg-red-100';
+  
+  const lookupButtonColorClasses = verifyButtonColor === 'blue'
+    ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300'
+    : 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300';
 
   return (
     <div>
@@ -174,6 +184,26 @@ function UrlInputField({
               : 'border-gray-300 focus:ring-emerald-600'
           }`}
         />
+        {onLookup && !value && (
+          <button
+            type="button"
+            onClick={onLookup}
+            disabled={lookupLoading || !storeName?.trim()}
+            className={`px-4 py-3 rounded-lg transition-colors text-sm font-medium flex items-center gap-1 ${lookupButtonColorClasses}`}
+          >
+            {lookupLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Finding...
+              </>
+            ) : (
+              <>
+                <Search className="w-4 h-4" />
+                Find URL
+              </>
+            )}
+          </button>
+        )}
         {value && !error && (
           <a
             href={value}
@@ -226,6 +256,8 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
     state: lookupState, 
     urls, 
     setUrls,
+    lookupGoogleUrl,
+    lookupYelpUrl,
   } = useBusinessLookup(name, {
     existingUrls: { googleUrl: store?.googleUrl, yelpUrl: store?.yelpUrl },
   });
@@ -568,6 +600,9 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
             autoFilled={lookupState.googleAutoFilled}
             placeholder="https://g.page/r/..."
             verifyButtonColor="blue"
+            onLookup={() => lookupGoogleUrl(name)}
+            lookupLoading={lookupState.googleLoading}
+            storeName={name}
             helpContent={
               <div className="mb-3 p-3 bg-blue-50 rounded-lg text-xs text-blue-800">
                 <p className="font-medium mb-2">To get your Google Review link:</p>
@@ -595,6 +630,9 @@ export default function AddStoreModal({ store, tier = SubscriptionTier.FREE, onC
             autoFilled={lookupState.yelpAutoFilled}
             placeholder="https://www.yelp.com/biz/..."
             verifyButtonColor="red"
+            onLookup={() => lookupYelpUrl(name)}
+            lookupLoading={lookupState.yelpLoading}
+            storeName={name}
             helpContent={
               <div className="mb-3 p-3 bg-red-50 rounded-lg text-xs text-red-800">
                 <p className="font-medium mb-2">To get your Yelp Review link:</p>

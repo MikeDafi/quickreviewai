@@ -7,6 +7,8 @@ interface BusinessUrls {
 
 interface LookupState {
   loading: boolean;
+  googleLoading: boolean;
+  yelpLoading: boolean;
   result: string | null;
   rateLimited: boolean;
   googleAutoFilled: boolean;
@@ -25,6 +27,8 @@ interface UseBusinessLookupOptions {
 interface UseBusinessLookupReturn {
   state: LookupState;
   lookupBusinessUrls: (name: string) => Promise<void>;
+  lookupGoogleUrl: (name: string) => Promise<void>;
+  lookupYelpUrl: (name: string) => Promise<void>;
   setUrls: (urls: Partial<BusinessUrls>) => void;
   urls: BusinessUrls;
   clearResult: () => void;
@@ -53,6 +57,8 @@ export function useBusinessLookup(
   
   const [state, setState] = useState<LookupState>({
     loading: false,
+    googleLoading: false,
+    yelpLoading: false,
     result: null,
     rateLimited: false,
     googleAutoFilled: false,
@@ -185,6 +191,94 @@ export function useBusinessLookup(
     await performLookup(name, false);
   }, [performLookup]);
 
+  // Platform-specific lookup for Google
+  const lookupGoogleUrl = useCallback(async (name: string) => {
+    if (!name.trim()) {
+      setState(prev => ({ ...prev, result: 'Please enter a store name first' }));
+      return;
+    }
+
+    setState(prev => ({ ...prev, googleLoading: true, result: null }));
+
+    try {
+      const res = await fetch('/api/lookup-business', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), platform: 'google' }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.googleUrl) {
+          setUrlsState(prev => ({ ...prev, googleUrl: data.googleUrl }));
+          setState(prev => ({
+            ...prev,
+            googleLoading: false,
+            googleAutoFilled: true,
+            result: 'Found Google review URL!',
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            googleLoading: false,
+            result: 'Could not find Google URL. Try adding city to your name or enter manually.',
+          }));
+        }
+      } else if (res.status === 429) {
+        setState(prev => ({ ...prev, googleLoading: false, rateLimited: true, result: 'Rate limited. Try again later.' }));
+      } else {
+        setState(prev => ({ ...prev, googleLoading: false, result: 'Lookup failed. Please enter URL manually.' }));
+      }
+    } catch (error) {
+      console.error('Google lookup error:', error);
+      setState(prev => ({ ...prev, googleLoading: false, result: 'Lookup failed. Please enter URL manually.' }));
+    }
+  }, []);
+
+  // Platform-specific lookup for Yelp
+  const lookupYelpUrl = useCallback(async (name: string) => {
+    if (!name.trim()) {
+      setState(prev => ({ ...prev, result: 'Please enter a store name first' }));
+      return;
+    }
+
+    setState(prev => ({ ...prev, yelpLoading: true, result: null }));
+
+    try {
+      const res = await fetch('/api/lookup-business', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), platform: 'yelp' }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.yelpUrl) {
+          setUrlsState(prev => ({ ...prev, yelpUrl: data.yelpUrl }));
+          setState(prev => ({
+            ...prev,
+            yelpLoading: false,
+            yelpAutoFilled: true,
+            result: 'Found Yelp review URL!',
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            yelpLoading: false,
+            result: 'Could not find Yelp URL. Try adding city to your name or enter manually.',
+          }));
+        }
+      } else if (res.status === 429) {
+        setState(prev => ({ ...prev, yelpLoading: false, rateLimited: true, result: 'Rate limited. Try again later.' }));
+      } else {
+        setState(prev => ({ ...prev, yelpLoading: false, result: 'Lookup failed. Please enter URL manually.' }));
+      }
+    } catch (error) {
+      console.error('Yelp lookup error:', error);
+      setState(prev => ({ ...prev, yelpLoading: false, result: 'Lookup failed. Please enter URL manually.' }));
+    }
+  }, []);
+
   // Auto-lookup effect
   useEffect(() => {
     // Skip if already looked up, URLs already filled, or editing existing store with URLs
@@ -211,6 +305,8 @@ export function useBusinessLookup(
   return {
     state,
     lookupBusinessUrls,
+    lookupGoogleUrl,
+    lookupYelpUrl,
     setUrls,
     urls,
     clearResult,
