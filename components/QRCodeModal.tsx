@@ -195,7 +195,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                   level="H"
                   includeMargin={false}
                 />
-                {/* Platform Logo Overlays */}
+                {/* Platform Logo Overlays - Top/Bottom Middle to avoid QR finder patterns */}
                 {hasAnyPlatform && (
                   <>
                     {hasBothPlatforms && (
@@ -207,8 +207,9 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                           style={{ 
                             width: previewConfig.overlayLogoSize, 
                             height: previewConfig.overlayLogoSize,
-                            bottom: previewConfig.logoOffset,
-                            left: previewConfig.logoOffset,
+                            top: previewConfig.logoOffset,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                           }} 
                         />
                         <img 
@@ -219,7 +220,8 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                             width: previewConfig.overlayLogoSize, 
                             height: previewConfig.overlayLogoSize,
                             bottom: previewConfig.logoOffset,
-                            right: previewConfig.logoOffset,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                           }} 
                         />
                       </>
@@ -304,7 +306,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                   level="H"
                   includeMargin={false}
                 />
-                {/* Platform Logo Overlays */}
+                {/* Platform Logo Overlays - Top/Bottom Middle to avoid QR finder patterns */}
                 {hasAnyPlatform && (
                   <>
                     {hasBothPlatforms && (
@@ -316,8 +318,9 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                           style={{ 
                             width: printConfig.overlayLogoSize, 
                             height: printConfig.overlayLogoSize,
-                            bottom: printConfig.logoOffset,
-                            left: printConfig.logoOffset,
+                            top: printConfig.logoOffset,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                           }} 
                         />
                         <img 
@@ -328,7 +331,8 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                             width: printConfig.overlayLogoSize, 
                             height: printConfig.overlayLogoSize,
                             bottom: printConfig.logoOffset,
-                            right: printConfig.logoOffset,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                           }} 
                         />
                       </>
