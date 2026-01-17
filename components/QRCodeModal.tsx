@@ -39,8 +39,8 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border',
     instructionGap: 'gap-0.5',
     qrSize: 80,
-    overlayLogoSize: 18,
-    logoOffset: 4,
+    overlayLogoSize: 12,
+    logoOffset: 2,
   },
   medium: {
     label: 'Medium',
@@ -54,8 +54,8 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border-2',
     instructionGap: 'gap-1',
     qrSize: 120,
-    overlayLogoSize: 28,
-    logoOffset: 8,
+    overlayLogoSize: 16,
+    logoOffset: 3,
   },
   large: {
     label: 'Large',
@@ -69,8 +69,8 @@ const SIZE_CONFIG: Record<PrintSize, {
     qrBorder: 'border-4',
     instructionGap: 'gap-3',
     qrSize: 280,
-    overlayLogoSize: 56,
-    logoOffset: 16,
+    overlayLogoSize: 32,
+    logoOffset: 6,
   },
 };
 
@@ -106,6 +106,8 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
         scale: 3,
         backgroundColor: '#ffffff',
         logging: false,
+        useCORS: true,
+        allowTaint: true,
       });
       
       const imgData = canvas.toDataURL('image/png');
