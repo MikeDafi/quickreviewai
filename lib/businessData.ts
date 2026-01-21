@@ -1694,7 +1694,7 @@ export const demoKeywordSuggestions: Record<string, string[]> = {
   'Barre Studio': ['barre studio', 'barre class', 'barre near me', 'barre fitness', 'pure barre'],
   
   // Retail
-  'Retail Store': ['store near me', 'best shop', 'local store', 'retail shop', 'shopping'],
+  'Clothing Store': ['clothing store', 'shopping', 'retail store', 'best shop', 'local store'],
   'Boutique': ['boutique', 'clothing store', 'fashion boutique', 'womens clothing', 'local boutique'],
   'Jewelry Store': ['jewelry store', 'jeweler', 'engagement rings', 'custom jewelry', 'fine jewelry'],
   'Florist': ['florist', 'flower shop', 'flowers near me', 'wedding flowers', 'flower delivery'],

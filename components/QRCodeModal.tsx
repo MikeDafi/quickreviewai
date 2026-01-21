@@ -307,7 +307,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                   level="H"
                   includeMargin={false}
                 />
-                {/* Platform Logo Overlays - Top/Bottom Middle to avoid QR finder patterns */}
+                {/* Platform Logo Overlays - Bottom corners for PDF (html2canvas requires bottom positioning) */}
                 {hasAnyPlatform && (
                   <>
                     {hasBothPlatforms && (
@@ -319,9 +319,8 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                           style={{ 
                             width: printConfig.overlayLogoSize, 
                             height: printConfig.overlayLogoSize,
-                            top: printConfig.logoOffset,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
+                            bottom: printConfig.logoOffset,
+                            left: printConfig.logoOffset,
                           }} 
                         />
                         <img 
@@ -332,8 +331,7 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                             width: printConfig.overlayLogoSize, 
                             height: printConfig.overlayLogoSize,
                             bottom: printConfig.logoOffset,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
+                            right: printConfig.logoOffset,
                           }} 
                         />
                       </>
