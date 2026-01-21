@@ -100,6 +100,18 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
   const hasOnlyGoogle = hasGoogle && !hasYelp;
   const hasOnlyYelp = hasYelp && !hasGoogle;
   const hasAnyPlatform = hasGoogle || hasYelp;
+  
+  // Debug logging
+  console.log('QRCodeModal store data:', {
+    name: store.name,
+    googleUrl: store.googleUrl,
+    yelpUrl: store.yelpUrl,
+    hasGoogle,
+    hasYelp,
+    hasBothPlatforms,
+    hasOnlyGoogle,
+    hasOnlyYelp,
+  });
 
   const handlePrintPDF = async () => {
     if (!printRef.current) return;
