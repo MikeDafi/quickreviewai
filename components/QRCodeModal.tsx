@@ -321,21 +321,19 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
               <p className={`text-gray-600 ${printConfig.subtitleSize}`}>We&apos;d love your feedback!</p>
             </div>
 
-            {/* QR Code with Logos - Vertical Stack for PDF (uses base64 for html2canvas) */}
+            {/* QR Code with Logos - Always show both logos for now */}
             <div className="flex justify-center mb-6">
               <div className={`p-4 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg flex flex-col items-center`}>
-                {/* Google logo at top (when both platforms) */}
-                {hasBothPlatforms && (
-                  <img 
-                    src={GOOGLE_LOGO_BASE64}
-                    alt="Google" 
-                    style={{ 
-                      width: printConfig.overlayLogoSize, 
-                      height: printConfig.overlayLogoSize,
-                      marginBottom: printConfig.logoOffset,
-                    }} 
-                  />
-                )}
+                {/* Google logo at top - ALWAYS SHOW */}
+                <img 
+                  src={GOOGLE_LOGO_BASE64}
+                  alt="Google" 
+                  style={{ 
+                    width: printConfig.overlayLogoSize, 
+                    height: printConfig.overlayLogoSize,
+                    marginBottom: printConfig.logoOffset,
+                  }} 
+                />
                 
                 {/* QR Code */}
                 <QRCodeSVG
@@ -345,40 +343,16 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                   includeMargin={false}
                 />
                 
-                {/* Bottom logo */}
-                {hasBothPlatforms && (
-                  <img 
-                    src={YELP_LOGO_BASE64}
-                    alt="Yelp" 
-                    style={{ 
-                      width: printConfig.overlayLogoSize, 
-                      height: printConfig.overlayLogoSize,
-                      marginTop: printConfig.logoOffset,
-                    }} 
-                  />
-                )}
-                {hasOnlyGoogle && (
-                  <img 
-                    src={GOOGLE_LOGO_BASE64}
-                    alt="Google" 
-                    style={{ 
-                      width: printConfig.overlayLogoSize, 
-                      height: printConfig.overlayLogoSize,
-                      marginTop: printConfig.logoOffset,
-                    }} 
-                  />
-                )}
-                {hasOnlyYelp && (
-                  <img 
-                    src={YELP_LOGO_BASE64}
-                    alt="Yelp" 
-                    style={{ 
-                      width: printConfig.overlayLogoSize, 
-                      height: printConfig.overlayLogoSize,
-                      marginTop: printConfig.logoOffset,
-                    }} 
-                  />
-                )}
+                {/* Yelp logo at bottom - ALWAYS SHOW */}
+                <img 
+                  src={YELP_LOGO_BASE64}
+                  alt="Yelp" 
+                  style={{ 
+                    width: printConfig.overlayLogoSize, 
+                    height: printConfig.overlayLogoSize,
+                    marginTop: printConfig.logoOffset,
+                  }} 
+                />
               </div>
             </div>
 
