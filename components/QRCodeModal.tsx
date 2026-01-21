@@ -196,64 +196,70 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                   level="H"
                   includeMargin={false}
                 />
-                {/* Platform Logo Overlays - Top/Bottom Middle to avoid QR finder patterns */}
+                {/* Platform Logo Overlays - Top/Bottom Middle */}
                 {hasAnyPlatform && (
                   <>
                     {hasBothPlatforms && (
                       <>
-                        <img 
-                          src="/google-logo.svg" 
-                          alt="Google" 
-                          className="absolute"
-                          style={{ 
-                            width: previewConfig.overlayLogoSize, 
-                            height: previewConfig.overlayLogoSize,
-                            top: previewConfig.logoOffset,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                          }} 
-                        />
-                        <img 
-                          src="/yelp-logo.svg" 
-                          alt="Yelp" 
-                          className="absolute"
-                          style={{ 
-                            width: previewConfig.overlayLogoSize, 
-                            height: previewConfig.overlayLogoSize,
-                            bottom: previewConfig.logoOffset,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                          }} 
-                        />
+                        {/* Google at top-middle */}
+                        <div 
+                          className="absolute left-0 right-0 flex justify-center"
+                          style={{ top: previewConfig.logoOffset }}
+                        >
+                          <img 
+                            src="/google-logo.svg" 
+                            alt="Google" 
+                            style={{ 
+                              width: previewConfig.overlayLogoSize, 
+                              height: previewConfig.overlayLogoSize,
+                            }} 
+                          />
+                        </div>
+                        {/* Yelp at bottom-middle */}
+                        <div 
+                          className="absolute left-0 right-0 flex justify-center"
+                          style={{ bottom: previewConfig.logoOffset }}
+                        >
+                          <img 
+                            src="/yelp-logo.svg" 
+                            alt="Yelp" 
+                            style={{ 
+                              width: previewConfig.overlayLogoSize, 
+                              height: previewConfig.overlayLogoSize,
+                            }} 
+                          />
+                        </div>
                       </>
                     )}
                     {hasOnlyGoogle && (
-                      <img 
-                        src="/google-logo.svg" 
-                        alt="Google" 
-                        className="absolute"
-                        style={{ 
-                          width: previewConfig.overlayLogoSize, 
-                          height: previewConfig.overlayLogoSize,
-                          bottom: previewConfig.logoOffset,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                        }} 
-                      />
+                      <div 
+                        className="absolute left-0 right-0 flex justify-center"
+                        style={{ bottom: previewConfig.logoOffset }}
+                      >
+                        <img 
+                          src="/google-logo.svg" 
+                          alt="Google" 
+                          style={{ 
+                            width: previewConfig.overlayLogoSize, 
+                            height: previewConfig.overlayLogoSize,
+                          }} 
+                        />
+                      </div>
                     )}
                     {hasOnlyYelp && (
-                      <img 
-                        src="/yelp-logo.svg" 
-                        alt="Yelp" 
-                        className="absolute"
-                        style={{ 
-                          width: previewConfig.overlayLogoSize, 
-                          height: previewConfig.overlayLogoSize,
-                          bottom: previewConfig.logoOffset,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                        }} 
-                      />
+                      <div 
+                        className="absolute left-0 right-0 flex justify-center"
+                        style={{ bottom: previewConfig.logoOffset }}
+                      >
+                        <img 
+                          src="/yelp-logo.svg" 
+                          alt="Yelp" 
+                          style={{ 
+                            width: previewConfig.overlayLogoSize, 
+                            height: previewConfig.overlayLogoSize,
+                          }} 
+                        />
+                      </div>
                     )}
                   </>
                 )}
@@ -307,62 +313,70 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
                   level="H"
                   includeMargin={false}
                 />
-                {/* Platform Logo Overlays - Bottom corners for PDF (html2canvas requires bottom positioning) */}
+                {/* Platform Logo Overlays - Top/Bottom Middle */}
                 {hasAnyPlatform && (
                   <>
                     {hasBothPlatforms && (
                       <>
-                        <img 
-                          src="/google-logo.svg" 
-                          alt="Google" 
-                          className="absolute"
-                          style={{ 
-                            width: printConfig.overlayLogoSize, 
-                            height: printConfig.overlayLogoSize,
-                            bottom: printConfig.logoOffset,
-                            left: printConfig.logoOffset,
-                          }} 
-                        />
-                        <img 
-                          src="/yelp-logo.svg" 
-                          alt="Yelp" 
-                          className="absolute"
-                          style={{ 
-                            width: printConfig.overlayLogoSize, 
-                            height: printConfig.overlayLogoSize,
-                            bottom: printConfig.logoOffset,
-                            right: printConfig.logoOffset,
-                          }} 
-                        />
+                        {/* Google at top-middle */}
+                        <div 
+                          className="absolute left-0 right-0 flex justify-center"
+                          style={{ top: printConfig.logoOffset }}
+                        >
+                          <img 
+                            src="/google-logo.svg" 
+                            alt="Google" 
+                            style={{ 
+                              width: printConfig.overlayLogoSize, 
+                              height: printConfig.overlayLogoSize,
+                            }} 
+                          />
+                        </div>
+                        {/* Yelp at bottom-middle */}
+                        <div 
+                          className="absolute left-0 right-0 flex justify-center"
+                          style={{ bottom: printConfig.logoOffset }}
+                        >
+                          <img 
+                            src="/yelp-logo.svg" 
+                            alt="Yelp" 
+                            style={{ 
+                              width: printConfig.overlayLogoSize, 
+                              height: printConfig.overlayLogoSize,
+                            }} 
+                          />
+                        </div>
                       </>
                     )}
                     {hasOnlyGoogle && (
-                      <img 
-                        src="/google-logo.svg" 
-                        alt="Google" 
-                        className="absolute"
-                        style={{ 
-                          width: printConfig.overlayLogoSize, 
-                          height: printConfig.overlayLogoSize,
-                          bottom: printConfig.logoOffset,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                        }} 
-                      />
+                      <div 
+                        className="absolute left-0 right-0 flex justify-center"
+                        style={{ bottom: printConfig.logoOffset }}
+                      >
+                        <img 
+                          src="/google-logo.svg" 
+                          alt="Google" 
+                          style={{ 
+                            width: printConfig.overlayLogoSize, 
+                            height: printConfig.overlayLogoSize,
+                          }} 
+                        />
+                      </div>
                     )}
                     {hasOnlyYelp && (
-                      <img 
-                        src="/yelp-logo.svg" 
-                        alt="Yelp" 
-                        className="absolute"
-                        style={{ 
-                          width: printConfig.overlayLogoSize, 
-                          height: printConfig.overlayLogoSize,
-                          bottom: printConfig.logoOffset,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                        }} 
-                      />
+                      <div 
+                        className="absolute left-0 right-0 flex justify-center"
+                        style={{ bottom: printConfig.logoOffset }}
+                      >
+                        <img 
+                          src="/yelp-logo.svg" 
+                          alt="Yelp" 
+                          style={{ 
+                            width: printConfig.overlayLogoSize, 
+                            height: printConfig.overlayLogoSize,
+                          }} 
+                        />
+                      </div>
                     )}
                   </>
                 )}
