@@ -315,43 +315,34 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
             ref={printRef}
             className={`bg-white ${printConfig.padding} rounded-xl absolute -left-[9999px]`}
           >
+            {/* HUGE LOGOS AT TOP RIGHT - FOR TESTING */}
+            <div className="flex justify-end gap-4 mb-4">
+              <img 
+                src={GOOGLE_LOGO_BASE64}
+                alt="Google" 
+                style={{ width: 80, height: 80 }} 
+              />
+              <img 
+                src={YELP_LOGO_BASE64}
+                alt="Yelp" 
+                style={{ width: 80, height: 80 }} 
+              />
+            </div>
+
             {/* Header */}
             <div className="text-center mb-6">
               <h3 className={`${printConfig.titleSize} font-bold text-gray-900 mb-2`}>{store.name}</h3>
               <p className={`text-gray-600 ${printConfig.subtitleSize}`}>We&apos;d love your feedback!</p>
             </div>
 
-            {/* QR Code with Logos - Always show both logos for now */}
+            {/* QR Code */}
             <div className="flex justify-center mb-6">
-              <div className={`p-4 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg flex flex-col items-center`}>
-                {/* Google logo at top - ALWAYS SHOW */}
-                <img 
-                  src={GOOGLE_LOGO_BASE64}
-                  alt="Google" 
-                  style={{ 
-                    width: printConfig.overlayLogoSize, 
-                    height: printConfig.overlayLogoSize,
-                    marginBottom: printConfig.logoOffset,
-                  }} 
-                />
-                
-                {/* QR Code */}
+              <div className={`p-4 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg`}>
                 <QRCodeSVG
                   value={landingUrl}
                   size={printConfig.qrSize}
                   level="H"
                   includeMargin={false}
-                />
-                
-                {/* Yelp logo at bottom - ALWAYS SHOW */}
-                <img 
-                  src={YELP_LOGO_BASE64}
-                  alt="Yelp" 
-                  style={{ 
-                    width: printConfig.overlayLogoSize, 
-                    height: printConfig.overlayLogoSize,
-                    marginTop: printConfig.logoOffset,
-                  }} 
                 />
               </div>
             </div>
