@@ -315,35 +315,44 @@ export default function QRCodeModal({ store, onClose }: QRCodeModalProps) {
             ref={printRef}
             className={`bg-white ${printConfig.padding} rounded-xl absolute -left-[9999px]`}
           >
-            {/* HUGE LOGOS AT TOP RIGHT - FOR TESTING */}
-            <div className="flex justify-end gap-4 mb-4">
-              <img 
-                src={GOOGLE_LOGO_BASE64}
-                alt="Google" 
-                style={{ width: 80, height: 80 }} 
-              />
-              <img 
-                src={YELP_LOGO_BASE64}
-                alt="Yelp" 
-                style={{ width: 80, height: 80 }} 
-              />
-            </div>
-
             {/* Header */}
             <div className="text-center mb-6">
               <h3 className={`${printConfig.titleSize} font-bold text-gray-900 mb-2`}>{store.name}</h3>
               <p className={`text-gray-600 ${printConfig.subtitleSize}`}>We&apos;d love your feedback!</p>
             </div>
 
-            {/* QR Code */}
+            {/* QR Code with Logos - conditional based on URLs */}
             <div className="flex justify-center mb-6">
-              <div className={`p-4 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg`}>
+              <div className={`px-4 py-2 bg-white ${printConfig.qrBorder} border-emerald-500 rounded-2xl shadow-lg flex flex-col items-center`}>
+                {/* Google logo at top middle - only if googleUrl exists */}
+                {hasGoogle && (
+                  <img 
+                    src="/google-logo.svg"
+                    alt="Google" 
+                    width={printConfig.overlayLogoSize}
+                    height={printConfig.overlayLogoSize}
+                    style={{ marginBottom: -(printConfig.overlayLogoSize / 2), position: 'relative', zIndex: 10 }}
+                  />
+                )}
+                
+                {/* QR Code */}
                 <QRCodeSVG
                   value={landingUrl}
                   size={printConfig.qrSize}
                   level="H"
                   includeMargin={false}
                 />
+                
+                {/* Yelp logo at bottom middle - only if yelpUrl exists */}
+                {hasYelp && (
+                  <img 
+                    src="/yelp-logo.svg"
+                    alt="Yelp" 
+                    width={printConfig.overlayLogoSize}
+                    height={printConfig.overlayLogoSize}
+                    style={{ marginTop: -(printConfig.overlayLogoSize / 2), position: 'relative', zIndex: 10 }}
+                  />
+                )}
               </div>
             </div>
 
