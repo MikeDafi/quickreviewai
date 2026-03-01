@@ -36,18 +36,18 @@ interface LandingData {
 // Demo data for the homepage preview
 const DEMO_DATA: LandingData = {
   id: 'demo',
-  store_name: "Tony's Pizza",
-  business_type: 'Pizzeria',
-  google_url: 'https://g.page/r/CYbhqyxqIqguEBM/review',
-  yelp_url: 'https://www.yelp.com/writeareview/biz/dx3-uI6A5bIXptySpOSaZg',
+  store_name: 'Town Country Market',
+  business_type: 'Liquor Store',
+  google_url: 'https://search.google.com/local/writereview?placeid=ChIJExample',
+  yelp_url: 'https://www.yelp.com/writeareview/biz/town-country-market-san-francisco',
 };
 
 const DEMO_REVIEWS = [
-  "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back next week with my friends.",
-  "Ok so my coworker kept bugging me to try Tony's and she was right lol. The pepperoni was on point and they actually use real cheese, not that processed stuff. New favorite spot for sure. Already planning my next visit.",
-  "Brought my parents here for their anniversary dinner. Dad's picky about pizza but even he admitted this was great. The margherita was fresh and the garlic knots... chef's kiss. Mom wants to come back already.",
-  "Been coming here for like 2 years now and it's consistently good. Not the cheapest but worth it imo. The lunch special is clutch if you're on a budget. Staff remembers my usual order which is a nice touch.",
-  "Stopped by on a whim after the gym and no regrets. Quick service, tasty slice, friendly people. What more do you need honestly. The guy at the counter even gave me extra napkins without asking haha.",
+  "Stopped in looking for a decent bottle of wine for dinner and the guy working actually knew his stuff. Recommended something I never would've picked and it was perfect. Way better selection than the bigger stores around here tbh.",
+  "This is my go-to spot now for grabbing stuff on the way home. They got a solid craft beer selection and the prices aren't bad for the neighborhood. Dude at the register is always friendly which is a plus.",
+  "Been coming here for like a year now instead of the Safeway down the street. They carry some hard to find whiskeys that I can never find anywhere else. Small store but they make good use of the space.",
+  "My roommate told me about this place and yeah its legit. Found a really good tequila I'd been looking for and they had it cheaper than Total Wine. Parking is rough but thats just SF honestly.",
+  "Walked in needing something for a party and the staff helped me pick out a bunch of stuff without being pushy about it. Good mix of local and imported options. Will def be back.",
 ];
 
 export default function LandingPage() {
@@ -69,6 +69,7 @@ export default function LandingPage() {
   const [toast, setToast] = useState<string | null>(null);
 
   const isDemo = id === 'demo';
+  const isEmbed = router.query.embed === '1';
   
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -258,7 +259,7 @@ export default function LandingPage() {
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
           {/* Demo Banner */}
-          {isDemo && (
+          {isDemo && !isEmbed && (
             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
               <p className="text-sm text-amber-800">
                 📱 <strong>Demo Mode</strong> — This is what your customers will see!

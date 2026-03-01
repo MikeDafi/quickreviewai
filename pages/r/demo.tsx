@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Copy, RefreshCw, ExternalLink, Check, Lock, X, ArrowDown, Sparkles } from 'lucide-react';
 
 const DEMO_REVIEWS = [
-  "Finally tried this place after walking past it forever. Gotta say the pizza was legit - that crust tho! Staff was super chill and didn't rush us even when it got busy. Def coming back next week with my friends.",
-  "Ok so my coworker kept bugging me to try Tony's and she was right lol. The pepperoni was on point and they actually use real cheese, not that processed stuff. New favorite spot for sure. Already planning my next visit.",
-  "Brought my parents here for their anniversary dinner. Dad's picky about pizza but even he admitted this was great. The margherita was fresh and the garlic knots... chef's kiss. Mom wants to come back already.",
-  "Been coming here for like 2 years now and it's consistently good. Not the cheapest but worth it imo. The lunch special is clutch if you're on a budget. Staff remembers my usual order which is a nice touch.",
-  "Stopped by on a whim after the gym and no regrets. Quick service, tasty slice, friendly people. What more do you need honestly. The guy at the counter even gave me extra napkins without asking haha.",
-  "3rd time here this month lol. The pepperoni is legit and the crust has that perfect char on the bottom. Parking can be annoying but honestly worth the hassle. My go-to spot now when I'm craving pizza.",
-  "Not gonna lie almost walked past it bc it looked kinda empty but so glad I went in. Wood fired makes such a difference tbh. The garlic knots were incredible too. Will definitely be bringing my family next time.",
-  "My bf said this was his favorite pizza in the city and i was skeptical but... yeah ok fine he was right this time lmao. The margherita was perfect and the vibes were great. We stayed way longer than planned.",
+  "Stopped in looking for a decent bottle of wine for dinner and the guy working actually knew his stuff. Recommended something I never would've picked and it was perfect. Way better selection than the bigger stores around here tbh.",
+  "This is my go-to spot now for grabbing stuff on the way home. They got a solid craft beer selection and the prices aren't bad for the neighborhood. Dude at the register is always friendly which is a plus.",
+  "Been coming here for like a year now instead of the Safeway down the street. They carry some hard to find whiskeys that I can never find anywhere else. Small store but they make good use of the space.",
+  "My roommate told me about this place and yeah its legit. Found a really good tequila I'd been looking for and they had it cheaper than Total Wine. Parking is rough but thats just SF honestly.",
+  "Walked in needing something for a party and the staff helped me pick out a bunch of stuff without being pushy about it. Good mix of local and imported options. Will def be back.",
+  "3rd time here this week lol. The craft beer selection is what keeps me coming back. They rotate stuff out pretty often so there's always something new. Guy at the counter remembers my name now which is kinda cool.",
+  "Not gonna lie I almost walked past it bc it looks small from outside but they pack a lot in there. Found a bourbon I've been hunting for months. Prices are fair too, not the markup you'd expect for this area.",
+  "My gf dragged me in here looking for some specific wine and the staff actually found it for us in like 2 minutes. Super helpful without being annoying about it. Way better experience than BevMo imo.",
 ];
 
 const MAX_DEMO_REGENERATIONS = 3;
 
 export default function DemoLandingPage() {
+  const router = useRouter();
+  const isEmbed = router.query.embed === '1';
   const [review, setReview] = useState(DEMO_REVIEWS[0]);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -60,22 +63,24 @@ export default function DemoLandingPage() {
   return (
     <>
       <Head>
-        <title>Demo - Leave a Review for Tony&apos;s Pizza</title>
+        <title>Demo - Leave a Review for Town Country Market</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
           {/* Demo Banner */}
-          <div className="bg-amber-100 border border-amber-300 rounded-xl p-3 mb-6 text-center">
-            <p className="text-amber-800 text-sm font-medium">
-              🎯 Demo Mode - This is what your customers will see!
-            </p>
-          </div>
+          {!isEmbed && (
+            <div className="bg-amber-100 border border-amber-300 rounded-xl p-3 mb-6 text-center">
+              <p className="text-amber-800 text-sm font-medium">
+                🎯 Demo Mode - This is what your customers will see!
+              </p>
+            </div>
+          )}
 
           {/* Business Name */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tony&apos;s Pizza</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Town Country Market</h1>
             <p className="text-lg text-gray-600">
               Thank you for visiting! 🙏
             </p>
