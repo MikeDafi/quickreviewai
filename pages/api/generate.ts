@@ -442,6 +442,8 @@ ${(lengthProfile.type !== 'ultra-short' && lengthProfile.type !== 'micro') ? `�
 • Write like you're telling a friend, not writing an essay
 • Real people ramble a bit and go off topic` : '• Keep it super casual and brief'}
 
+CRITICAL: Do NOT invent specific product names, brand names, menu items, or service names. Keep it vague and general ("what I came for", "the stuff they have", "what they did"). Only mention specifics if they appear in the KEYWORDS above.
+
 ABSOLUTE BANNED PHRASES (instant AI detection):
 ❌ "I recently visited" / "I had the pleasure" / "I recently had the opportunity"
 ❌ "exceptional" / "impeccable" / "delightful" / "exquisite" / "phenomenal"  
