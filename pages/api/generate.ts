@@ -393,6 +393,7 @@ function buildPrompt(
   requiredOpener: string,
   quirks: string[],
   exampleReviews: string[],
+  recentReviews: string[],
   delimiter?: string // Optional for backwards compatibility
 ): string {
   const d = delimiter || generateDelimiter()
@@ -443,7 +444,12 @@ ${(lengthProfile.type !== 'ultra-short' && lengthProfile.type !== 'micro') ? `�
 • It's ok to mention something small that wasn't perfect
 • Write like you're telling a friend, not writing an essay
 • Real people ramble a bit and go off topic` : '• Keep it super casual and brief'}
+${recentReviews.length > 0 ? `
+RECENTLY GENERATED REVIEWS FOR THIS BUSINESS (DO NOT reuse phrasing, structure, or patterns from these):
+${recentReviews.map((r, i) => `${i + 1}. "${r}"`).join('\n')}
 
+Your review MUST feel completely different from all of the above. Use different sentence structure, different focus, different tone, and different vocabulary.
+` : ''}
 ABSOLUTE BANNED PHRASES (instant AI detection):
 ❌ "I recently visited" / "I had the pleasure" / "I recently had the opportunity"
 ❌ "exceptional" / "impeccable" / "delightful" / "exquisite" / "phenomenal"  
@@ -555,6 +561,22 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
   const requiredOpener = pickOne(REVIEW_OPENERS)
   const quirks = buildQuirksList()
   const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
+
+  // Fetch last 50 reviews for this store to avoid repetition
+  let recentReviews: string[] = []
+  try {
+    const { rows } = await sql`
+      SELECT review_text FROM review_events
+      WHERE store_id = ${landing.store_id}
+        AND review_text IS NOT NULL
+      ORDER BY created_at DESC
+      LIMIT 50
+    `
+    recentReviews = rows.map(r => r.review_text as string).filter(Boolean)
+  } catch {
+    // Non-critical, continue without recent reviews
+  }
+
   const businessTypeDisplay = safeBusinessType
     .split(',')
     .map(t => t.trim())
@@ -570,7 +592,8 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
     lengthProfile,
     requiredOpener,
     quirks,
-    exampleReviews
+    exampleReviews,
+    recentReviews
   )
   
   const metadata = {
