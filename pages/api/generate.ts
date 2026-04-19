@@ -562,13 +562,14 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
   const quirks = buildQuirksList()
   const exampleReviews = pickRandom(EXAMPLE_HUMAN_REVIEWS, 2)
 
-  // Fetch last 50 reviews for this store to avoid repetition
+  // Fetch last 50 pasted reviews for this store to avoid repetition
   let recentReviews: string[] = []
   try {
     const { rows } = await sql`
       SELECT review_text FROM review_events
       WHERE store_id = ${landing.store_id}
         AND review_text IS NOT NULL
+        AND (was_pasted_google = true OR was_pasted_yelp = true)
       ORDER BY created_at DESC
       LIMIT 50
     `
