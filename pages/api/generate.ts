@@ -418,6 +418,8 @@ ${userDataSection}
 
 Write a Google/Yelp review for the business named in BUSINESS_NAME (a business of type BUSINESS_TYPE).
 
+IMPORTANT: Your review MUST make sense for a BUSINESS_TYPE. Think about what a real customer actually does at this kind of business and only describe realistic interactions for it.
+
 YOU ARE: ${reviewerContext}
 
 ${keywordsStr ? `WORK IN NATURALLY (from KEYWORDS_TO_USE above): the keywords listed in the data section` : ''}${reviewGuidance ? `
@@ -441,8 +443,6 @@ ${(lengthProfile.type !== 'ultra-short' && lengthProfile.type !== 'micro') ? `�
 • It's ok to mention something small that wasn't perfect
 • Write like you're telling a friend, not writing an essay
 • Real people ramble a bit and go off topic` : '• Keep it super casual and brief'}
-
-CRITICAL: Do NOT invent specific product names, brand names, menu items, or service names. Keep it vague and general ("what I came for", "the stuff they have", "what they did"). Only mention specifics if they appear in the KEYWORDS above.
 
 ABSOLUTE BANNED PHRASES (instant AI detection):
 ❌ "I recently visited" / "I had the pleasure" / "I recently had the opportunity"
