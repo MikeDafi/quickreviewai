@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: `Method ${req.method} not allowed` })
   }
 
-  const limit = Math.min(parseInt(req.query.limit as string) || 20, 50)
+  const limit = Math.min(parseInt(req.query.limit as string) || 25, 25)
   const checkNotification = req.query.checkNotification === 'true'
 
   // Get client IP for notification tracking
