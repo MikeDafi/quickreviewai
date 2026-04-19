@@ -360,9 +360,6 @@ interface ReviewResult {
 function buildQuirksList(): string[] {
   const quirks: string[] = []
   
-  if (Math.random() < REVIEW_QUIRKS.LOL_EXPRESSIONS.probability) {
-    quirks.push(REVIEW_QUIRKS.LOL_EXPRESSIONS.instruction)
-  }
   if (Math.random() < REVIEW_QUIRKS.CASUAL_CONTRACTIONS.probability) {
     quirks.push(REVIEW_QUIRKS.CASUAL_CONTRACTIONS.instruction)
   }
@@ -635,7 +632,7 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
   })
   
   // Return fallback review (avoiding store name to prevent any injection issues)
-  const safeKeyword = sanitizedKeywords[0] || 'experience'
+  const safeKeyword = selectedKeywords[0] || 'experience'
     const fallbacks = [
     `${requiredOpener} I tried this place and the ${safeKeyword} was great. Would come back.`,
     `Finally checked out this spot. Pretty impressed with the ${safeKeyword} tbh.`,
