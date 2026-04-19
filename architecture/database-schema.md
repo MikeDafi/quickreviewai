@@ -48,7 +48,7 @@
                        │ keywords_used[]     │
                        │ expectations_used[] │
                        │ length_type         │
-                       │ persona             │
+                       │ reviewer_context    │
                        │ was_copied          │
                        │ was_pasted_google   │
                        │ was_pasted_yelp     │
@@ -122,8 +122,8 @@ Analytics tracking for each generated review.
 | `review_text` | TEXT | Generated review content |
 | `keywords_used` | TEXT[] | Keywords included |
 | `expectations_used` | TEXT[] | Expectations included |
-| `length_type` | TEXT | ultra-short/short/medium/long/extended |
-| `persona` | TEXT | Character persona used |
+| `length_type` | TEXT | micro/ultra-short/short/medium/long/extended |
+| `reviewer_context` | TEXT | Reviewer identity/situation context used |
 | `was_copied` | BOOLEAN | User clicked copy |
 | `was_pasted_google` | BOOLEAN | User clicked Google (after copy) |
 | `was_pasted_yelp` | BOOLEAN | User clicked Yelp (after copy) |
@@ -160,6 +160,7 @@ enum Platform {
 }
 
 enum ReviewLengthType {
+  MICRO = 'micro',
   ULTRA_SHORT = 'ultra-short',
   SHORT = 'short',
   MEDIUM = 'medium',

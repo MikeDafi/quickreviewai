@@ -111,9 +111,8 @@ Conversion Tracking:
 │     ┌──────────────────────────────────────────────────────────┐   │
 │     │ • Pick 1-2 random keywords                               │   │
 │     │ • Pick 1-2 random expectations                           │   │
-│     │ • Pick random persona (30+ options)                      │   │
-│     │ • Pick random visit reason (20+ options)                 │   │
-│     │ • Pick random length (2-5 sentences)                     │   │
+│     │ • Pick random reviewer context (200 options)              │   │
+│     │ • Pick random length (3 words - 2 paragraphs)            │   │
 │     │ • Add random quirks (lol, typos, slang)                  │   │
 │     │ • Include 8 real human review examples                   │   │
 │     │ • Add banned phrase list (AI-sounding words)             │   │

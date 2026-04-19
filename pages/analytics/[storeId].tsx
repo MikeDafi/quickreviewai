@@ -869,7 +869,10 @@ export default function StoreAnalytics() {
                       const maxCount = Math.max(...data.lengthStats.map(s => s.count), 1);
                       const width = (stat.count / maxCount) * 100;
                       const pasteRate = stat.count > 0 ? Math.round((stat.copiedCount / stat.count) * 100) : 0;
-                      const isBest = stat.lengthType === 'medium';
+                      const bestType = data.lengthStats.reduce((max, s) =>
+                        s.count > 0 && (s.copiedCount / s.count) > (max.copiedCount / Math.max(max.count, 1)) ? s : max
+                      ).lengthType;
+                      const isBest = stat.lengthType === bestType;
                       
                       return (
                         <div key={index}>

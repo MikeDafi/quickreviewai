@@ -72,8 +72,8 @@ CREATE TABLE review_events (
   keywords_used TEXT[],                   -- Which keywords were included
   expectations_used TEXT[],               -- Which expectations were included (legacy)
   guidance_used TEXT,                     -- Which guidance was used
-  length_type TEXT,                       -- 'ultra-short', 'short', 'medium', 'long', 'extended'
-  persona TEXT,                           -- Character persona used
+  length_type TEXT,                       -- 'micro', 'ultra-short', 'short', 'medium', 'long', 'extended'
+  reviewer_context TEXT,                  -- Reviewer identity/situation context used
   was_copied BOOLEAN DEFAULT false,
   was_pasted_google BOOLEAN DEFAULT false,
   was_pasted_yelp BOOLEAN DEFAULT false,
