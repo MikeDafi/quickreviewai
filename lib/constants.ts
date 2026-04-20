@@ -67,6 +67,17 @@ export const TIME = {
 export const RATE_LIMIT = {
   WINDOW_SECONDS: TIME.HOUR_SECONDS, // 1 hour window
   CACHE_TTL_SECONDS: TIME.DAY_SECONDS, // 24 hours for cached reviews
+
+  // Per-IP burst: max review generations per 2 hours
+  IP_BURST_MAX: 5,
+  IP_BURST_WINDOW: 2 * TIME.HOUR_SECONDS, // 2 hours
+
+  // Per-store daily cap
+  STORE_DAILY_FREE: 50,
+  STORE_DAILY_PRO: 200,
+
+  // Global Gemini daily budget
+  GEMINI_DAILY_MAX: 2000,
 } as const
 
 // ============================================

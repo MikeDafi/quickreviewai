@@ -12,6 +12,7 @@ import {
   VALID_PLATFORMS,
 } from '@/lib/constants'
 import { getClientIP, hashIP } from '@/lib/ip'
+import { rateLimit } from '@/lib/rateLimit'
 import {
   REVIEWER_CONTEXTS,
   EXAMPLE_HUMAN_REVIEWS,
@@ -803,6 +804,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const isDemo = id === 'demo'
     
+    // Track user tier for rate limiting (default to FREE, demo stays separate)
+    let storeTier: SubscriptionTier = SubscriptionTier.FREE
+
     // Check monthly scan limit (skip for demo)
     if (!isDemo) {
       const { rows: [scanCheck] } = await sql`
@@ -818,8 +822,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       `
       
       if (scanCheck) {
-        const tier = (scanCheck.tier || SubscriptionTier.FREE) as SubscriptionTier
-        const limit = getScanLimit(tier)
+        storeTier = (scanCheck.tier || SubscriptionTier.FREE) as SubscriptionTier
+        const limit = getScanLimit(storeTier)
         const totalScans = parseInt(scanCheck.total_scans) || 0
         
         if (totalScans >= limit) {
@@ -923,6 +927,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
       
+      // Layer 1: Per-IP burst limit (5 per 2 hours)
+      const ipBurst = await rateLimit(
+        `gen_burst:${ipHash}`,
+        RATE_LIMIT.IP_BURST_MAX,
+        RATE_LIMIT.IP_BURST_WINDOW
+      )
+      if (!ipBurst.allowed) {
+        if (cachedReview) {
+          return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+        }
+        return res.status(429).json({ error: 'Rate limit exceeded', message: 'Too many requests. Please try again later.', resetIn: ipBurst.resetIn })
+      }
+
+      // Layer 2: Per-store daily cap
+      const today = new Date().toISOString().slice(0, 10)
+      const storeDailyMax = storeTier === SubscriptionTier.PRO ? RATE_LIMIT.STORE_DAILY_PRO : RATE_LIMIT.STORE_DAILY_FREE
+      const storeDaily = await rateLimit(
+        `store_daily:${landing.store_id}:${today}`,
+        storeDailyMax,
+        2 * 24 * 60 * 60 // 48 hour TTL
+      )
+      if (!storeDaily.allowed) {
+        if (cachedReview) {
+          return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+        }
+        return res.status(429).json({ error: 'Daily limit reached', message: 'This store has reached its daily review limit. Try again tomorrow.' })
+      }
+
+      // Layer 3: Global Gemini daily budget
+      const geminiDaily = await rateLimit(
+        `gemini_usage:${today}`,
+        RATE_LIMIT.GEMINI_DAILY_MAX,
+        2 * 24 * 60 * 60 // 48 hour TTL
+      )
+      if (!geminiDaily.allowed) {
+        if (cachedReview) {
+          return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+        }
+        return res.status(429).json({ error: 'Service temporarily unavailable', message: 'Please try again later.' })
+      }
+
       // Generate new review
       const result = await generateReview(landing as LandingWithStore)
       review = result.review
