@@ -898,8 +898,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const rateLimitResult = await checkRateLimit(ip, id, rateLimit)
         
         if (!rateLimitResult.allowed) {
-          const minutes = Math.ceil(rateLimitResult.resetIn / 60000)
-          
+          const totalSeconds = Math.ceil(rateLimitResult.resetIn / 1000)
+          const waitText = totalSeconds >= 60
+            ? `${Math.ceil(totalSeconds / 60)} ${Math.ceil(totalSeconds / 60) === 1 ? 'minute' : 'minutes'}`
+            : `${totalSeconds} seconds`
+
           if (userTier === SubscriptionTier.FREE && !isDemo) {
             try {
               await sql`
@@ -921,7 +924,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           
           return res.status(429).json({ 
             error: 'Rate limit exceeded', 
-            message: `Too many regenerations. Try again in ${minutes} minutes.`,
+            message: `Too many regenerations. Try again in ${waitText}.`,
             resetIn: rateLimitResult.resetIn
           })
         }
