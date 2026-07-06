@@ -404,3 +404,136 @@ export async function getLandingPages(storeId: string) {
   `
   return rows
 }
+
+// ============ Review Queue ============
+// A per-store buffer of pre-generated reviews. Visitor requests are served from
+// this queue (rotating so different visitors get different reviews); a row is
+// popped only when copied, and the whole queue is cleared when content settings change.
+
+export interface QueuedReviewInput {
+  reviewText: string
+  keywordsUsed?: string[]
+  expectationsUsed?: string[]
+  lengthType?: string
+  reviewerContext?: string
+}
+
+// A stored row in the review_queue table
+export interface QueuedReviewRow {
+  id: string
+  landing_page_id: string
+  store_id: string
+  review_text: string
+  keywords_used: string[] | null
+  expectations_used: string[] | null
+  length_type: string | null
+  reviewer_context: string | null
+  served_count: number
+  reserved_until: string | null
+  created_at: string
+  [key: string]: unknown
+}
+
+// Number of reviews currently buffered for a store
+export async function getQueueCount(storeId: string): Promise<number> {
+  const { rows } = await sql`
+    SELECT COUNT(*)::int AS count FROM review_queue WHERE store_id = ${storeId}
+  `
+  return rows[0]?.count || 0
+}
+
+// Insert one or more pre-generated reviews into a store's queue
+export async function enqueueReviews(
+  landingPageId: string,
+  storeId: string,
+  reviews: QueuedReviewInput[]
+): Promise<number> {
+  let inserted = 0
+  for (const review of reviews) {
+    if (!review.reviewText) continue
+
+    const keywordsJson = JSON.stringify(review.keywordsUsed || [])
+    const expectationsJson = JSON.stringify(review.expectationsUsed || [])
+
+    await sql`
+      INSERT INTO review_queue (
+        landing_page_id, store_id, review_text,
+        keywords_used, expectations_used, length_type, reviewer_context
+      ) VALUES (
+        ${landingPageId},
+        ${storeId},
+        ${review.reviewText},
+        CASE WHEN ${keywordsJson}::text = '[]' THEN NULL
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
+        CASE WHEN ${expectationsJson}::text = '[]' THEN NULL
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
+        ${review.lengthType || null},
+        ${review.reviewerContext || null}
+      )
+    `
+    inserted++
+  }
+  return inserted
+}
+
+// Atomically pick the next AVAILABLE review to serve (least-served, oldest first),
+// increment its served_count, and place an exclusive lease on it for
+// reservationSeconds so no other viewer is served the same review. Rows whose
+// lease is still in the future are skipped; expired leases are treated as
+// available. Uses FOR UPDATE SKIP LOCKED so concurrent visitors don't grab the
+// same row. Returns null when no review is currently available (empty or all reserved).
+export async function getNextQueuedReview(
+  storeId: string,
+  reservationSeconds: number
+): Promise<QueuedReviewRow | null> {
+  const { rows } = await sql<QueuedReviewRow>`
+    WITH next AS (
+      SELECT id FROM review_queue
+      WHERE store_id = ${storeId}
+        AND (reserved_until IS NULL OR reserved_until < NOW())
+      ORDER BY served_count ASC, created_at ASC
+      LIMIT 1
+      FOR UPDATE SKIP LOCKED
+    )
+    UPDATE review_queue rq
+    SET served_count = rq.served_count + 1,
+        reserved_until = NOW() + make_interval(secs => ${reservationSeconds})
+    FROM next
+    WHERE rq.id = next.id
+    RETURNING rq.*
+  `
+  return rows[0] ?? null
+}
+
+// Release a viewer's exclusive lease so the review returns to the pool immediately
+// (e.g., when the viewer regenerates/cycles to a different review).
+export async function releaseQueuedReview(queueItemId: string): Promise<boolean> {
+  const { rowCount } = await sql`
+    UPDATE review_queue SET reserved_until = NULL WHERE id = ${queueItemId}
+  `
+  return (rowCount || 0) > 0
+}
+
+// Remove a single review from the queue (pop-on-copy)
+export async function popQueuedReview(queueItemId: string): Promise<boolean> {
+  const { rowCount } = await sql`
+    DELETE FROM review_queue WHERE id = ${queueItemId}
+  `
+  return (rowCount || 0) > 0
+}
+
+// Clear a store's entire queue (called when content-affecting settings change)
+export async function clearQueue(storeId: string): Promise<number> {
+  const { rowCount } = await sql`
+    DELETE FROM review_queue WHERE store_id = ${storeId}
+  `
+  return rowCount || 0
+}
+
+// Get the landing page IDs for a store (used to invalidate per-IP KV caches on reset)
+export async function getLandingPageIds(storeId: string): Promise<string[]> {
+  const { rows } = await sql`
+    SELECT id FROM landing_pages WHERE store_id = ${storeId}
+  `
+  return rows.map((r) => r.id as string)
+}

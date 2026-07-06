@@ -86,3 +86,57 @@ CREATE INDEX idx_review_events_landing_page_id ON review_events(landing_page_id)
 CREATE INDEX idx_review_events_created_at ON review_events(created_at);
 CREATE INDEX idx_review_events_store_time ON review_events(store_id, created_at DESC);
 
+-- ============================================
+-- REVIEW QUEUE TABLE (Pre-generated reviews)
+-- ============================================
+-- Holds a buffer of ~10 pre-generated reviews per store so visitor requests can
+-- be served instantly instead of calling Gemini live on the request path.
+-- - Rotation: serve the least-served row first (served_count ASC), so different
+--   visitors receive different reviews.
+-- - Pop: a row is deleted only when a visitor copies it.
+-- - Reset: all rows for a store are deleted when content-affecting settings change.
+CREATE TABLE review_queue (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  landing_page_id TEXT REFERENCES landing_pages(id) ON DELETE CASCADE,
+  store_id TEXT REFERENCES stores(id) ON DELETE CASCADE,
+  review_text TEXT NOT NULL,
+  keywords_used TEXT[],                   -- Which keywords were included
+  expectations_used TEXT[],               -- Which expectations/guidance were included
+  length_type TEXT,                       -- 'ultra-short', 'short', 'medium', 'long', 'extended'
+  reviewer_context TEXT,                  -- Reviewer identity/situation context used
+  served_count INT DEFAULT 0,             -- Times served to a visitor (drives rotation)
+  reserved_until TIMESTAMP,               -- Exclusive lease: NULL = available, future = held by a viewer
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_review_queue_store_id ON review_queue(store_id);
+CREATE INDEX idx_review_queue_landing_page_id ON review_queue(landing_page_id);
+-- Rotation lookup: least-served, oldest first, scoped to a store
+CREATE INDEX idx_review_queue_rotation ON review_queue(store_id, served_count, created_at);
+-- Availability lookup: skip rows currently reserved by another viewer
+CREATE INDEX idx_review_queue_reserved ON review_queue(store_id, reserved_until);
+
+-- --------------------------------------------
+-- Migration snippet for an EXISTING database
+-- --------------------------------------------
+-- Safe to run against a live DB (idempotent):
+--
+-- CREATE TABLE IF NOT EXISTS review_queue (
+--   id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+--   landing_page_id TEXT REFERENCES landing_pages(id) ON DELETE CASCADE,
+--   store_id TEXT REFERENCES stores(id) ON DELETE CASCADE,
+--   review_text TEXT NOT NULL,
+--   keywords_used TEXT[],
+--   expectations_used TEXT[],
+--   length_type TEXT,
+--   reviewer_context TEXT,
+--   served_count INT DEFAULT 0,
+--   reserved_until TIMESTAMP,
+--   created_at TIMESTAMP DEFAULT NOW()
+-- );
+-- ALTER TABLE review_queue ADD COLUMN IF NOT EXISTS reserved_until TIMESTAMP;
+-- CREATE INDEX IF NOT EXISTS idx_review_queue_store_id ON review_queue(store_id);
+-- CREATE INDEX IF NOT EXISTS idx_review_queue_landing_page_id ON review_queue(landing_page_id);
+-- CREATE INDEX IF NOT EXISTS idx_review_queue_rotation ON review_queue(store_id, served_count, created_at);
+-- CREATE INDEX IF NOT EXISTS idx_review_queue_reserved ON review_queue(store_id, reserved_until);
+

@@ -81,6 +81,33 @@ export const RATE_LIMIT = {
 } as const
 
 // ============================================
+// Review Queue (pre-generated reviews per store)
+// ============================================
+export const QUEUE = {
+  // Target number of pre-generated reviews to keep buffered per store
+  TARGET_SIZE: 10,
+
+  // Refill whenever the available queue drops below this many rows.
+  // Equal to TARGET_SIZE means "top up to 10 whenever below 10".
+  REFILL_THRESHOLD: 10,
+
+  // Hard cap on how many reviews we generate during a single request's refill,
+  // to bound Gemini latency on the request that happens to trigger a top-up.
+  // Kept small so a low/empty queue fills over a few requests instead of making
+  // one visitor wait for ~10 sequential generations.
+  MAX_REFILL_PER_REQUEST: 3,
+
+  // Max number of Gemini calls to run in parallel while refilling.
+  REFILL_CONCURRENCY: 3,
+
+  // Exclusive lease (seconds) placed on a review when it is served to a viewer.
+  // While reserved, the review is invisible to other viewers' selection. Pure
+  // time-based expiry — no heartbeat — so a lingering viewer loses exclusivity
+  // once this window elapses.
+  RESERVATION_SECONDS: 300,
+} as const
+
+// ============================================
 // Billing & Refunds
 // ============================================
 export const BILLING = {

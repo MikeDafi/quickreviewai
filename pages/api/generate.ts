@@ -2,12 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { kv } from '@vercel/kv'
-import { getLandingPage, incrementCopyCount, sql } from '@/lib/db'
+import { getLandingPage, incrementCopyCount, sql, enqueueReviews, getQueueCount, getNextQueuedReview, popQueuedReview, releaseQueuedReview, type QueuedReviewInput } from '@/lib/db'
 import { 
   SubscriptionTier, 
   PLAN_LIMITS, 
   DEMO_REGENERATIONS_PER_HOUR,
   RATE_LIMIT,
+  QUEUE,
   Platform,
   VALID_PLATFORMS,
 } from '@/lib/constants'
@@ -671,6 +672,150 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
 }
 
 // ============================================
+// Review Queue Refill
+// ============================================
+
+/**
+ * Top a store's pre-generated review queue back up toward QUEUE.TARGET_SIZE.
+ *
+ * On-demand + synchronous: called from the serve/copy paths whenever the queue
+ * drops below the threshold. Best-effort — never throws, never blocks the caller
+ * from succeeding. Each generated review consumes the store-daily and global
+ * Gemini budgets; refilling stops early if either budget is exhausted. Per-request
+ * work is bounded by QUEUE.MAX_REFILL_PER_REQUEST and QUEUE.REFILL_CONCURRENCY to
+ * keep latency in check.
+ */
+async function refillQueue(
+  landing: LandingWithStore,
+  storeTier: SubscriptionTier
+): Promise<void> {
+  try {
+    if (!landing.store_id) return
+
+    const currentCount = await getQueueCount(landing.store_id)
+    if (currentCount >= QUEUE.REFILL_THRESHOLD) return
+
+    let deficit = Math.min(
+      QUEUE.TARGET_SIZE - currentCount,
+      QUEUE.MAX_REFILL_PER_REQUEST
+    )
+    if (deficit <= 0) return
+
+    const today = new Date().toISOString().slice(0, 10)
+    const storeDailyMax =
+      storeTier === SubscriptionTier.PRO
+        ? RATE_LIMIT.STORE_DAILY_PRO
+        : RATE_LIMIT.STORE_DAILY_FREE
+    const budgetTtl = 2 * 24 * 60 * 60 // 48h, matches serve-path limiters
+
+    const generated: QueuedReviewInput[] = []
+
+    // Generate in bounded-concurrency batches so we don't fire off all Gemini
+    // calls at once, and so we can stop as soon as a budget is exhausted.
+    while (deficit > 0) {
+      const batchSize = Math.min(deficit, QUEUE.REFILL_CONCURRENCY)
+
+      const batch = await Promise.allSettled(
+        Array.from({ length: batchSize }, async (): Promise<QueuedReviewInput | null> => {
+          // Consume the store-daily and global Gemini budgets per generation.
+          const storeDaily = await rateLimit(
+            `store_daily:${landing.store_id}:${today}`,
+            storeDailyMax,
+            budgetTtl
+          )
+          if (!storeDaily.allowed) return null
+
+          const geminiDaily = await rateLimit(
+            `gemini_usage:${today}`,
+            RATE_LIMIT.GEMINI_DAILY_MAX,
+            budgetTtl
+          )
+          if (!geminiDaily.allowed) return null
+
+          const result = await generateReview(landing)
+          return {
+            reviewText: result.review,
+            keywordsUsed: result.metadata.keywordsUsed,
+            expectationsUsed: result.metadata.expectationsUsed,
+            lengthType: result.metadata.lengthType,
+            reviewerContext: result.metadata.reviewerContext,
+          }
+        })
+      )
+
+      let budgetExhausted = false
+      for (const outcome of batch) {
+        if (outcome.status === 'fulfilled' && outcome.value) {
+          generated.push(outcome.value)
+        } else if (outcome.status === 'fulfilled' && outcome.value === null) {
+          // Budget ran out for this slot — stop after this batch.
+          budgetExhausted = true
+        }
+      }
+
+      deficit -= batchSize
+      if (budgetExhausted) break
+    }
+
+    if (generated.length > 0) {
+      await enqueueReviews(landing.id, landing.store_id, generated)
+    }
+  } catch (error) {
+    console.error('Queue refill error:', error)
+  }
+}
+
+/**
+ * Insert a review_events analytics row for a served review and return its id.
+ * Shared by the queue-serve and live-generation paths. Best-effort — returns null
+ * on failure (e.g., table missing) without throwing.
+ */
+async function saveReviewEvent(params: {
+  landingId: string
+  storeId: string
+  reviewText: string
+  keywordsUsed?: string[] | null
+  expectationsUsed?: string[] | null
+  lengthType?: string | null
+  reviewerContext?: string | null
+  ipHash: string
+}): Promise<string | null> {
+  try {
+    const keywordsJson = JSON.stringify(params.keywordsUsed || [])
+    const expectationsJson = JSON.stringify(params.expectationsUsed || [])
+
+    const { rows: [event] } = await sql`
+      INSERT INTO review_events (
+        landing_page_id,
+        store_id,
+        review_text,
+        keywords_used,
+        expectations_used,
+        length_type,
+        reviewer_context,
+        ip_hash
+      ) VALUES (
+        ${params.landingId},
+        ${params.storeId},
+        ${params.reviewText},
+        CASE WHEN ${keywordsJson}::text = '[]' THEN NULL
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
+        CASE WHEN ${expectationsJson}::text = '[]' THEN NULL
+             ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
+        ${params.lengthType || null},
+        ${params.reviewerContext || null},
+        ${params.ipHash}
+      )
+      RETURNING id
+    `
+    return event?.id || null
+  } catch (error) {
+    console.error('Failed to save review event:', error)
+    return null
+  }
+}
+
+// ============================================
 // Tracking Actions (POST Handlers)
 // ============================================
 
@@ -684,6 +829,7 @@ interface TrackingResult {
 async function handleCopyAction(
   id: string,
   reviewEventId: string | undefined,
+  queueItemId: string | undefined,
   ip: string
 ): Promise<TrackingResult> {
         const ipHash = hashIP(ip)
@@ -703,7 +849,31 @@ async function handleCopyAction(
             WHERE id = ${reviewEventId}
     `.catch(() => {}) // Silently fail if table doesn't exist
   }
-  
+
+  // Pop the copied review out of the queue so it is never reused, then top the
+  // queue back up. Best-effort — a failure here never blocks copy tracking.
+  if (queueItemId) {
+    try {
+      const popped = await popQueuedReview(queueItemId)
+      if (popped) {
+        const landing = await getLandingPage(id)
+        if (landing && landing.store_id) {
+          const { rows: tierRows } = await sql`
+            SELECT COALESCE(u.subscription_tier, 'free') AS tier
+            FROM landing_pages lp
+            JOIN stores s ON lp.store_id = s.id
+            JOIN users u ON s.user_id = u.id
+            WHERE lp.id = ${id}
+          `
+          const storeTier = (tierRows[0]?.tier || SubscriptionTier.FREE) as SubscriptionTier
+          await refillQueue(landing as LandingWithStore, storeTier)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to pop/refill queue on copy:', error)
+    }
+  }
+
   return { success: true, counted: !alreadyCopied }
 }
 
@@ -776,11 +946,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Handle POST tracking actions
     if (req.method === 'POST') {
-      const { reviewEventId } = req.body || {}
+      const { reviewEventId, queueItemId } = req.body || {}
       const ip = getClientIP(req)
       
       if (action === 'copy') {
-        const result = await handleCopyAction(id, reviewEventId, ip)
+        const result = await handleCopyAction(id, reviewEventId, queueItemId, ip)
         return res.status(200).json(result)
       }
       
@@ -857,28 +1027,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('View count increment error:', error)
     }
 
-    // Check for cached review
+    // Check for cached review (keeps a given visitor stable across refreshes)
     const cacheKey = `review_cache:${id}:${ipHash}`
     const eventCacheKey = `review_event:${id}:${ipHash}`
+    const queueItemCacheKey = `review_queue_item:${id}:${ipHash}`
     
     let cachedReview: string | null = null
     let cachedEventId: string | null = null
+    let cachedQueueItemId: string | null = null
     
     try {
       cachedReview = await kv.get<string>(cacheKey)
       cachedEventId = await kv.get<string>(eventCacheKey)
+      cachedQueueItemId = await kv.get<string>(queueItemCacheKey)
     } catch (error) {
       console.error('Cache read error:', error)
     }
 
     let review: string
     let reviewEventId: string | null = null
+    let queueItemId: string | null = null
 
     if (cachedReview && !regenerate) {
       review = cachedReview
       reviewEventId = cachedEventId
+      queueItemId = cachedQueueItemId
     } else {
-      // Handle regeneration rate limiting
+      // Handle regeneration rate limiting. This gates how often a visitor may ask
+      // for a *different* review, whether it comes from the queue or live generation.
       if (regenerate) {
         let userTier: SubscriptionTier | 'demo' = isDemo ? 'demo' : SubscriptionTier.FREE
         let rateLimit: number = getRegenerationLimit('demo')
@@ -924,97 +1100,139 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           })
         }
       }
-      
-      // Layer 1: Per-IP burst limit (5 per 2 hours)
-      const ipBurst = await rateLimit(
-        `gen_burst:${ipHash}`,
-        RATE_LIMIT.IP_BURST_MAX,
-        RATE_LIMIT.IP_BURST_WINDOW
-      )
-      if (!ipBurst.allowed) {
-        if (cachedReview) {
-          return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+
+      // On regenerate, release the viewer's currently-held review back into the
+      // pool immediately so another visitor can be served it while we reserve the next.
+      if (regenerate && cachedQueueItemId) {
+        try {
+          await releaseQueuedReview(cachedQueueItemId)
+        } catch (error) {
+          console.error('Failed to release reserved review on regenerate:', error)
         }
-        return res.status(429).json({ error: 'Rate limit exceeded', message: 'Too many requests. Please try again later.', resetIn: ipBurst.resetIn })
       }
 
-      // Layer 2: Per-store daily cap
-      const today = new Date().toISOString().slice(0, 10)
-      const storeDailyMax = storeTier === SubscriptionTier.PRO ? RATE_LIMIT.STORE_DAILY_PRO : RATE_LIMIT.STORE_DAILY_FREE
-      const storeDaily = await rateLimit(
-        `store_daily:${landing.store_id}:${today}`,
-        storeDailyMax,
-        2 * 24 * 60 * 60 // 48 hour TTL
-      )
-      if (!storeDaily.allowed) {
-        if (cachedReview) {
-          return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
-        }
-        return res.status(429).json({ error: 'Daily limit reached', message: 'This store has reached its daily review limit. Try again tomorrow.' })
-      }
-
-      // Layer 3: Global Gemini daily budget
-      const geminiDaily = await rateLimit(
-        `gemini_usage:${today}`,
-        RATE_LIMIT.GEMINI_DAILY_MAX,
-        2 * 24 * 60 * 60 // 48 hour TTL
-      )
-      if (!geminiDaily.allowed) {
-        if (cachedReview) {
-          return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
-        }
-        return res.status(429).json({ error: 'Service temporarily unavailable', message: 'Please try again later.' })
-      }
-
-      // Generate new review
-      const result = await generateReview(landing as LandingWithStore)
-      review = result.review
-      
-      // Save review event for analytics (skip demo)
+      // Try to serve a pre-generated review from the store's queue first.
+      // Rotation (least-served row) means different visitors get different reviews,
+      // and serving places an exclusive lease so no other viewer gets the same one
+      // while it's being read. A row is popped only when copied. The demo page has no queue.
+      let queued: Awaited<ReturnType<typeof getNextQueuedReview>> = null
       if (!isDemo && landing.store_id) {
         try {
-          const keywordsJson = JSON.stringify(result.metadata.keywordsUsed || [])
-          const expectationsJson = JSON.stringify(result.metadata.expectationsUsed || [])
-          
-          const { rows: [event] } = await sql`
-            INSERT INTO review_events (
-              landing_page_id, 
-              store_id, 
-              review_text, 
-              keywords_used, 
-              expectations_used, 
-              length_type,
-              reviewer_context,
-              ip_hash
-            ) VALUES (
-              ${id},
-              ${landing.store_id},
-              ${review},
-              CASE WHEN ${keywordsJson}::text = '[]' THEN NULL 
-                   ELSE (SELECT array_agg(x) FROM json_array_elements_text(${keywordsJson}::json) AS x) END,
-              CASE WHEN ${expectationsJson}::text = '[]' THEN NULL 
-                   ELSE (SELECT array_agg(x) FROM json_array_elements_text(${expectationsJson}::json) AS x) END,
-              ${result.metadata.lengthType},
-              ${result.metadata.reviewerContext},
-              ${ipHash}
-            )
-            RETURNING id
-          `
-          reviewEventId = event?.id || null
-          
+          queued = await getNextQueuedReview(landing.store_id, QUEUE.RESERVATION_SECONDS)
+        } catch (error) {
+          console.error('Queue read error:', error)
+        }
+      }
+
+      if (queued) {
+        // ---- Served from the pre-generated queue (no live Gemini call) ----
+        review = queued.review_text
+        queueItemId = queued.id
+
+        reviewEventId = await saveReviewEvent({
+          landingId: id,
+          storeId: landing.store_id,
+          reviewText: review,
+          keywordsUsed: queued.keywords_used,
+          expectationsUsed: queued.expectations_used,
+          lengthType: queued.length_type,
+          reviewerContext: queued.reviewer_context,
+          ipHash,
+        })
+
+        // Cache per-visitor so refresh stays stable
+        try {
+          await kv.set(cacheKey, review, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
           if (reviewEventId) {
             await kv.set(eventCacheKey, reviewEventId, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
           }
+          await kv.set(queueItemCacheKey, queueItemId, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
         } catch (error) {
-          console.error('Failed to save review event:', error)
+          console.error('Cache write error:', error)
         }
-      }
-      
-      // Cache the review
-      try {
-        await kv.set(cacheKey, review, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
-      } catch (error) {
-        console.error('Cache write error:', error)
+
+        // Top the queue back up toward target (best-effort, bounded, rate-limited)
+        await refillQueue(landing as LandingWithStore, storeTier)
+      } else {
+        // ---- Queue empty (or demo): fall back to live generation ----
+        // Layer 1: Per-IP burst limit (5 per 2 hours)
+        const ipBurst = await rateLimit(
+          `gen_burst:${ipHash}`,
+          RATE_LIMIT.IP_BURST_MAX,
+          RATE_LIMIT.IP_BURST_WINDOW
+        )
+        if (!ipBurst.allowed) {
+          if (cachedReview) {
+            return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, queueItemId: cachedQueueItemId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+          }
+          return res.status(429).json({ error: 'Rate limit exceeded', message: 'Too many requests. Please try again later.', resetIn: ipBurst.resetIn })
+        }
+
+        // Layer 2: Per-store daily cap
+        const today = new Date().toISOString().slice(0, 10)
+        const storeDailyMax = storeTier === SubscriptionTier.PRO ? RATE_LIMIT.STORE_DAILY_PRO : RATE_LIMIT.STORE_DAILY_FREE
+        const storeDaily = await rateLimit(
+          `store_daily:${landing.store_id}:${today}`,
+          storeDailyMax,
+          2 * 24 * 60 * 60 // 48 hour TTL
+        )
+        if (!storeDaily.allowed) {
+          if (cachedReview) {
+            return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, queueItemId: cachedQueueItemId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+          }
+          return res.status(429).json({ error: 'Daily limit reached', message: 'This store has reached its daily review limit. Try again tomorrow.' })
+        }
+
+        // Layer 3: Global Gemini daily budget
+        const geminiDaily = await rateLimit(
+          `gemini_usage:${today}`,
+          RATE_LIMIT.GEMINI_DAILY_MAX,
+          2 * 24 * 60 * 60 // 48 hour TTL
+        )
+        if (!geminiDaily.allowed) {
+          if (cachedReview) {
+            return res.status(200).json({ review: cachedReview, reviewEventId: cachedEventId, queueItemId: cachedQueueItemId, landing: { id: landing.id, store_name: landing.store_name, google_url: landing.google_url, yelp_url: landing.yelp_url } })
+          }
+          return res.status(429).json({ error: 'Service temporarily unavailable', message: 'Please try again later.' })
+        }
+
+        // Generate new review live
+        const result = await generateReview(landing as LandingWithStore)
+        review = result.review
+
+        // Save review event for analytics (skip demo)
+        if (!isDemo && landing.store_id) {
+          reviewEventId = await saveReviewEvent({
+            landingId: id,
+            storeId: landing.store_id,
+            reviewText: review,
+            keywordsUsed: result.metadata.keywordsUsed,
+            expectationsUsed: result.metadata.expectationsUsed,
+            lengthType: result.metadata.lengthType,
+            reviewerContext: result.metadata.reviewerContext,
+            ipHash,
+          })
+
+          if (reviewEventId) {
+            try {
+              await kv.set(eventCacheKey, reviewEventId, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
+            } catch (error) {
+              console.error('Cache write error:', error)
+            }
+          }
+        }
+
+        // Cache the review
+        try {
+          await kv.set(cacheKey, review, { ex: RATE_LIMIT.CACHE_TTL_SECONDS })
+        } catch (error) {
+          console.error('Cache write error:', error)
+        }
+
+        // Seed / refill the queue so subsequent visitors are served from it
+        if (!isDemo && landing.store_id) {
+          await refillQueue(landing as LandingWithStore, storeTier)
+        }
       }
     }
 
@@ -1028,6 +1246,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       review,
       reviewEventId,
+      queueItemId,
     })
   } catch (error) {
     console.error('Generate API error:', error)

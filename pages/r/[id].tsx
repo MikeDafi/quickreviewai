@@ -56,6 +56,7 @@ export default function LandingPage() {
   const [data, setData] = useState<LandingData | null>(null);
   const [review, setReview] = useState('');
   const [reviewEventId, setReviewEventId] = useState<string | null>(null);
+  const [queueItemId, setQueueItemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -114,6 +115,7 @@ export default function LandingPage() {
       if (result.reviewEventId) {
         setReviewEventId(result.reviewEventId);
       }
+      setQueueItemId(result.queueItemId ?? null);
     } catch (err) {
       setError('Failed to load landing page');
     } finally {
@@ -179,6 +181,7 @@ export default function LandingPage() {
         if (result.reviewEventId) {
           setReviewEventId(result.reviewEventId);
         }
+        setQueueItemId(result.queueItemId ?? null);
       }
     } catch (err) {
       console.error('Failed to regenerate:', err);
@@ -195,7 +198,7 @@ export default function LandingPage() {
       fetch(`/api/generate?id=${id}&action=copy`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewEventId })
+        body: JSON.stringify({ reviewEventId, queueItemId })
       }).catch(() => {});
     }
     // Keep copied state for 30 seconds so user has time to click a button

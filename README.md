@@ -168,6 +168,14 @@ STRIPE_PRO_PRICE_ID=      # price_xxx
 psql $POSTGRES_URL -f schema.sql
 ```
 
+### Migrations (existing database)
+
+When new tables are added to `schema.sql`, apply them to a live database without
+dropping data. The `review_queue` table (pre-generated review buffer per store)
+ships with an idempotent `CREATE TABLE IF NOT EXISTS` migration snippet at the
+bottom of `schema.sql` — copy that snippet into the Vercel Postgres Query tab (or
+run it via `psql $POSTGRES_URL`) to add it to an existing deployment.
+
 ---
 
 ## Available Scripts
