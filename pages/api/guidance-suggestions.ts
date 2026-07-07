@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { TIME, GEMINI_MODEL } from '@/lib/constants'
 import crypto from 'crypto'
+import { withErrorNotify } from '@/lib/notify'
 
 // Validate required environment variables at module load
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
@@ -26,7 +27,7 @@ function generateCacheKey(businessTypes: string[], city: string, keywords: strin
   return `guidance_suggestions:${hash}`
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST'])
     return res.status(405).json({ error: `Method ${req.method} not allowed` })
@@ -163,3 +164,5 @@ function generateFallbackSuggestions(businessType: string): string[] {
   ]
 }
 
+
+export default withErrorNotify(handler, 'guidance-suggestions')

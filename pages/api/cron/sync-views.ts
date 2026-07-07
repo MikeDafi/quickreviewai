@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { kv } from '@vercel/kv'
 import { sql } from '@/lib/db'
+import { withErrorNotify } from '@/lib/notify'
 
 // This endpoint syncs view counts from KV to the database
 // Called by Vercel Cron every 10 minutes
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Verify cron secret to prevent unauthorized access
   const authHeader = req.headers.authorization
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -64,3 +65,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
+
+export default withErrorNotify(handler, 'cron/sync-views')

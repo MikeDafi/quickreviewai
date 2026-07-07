@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { sql } from '@/lib/db'
+import { withErrorNotify } from '@/lib/notify'
 
 // Parse date range from period parameter (format: "YYYY-MM-DD_YYYY-MM-DD")
 function parsePeriod(period: string): { startDate: Date; endDate: Date; days: number } {
@@ -23,7 +24,7 @@ function parsePeriod(period: string): { startDate: Date; endDate: Date; days: nu
   return { startDate, endDate, days: 7 }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET'])
     return res.status(405).json({ error: `Method ${req.method} not allowed` })
@@ -249,3 +250,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 }
+
+export default withErrorNotify(handler, 'analytics/[storeId]')

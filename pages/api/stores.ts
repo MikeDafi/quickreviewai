@@ -4,6 +4,7 @@ import { kv } from '@vercel/kv'
 import { authOptions } from '@/lib/auth'
 import { getStores, getStore, createStore, updateStore, deleteStore, createLandingPage, clearQueue, getLandingPageIds, sql } from '@/lib/db'
 import { SubscriptionTier, PLAN_LIMITS, getPlanLimits } from '@/lib/constants'
+import { withErrorNotify } from '@/lib/notify'
 
 // Fields whose change makes pre-generated reviews stale and requires a queue reset.
 // google_url / yelp_url / address don't affect review text, so they don't reset.
@@ -44,7 +45,7 @@ async function invalidateStoreCaches(storeId: string): Promise<void> {
   }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions)
   
   if (!session?.user?.id) {
@@ -170,3 +171,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
+
+export default withErrorNotify(handler, 'stores')

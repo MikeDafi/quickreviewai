@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { sql } from '@/lib/db'
+import { withErrorNotify } from '@/lib/notify'
 
 // This endpoint is called by Vercel Cron to:
 // 1. Clean up old review events (90 day retention)
@@ -9,7 +10,7 @@ import { sql } from '@/lib/db'
 const REVIEW_RETENTION_DAYS = 90
 const ACCOUNT_DELETION_DAYS = 7
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Verify this is from Vercel Cron (in production)
   const authHeader = req.headers.authorization
   
@@ -57,3 +58,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
+
+export default withErrorNotify(handler, 'cron/cleanup')

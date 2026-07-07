@@ -151,6 +151,46 @@ YELP_API_KEY=
 STRIPE_SECRET_KEY=        # sk_live_xxx for production
 STRIPE_WEBHOOK_SECRET=    # whsec_xxx
 STRIPE_PRO_PRICE_ID=      # price_xxx
+
+# Admin Error Alerts (Resend email)
+RESEND_API_KEY=           # Resend API key (send-only key is fine)
+ALERT_EMAIL_TO=           # where alert emails are sent (admin inbox)
+ALERT_EMAIL_FROM=         # optional; defaults to onboarding@resend.dev
+# ALERT_FORCE=1           # optional; send alerts outside production (testing only)
+```
+
+### Admin Error Alerts
+
+The app emails an admin on real failures:
+
+- Any API route that returns **5xx** (thrown exception or explicit 5xx response).
+- **Silent generation failures** — when Gemini exhausts retries and serves a
+  hardcoded fallback review while still returning HTTP 200.
+
+Expected 4xx (401 auth, 403 plan/scan limits, 404, 429 rate limits, 405) are
+intentionally not alerted.
+
+**Setup:**
+
+1. Create a [Resend](https://resend.com) account and API key → set `RESEND_API_KEY`.
+2. Set `ALERT_EMAIL_TO` to your admin inbox.
+3. Sender address (`ALERT_EMAIL_FROM`):
+   - **Quick start:** leave unset → uses `onboarding@resend.dev`. Note: without a
+     verified domain, Resend only delivers to the email your Resend account is
+     registered under, so set `ALERT_EMAIL_TO` to that address.
+   - **Production:** verify your domain in Resend and set e.g.
+     `ALERT_EMAIL_FROM=alerts@quickreviewai.com` to send to any recipient.
+
+Alerts are **disabled unless configured** and only fire when
+`VERCEL_ENV=production` (set `ALERT_FORCE=1` to test elsewhere). A missing key or
+recipient makes alerting a safe no-op.
+
+**Verify delivery:**
+
+```bash
+curl -X POST https://quickreviewai.com/api/admin/test-alert \
+  -H "Authorization: Bearer $CRON_SECRET"
+# → { "sent": true, "config": { ... } }  and an email arrives
 ```
 
 ---

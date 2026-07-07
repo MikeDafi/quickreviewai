@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { sql } from '@/lib/db'
 import { kv } from '@vercel/kv'
+import { withErrorNotify } from '@/lib/notify'
 
 const NOTIFICATION_SHOWN_PREFIX = 'feed_notified:'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET'])
     return res.status(405).json({ error: `Method ${req.method} not allowed` })
@@ -106,3 +107,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
+
+export default withErrorNotify(handler, 'global-feed')

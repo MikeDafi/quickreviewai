@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
 import { sql } from '@/lib/db'
 import { SubscriptionTier } from '@/lib/constants'
+import { withErrorNotify } from '@/lib/notify'
 
 // Validate required environment variables
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -28,7 +29,7 @@ async function buffer(readable: NodeJS.ReadableStream) {
   return Buffer.concat(chunks)
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST'])
     return res.status(405).json({ error: `Method ${req.method} not allowed` })
@@ -130,3 +131,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
+
+export default withErrorNotify(handler, 'billing')

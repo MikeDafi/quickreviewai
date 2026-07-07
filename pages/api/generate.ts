@@ -15,6 +15,7 @@ import {
 } from '@/lib/constants'
 import { getClientIP, hashIP, getViewerKey } from '@/lib/ip'
 import { rateLimit } from '@/lib/rateLimit'
+import { withErrorNotify, notifyAdmin } from '@/lib/notify'
 import {
   REVIEWER_CONTEXTS,
   EXAMPLE_HUMAN_REVIEWS,
@@ -659,6 +660,21 @@ async function generateReview(landing: LandingWithStore): Promise<ReviewResult> 
     storeName: landing.store_name,
     keywords: selectedKeywords,
   })
+
+  // Alert the admin: this failure is otherwise SILENT — we still return a review
+  // (HTTP 200) using a hardcoded fallback template, so no error status surfaces.
+  await notifyAdmin({
+    level: 'error',
+    source: 'generate',
+    subject: 'Gemini generation failed (serving fallback template)',
+    message: lastError instanceof Error ? lastError.message : String(lastError),
+    context: {
+      model: GEMINI_MODEL,
+      storeName: landing.store_name,
+      storeId: landing.store_id,
+      landingPageId: landing.id,
+    },
+  })
   
   // Return fallback review (avoiding store name to prevent any injection issues)
   const safeKeyword = selectedKeywords[0] || 'experience'
@@ -941,7 +957,7 @@ async function handleClickAction(
 // Main API Handler
 // ============================================
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id, regenerate, action, platform } = req.query
 
   if (!id || typeof id !== 'string') {
@@ -1262,3 +1278,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Something went wrong' })
   }
 }
+
+export default withErrorNotify(handler, 'generate')

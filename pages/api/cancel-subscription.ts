@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import Stripe from 'stripe'
 import { sql } from '@/lib/db'
 import { SubscriptionTier, BILLING } from '@/lib/constants'
+import { withErrorNotify } from '@/lib/notify'
 
 // Validate required environment variables
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -15,7 +16,7 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2025-02-24.acacia',
 })
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST'])
     return res.status(405).json({ error: `Method ${req.method} not allowed` })
@@ -133,3 +134,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
+
+export default withErrorNotify(handler, 'cancel-subscription')
