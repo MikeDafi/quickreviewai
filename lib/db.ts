@@ -271,7 +271,10 @@ export async function updateStore(storeId: string, userId: string, data: {
   return rows[0]
 }
 
-// Delete a store (preserves scan/copy counts in user's current billing period)
+// Delete a store. Period scan/copy counts are already tracked in real time on
+// the user (users.period_scans/period_copies), so deletion must NOT re-add the
+// store's lifetime view/copy counts here — that would double-count the current
+// period and wrongly pull in prior periods.
 export async function deleteStore(storeId: string, userId: string) {
   // SECURITY: First verify ownership before any operations
   const { rows: [store] } = await sql`
@@ -281,31 +284,6 @@ export async function deleteStore(storeId: string, userId: string) {
   if (!store) {
     // Store doesn't exist or user doesn't own it - fail silently to prevent enumeration
     return
-  }
-  
-  // Now safe to proceed - user owns this store
-  // Get the scan/copy counts from landing pages for this store
-  const { rows: statsRows } = await sql`
-    SELECT 
-      COALESCE(SUM(view_count), 0)::int as scans,
-      COALESCE(SUM(copy_count), 0)::int as copies
-    FROM landing_pages 
-    WHERE store_id = ${storeId}
-  `
-  
-  const scans = statsRows[0]?.scans || 0
-  const copies = statsRows[0]?.copies || 0
-  
-  // Add these counts to the user's current period totals before deleting
-  // This ensures deleted store scans still count toward monthly limit
-  if (scans > 0 || copies > 0) {
-    await sql`
-      UPDATE users 
-      SET 
-        period_scans = COALESCE(period_scans, 0) + ${scans},
-        period_copies = COALESCE(period_copies, 0) + ${copies}
-      WHERE id = ${userId}
-    `
   }
   
   // Delete the landing pages first (they reference the store)

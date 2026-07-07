@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { kv } from '@vercel/kv'
-import { getLandingPage, incrementCopyCount, sql, enqueueReviews, getQueueCount, getNextQueuedReview, popQueuedReview, releaseQueuedReview, type QueuedReviewInput } from '@/lib/db'
+import { getLandingPage, incrementCopyCount, sql, enqueueReviews, getQueueCount, getNextQueuedReview, popQueuedReview, releaseQueuedReview, isNewBillingPeriod, resetBillingPeriod, type QueuedReviewInput } from '@/lib/db'
 import { 
   SubscriptionTier, 
   PLAN_LIMITS, 
@@ -861,6 +861,20 @@ async function handleCopyAction(
         if (!alreadyCopied) {
         await incrementCopyCount(id)
           await kv.set(copyRateLimitKey, true, { ex: RATE_LIMIT.WINDOW_SECONDS })
+          // Bump the owner's real-time per-period copy counter (drives the
+          // dashboard "Reviews Copied — this billing period" card).
+          try {
+            await sql`
+              UPDATE users SET period_copies = COALESCE(period_copies, 0) + 1
+              WHERE id = (
+                SELECT s.user_id FROM landing_pages lp
+                JOIN stores s ON lp.store_id = s.id
+                WHERE lp.id = ${id}
+              )
+            `
+          } catch (error) {
+            console.error('Failed to increment period_copies:', error)
+          }
         }
         
         if (reviewEventId) {
@@ -997,6 +1011,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     
     // Track user tier for rate limiting (default to FREE, demo stays separate)
     let storeTier: SubscriptionTier = SubscriptionTier.FREE
+    // Owner user id for the served landing page (used to bump the per-period
+    // scan counter after the limit gate passes). Null for demo.
+    let scanUserId: string | null = null
 
     // Check monthly scan limit (skip for demo)
     if (!isDemo) {
@@ -1004,20 +1021,33 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         SELECT 
           u.id as user_id,
           COALESCE(u.subscription_tier, 'free') as tier,
-          COALESCE(u.period_scans, 0) + COALESCE(SUM(lp.view_count), 0) as total_scans
+          COALESCE(u.period_scans, 0) as period_scans,
+          u.period_start,
+          u.created_at
         FROM landing_pages lp
         JOIN stores s ON lp.store_id = s.id
         JOIN users u ON s.user_id = u.id
         WHERE lp.id = ${id}
-        GROUP BY u.id, u.subscription_tier, u.period_scans
       `
       
       if (scanCheck) {
+        scanUserId = scanCheck.user_id
         storeTier = (scanCheck.tier || SubscriptionTier.FREE) as SubscriptionTier
         const limit = getScanLimit(storeTier)
-        const totalScans = parseInt(scanCheck.total_scans) || 0
+
+        // Usage this billing period comes from the real-time counter, not from
+        // lifetime view_count. Roll the period over first so the free-tier limit
+        // self-heals instead of staying stuck forever.
+        let periodScans = parseInt(scanCheck.period_scans) || 0
+        if (isNewBillingPeriod(
+          new Date(scanCheck.created_at),
+          scanCheck.period_start ? new Date(scanCheck.period_start) : null
+        )) {
+          await resetBillingPeriod(scanCheck.user_id)
+          periodScans = 0
+        }
         
-        if (totalScans >= limit) {
+        if (periodScans >= limit) {
           await Promise.all([
             sql`UPDATE users SET exceeded_scans = COALESCE(exceeded_scans, 0) + 1 WHERE id = ${scanCheck.user_id}`,
             sql`UPDATE landing_pages SET exceeded_scans = COALESCE(exceeded_scans, 0) + 1 WHERE id = ${id}`,
@@ -1041,11 +1071,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const ip = getClientIP(req)
     const ipHash = hashIP(ip)
     
-    // Increment view count in KV
+    // Increment the lifetime per-store view counter (KV, synced to view_count)
+    // and the real-time per-period scan counter on the owner (drives the
+    // dashboard "this billing period" card and the free-tier scan limit).
     try {
       await kv.incr(`views:${id}`)
     } catch (error) {
       console.error('View count increment error:', error)
+    }
+    if (!isDemo && scanUserId) {
+      try {
+        await sql`UPDATE users SET period_scans = COALESCE(period_scans, 0) + 1 WHERE id = ${scanUserId}`
+      } catch (error) {
+        console.error('Failed to increment period_scans:', error)
+      }
     }
 
     // Per-viewer identity: prefer the client token so different viewers behind

@@ -91,9 +91,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       periodCopies = 0
     }
 
-    // Total for this billing period = current (from active stores) + period (from deleted stores)
-    const totalScans = data.current_scans + periodScans
-    const reviewsCopied = data.current_copies + periodCopies
+    // Total for this billing period comes directly from the real-time per-period
+    // counters on the user (period_scans/period_copies). These are incremented as
+    // scans/copies happen and reset at each billing-period boundary. We do NOT add
+    // SUM(view_count)/SUM(copy_count) here — those are LIFETIME cumulative counters
+    // (shown on the per-store cards) and are never reset, so mixing them in made
+    // the "this billing period" figure show all-time totals.
+    const totalScans = periodScans
+    const reviewsCopied = periodCopies
 
     const tier = (data.subscription_tier || SubscriptionTier.FREE) as SubscriptionTier
     const limits = getPlanLimits(tier)
