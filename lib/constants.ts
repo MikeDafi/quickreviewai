@@ -81,6 +81,14 @@ export const RATE_LIMIT = {
 } as const
 
 // ============================================
+// AI Model
+// ============================================
+// Gemini model used for review + guidance generation. Google periodically
+// retires older model IDs (they start returning 404), which silently pushes
+// generation onto the hardcoded fallback templates — keep this current.
+export const GEMINI_MODEL = 'gemini-2.5-flash'
+
+// ============================================
 // Review Queue (pre-generated reviews per store)
 // ============================================
 export const QUEUE = {

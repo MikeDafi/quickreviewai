@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { kv } from '@vercel/kv'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { TIME } from '@/lib/constants'
+import { TIME, GEMINI_MODEL } from '@/lib/constants'
 import crypto from 'crypto'
 
 // Validate required environment variables at module load
@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Generate new suggestions with AI
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
     
     const businessTypeStr = businessTypes.join(' / ')
     const locationContext = city ? ` located in ${city}` : ''

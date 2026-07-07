@@ -9,6 +9,7 @@ import {
   DEMO_REGENERATIONS_PER_HOUR,
   RATE_LIMIT,
   QUEUE,
+  GEMINI_MODEL,
   Platform,
   VALID_PLATFORMS,
 } from '@/lib/constants'
@@ -527,7 +528,7 @@ Just write the review. No quotes. No "Here's a review:" preamble.`
 
 /** Generate a review using the Gemini AI model */
 async function generateReview(landing: LandingWithStore): Promise<ReviewResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  const model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
   
   // 50% chance of including keywords at all
   const includeKeywords = Math.random() < 0.5
