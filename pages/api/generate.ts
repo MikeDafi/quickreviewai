@@ -13,7 +13,7 @@ import {
   Platform,
   VALID_PLATFORMS,
 } from '@/lib/constants'
-import { getClientIP, hashIP } from '@/lib/ip'
+import { getClientIP, hashIP, getViewerKey } from '@/lib/ip'
 import { rateLimit } from '@/lib/rateLimit'
 import {
   REVIEWER_CONTEXTS,
@@ -831,10 +831,14 @@ async function handleCopyAction(
   id: string,
   reviewEventId: string | undefined,
   queueItemId: string | undefined,
+  clientId: string | undefined,
   ip: string
 ): Promise<TrackingResult> {
         const ipHash = hashIP(ip)
-        const copyRateLimitKey = `copy_limit:${ipHash}:${id}`
+        // Dedup copies per viewer (per client token, falling back to IP) so a
+        // single viewer copying repeatedly only counts once per window.
+        const viewerKey = getViewerKey(clientId, ipHash)
+        const copyRateLimitKey = `copy_limit:${viewerKey}:${id}`
         
         const alreadyCopied = await kv.get<boolean>(copyRateLimitKey)
         
@@ -947,11 +951,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Handle POST tracking actions
     if (req.method === 'POST') {
-      const { reviewEventId, queueItemId } = req.body || {}
+      const { reviewEventId, queueItemId, clientId } = req.body || {}
       const ip = getClientIP(req)
       
       if (action === 'copy') {
-        const result = await handleCopyAction(id, reviewEventId, queueItemId, ip)
+        const result = await handleCopyAction(id, reviewEventId, queueItemId, clientId, ip)
         return res.status(200).json(result)
       }
       
@@ -1028,10 +1032,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('View count increment error:', error)
     }
 
+    // Per-viewer identity: prefer the client token so different viewers behind
+    // the same IP get distinct reserved reviews; fall back to the hashed IP.
+    const viewerKey = getViewerKey(req.query.clientId, ipHash)
+
     // Check for cached review (keeps a given visitor stable across refreshes)
-    const cacheKey = `review_cache:${id}:${ipHash}`
-    const eventCacheKey = `review_event:${id}:${ipHash}`
-    const queueItemCacheKey = `review_queue_item:${id}:${ipHash}`
+    const cacheKey = `review_cache:${id}:${viewerKey}`
+    const eventCacheKey = `review_event:${id}:${viewerKey}`
+    const queueItemCacheKey = `review_queue_item:${id}:${viewerKey}`
     
     let cachedReview: string | null = null
     let cachedEventId: string | null = null

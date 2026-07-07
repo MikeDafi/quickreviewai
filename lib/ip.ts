@@ -47,3 +47,29 @@ export function getClientIP(req: NextApiRequest): string {
   return req.socket.remoteAddress || 'unknown'
 }
 
+/**
+ * Derive a per-viewer identity key for cache/queue reservation.
+ *
+ * Prefers a client-supplied token (a random id persisted in the visitor's
+ * localStorage) so that multiple distinct viewers behind the same IP
+ * (shared Wi-Fi / NAT) each get their own reserved review. Falls back to the
+ * hashed IP when no valid token is provided (e.g. no-JS clients or the very
+ * first request before the token is set).
+ *
+ * IMPORTANT: use this ONLY for per-viewer cache/queue identity. Abuse rate
+ * limits must remain keyed on the real IP (hashIP), because a client can rotate
+ * its token freely and would otherwise trivially bypass those limits.
+ *
+ * @param clientId - Raw client token from the query string or request body
+ * @param ipHash - Fallback hashed IP
+ * @returns A namespaced viewer key (`c:<token>`) or the hashed IP fallback
+ */
+export function getViewerKey(clientId: string | string[] | undefined, ipHash: string): string {
+  const raw = Array.isArray(clientId) ? clientId[0] : clientId
+  if (raw) {
+    const sanitized = raw.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64)
+    if (sanitized.length >= 8) return `c:${sanitized}`
+  }
+  return ipHash
+}
+

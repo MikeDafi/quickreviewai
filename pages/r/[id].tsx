@@ -4,6 +4,26 @@ import Head from 'next/head';
 import { Copy, RefreshCw, ExternalLink, Check, ArrowDown, X, AlertCircle } from 'lucide-react';
 import { Platform } from '@/lib/constants';
 
+/**
+ * Get or create a stable per-device client id (persisted in localStorage).
+ * Sent to the API so that two different viewers behind the same IP each get
+ * their own reserved review instead of sharing one cached review.
+ */
+function getClientId(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    let cid = window.localStorage.getItem('qr_client_id');
+    if (!cid) {
+      cid = (window.crypto?.randomUUID?.() ??
+        `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      window.localStorage.setItem('qr_client_id', cid);
+    }
+    return cid;
+  } catch {
+    return '';
+  }
+}
+
 // Toast component - prominent notification
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => {
@@ -93,7 +113,7 @@ export default function LandingPage() {
 
   async function fetchLandingPage() {
     try {
-      const res = await fetch(`/api/generate?id=${id}`);
+      const res = await fetch(`/api/generate?id=${id}&clientId=${encodeURIComponent(getClientId())}`);
       const result = await res.json();
       
       // Handle scan limit reached (403 with limitReached flag)
@@ -148,7 +168,7 @@ export default function LandingPage() {
     }
     
     try {
-      const res = await fetch(`/api/generate?id=${id}&regenerate=true`);
+      const res = await fetch(`/api/generate?id=${id}&regenerate=true&clientId=${encodeURIComponent(getClientId())}`);
       const result = await res.json();
       
       // Handle rate limits (429) - check isPlanLimit for free plan specific messaging
@@ -198,7 +218,7 @@ export default function LandingPage() {
       fetch(`/api/generate?id=${id}&action=copy`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewEventId, queueItemId })
+        body: JSON.stringify({ reviewEventId, queueItemId, clientId: getClientId() })
       }).catch(() => {});
     }
     // Keep copied state for 30 seconds so user has time to click a button
