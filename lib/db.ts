@@ -2,6 +2,28 @@ import { sql } from '@vercel/postgres'
 
 export { sql }
 
+/**
+ * Run a DB operation with one retry on transient failures.
+ *
+ * Serverless Postgres (Neon via @vercel/postgres) occasionally throws transient
+ * connection/timeout errors under bursty load or cold starts. A single quick
+ * retry recovers from the vast majority of these without surfacing a 500.
+ */
+export async function withDbRetry<T>(fn: () => Promise<T>, retries = 1, delayMs = 150): Promise<T> {
+  let lastError: unknown
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+    }
+  }
+  throw lastError
+}
+
 // ============ Input Sanitization ============
 // Prevents XSS, script injection, and other malicious input
 

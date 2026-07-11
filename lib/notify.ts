@@ -106,13 +106,34 @@ export async function notifyAdmin(payload: NotifyPayload, opts?: { force?: boole
 
 type ApiHandler = (req: NextApiRequest, res: NextApiResponse) => unknown | Promise<unknown>
 
+/** Symbol-ish key used to stash the underlying error on the response object. */
+const SERVER_ERROR_KEY = '__serverError'
+
+/**
+ * Attach the underlying error to the response so a route that catches its own
+ * error (and returns a generic 500) still surfaces the real cause + stack in the
+ * admin alert. Call this in a catch block right before `res.status(500)`.
+ */
+export function reportServerError(res: NextApiResponse, error: unknown): void {
+  try {
+    ;(res as unknown as Record<string, unknown>)[SERVER_ERROR_KEY] = error
+  } catch {
+    /* ignore */
+  }
+}
+
+function readServerError(res: NextApiResponse): unknown {
+  return (res as unknown as Record<string, unknown>)[SERVER_ERROR_KEY]
+}
+
 /**
  * Wrap a Next.js API route handler so that failures are emailed to the admin:
  *  - a thrown/unhandled exception, or
  *  - any response with status >= 500 (covers explicit `res.status(5xx)` paths).
  *
  * Expected 4xx (auth, rate limits, not found, ...) are intentionally ignored.
- * At most one alert is sent per request.
+ * At most one alert is sent per request. Routes that catch their own errors can
+ * call reportServerError(res, err) so the real cause/stack is included.
  */
 export function withErrorNotify(handler: ApiHandler, source: string): ApiHandler {
   return async (req: NextApiRequest, res: NextApiResponse) => {
@@ -155,15 +176,21 @@ export function withErrorNotify(handler: ApiHandler, source: string): ApiHandler
     }
 
     if (!notified && res.statusCode >= 500) {
+      // Prefer the real error the route captured over the generic response body.
+      const captured = readServerError(res)
       await notifyAdmin({
         level: 'error',
         source,
         subject: `HTTP ${res.statusCode}`,
-        message: bodyMessage() || 'Server error response',
+        message:
+          (captured instanceof Error ? captured.message : captured ? String(captured) : undefined) ||
+          bodyMessage() ||
+          'Server error response',
         context: {
           path: req.url,
           method: req.method,
           status: res.statusCode,
+          stack: captured instanceof Error ? captured.stack : undefined,
         },
       })
     }

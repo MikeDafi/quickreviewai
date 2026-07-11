@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { sql } from '@/lib/db'
+import { sql, withDbRetry } from '@/lib/db'
 import { kv } from '@vercel/kv'
-import { withErrorNotify } from '@/lib/notify'
+import { withErrorNotify, reportServerError } from '@/lib/notify'
 
 const NOTIFICATION_SHOWN_PREFIX = 'feed_notified:'
 
@@ -19,8 +19,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const ip = typeof forwarded === 'string' ? forwarded.split(',')[0] : req.socket.remoteAddress || 'unknown'
 
   try {
-    // Only show events where review was copied AND posted (real completions)
-    const { rows: recentEvents } = await sql`
+    // Only show events where review was copied AND posted (real completions).
+    // Wrapped in withDbRetry so a transient DB connection blip retries once
+    // instead of surfacing a 500.
+    const { rows: recentEvents } = await withDbRetry(() => sql`
       SELECT 
         re.id,
         re.created_at,
@@ -37,20 +39,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         AND (re.was_pasted_google = true OR re.was_pasted_yelp = true)
       ORDER BY re.created_at DESC
       LIMIT ${limit}
-    `
+    `)
 
     // Get total counts for stats (only copied + posted)
-    const { rows: [stats] } = await sql`
+    const { rows: [stats] } = await withDbRetry(() => sql`
       SELECT 
         COUNT(*) as total_posted
       FROM review_events
       WHERE was_copied = true 
         AND (was_pasted_google = true OR was_pasted_yelp = true)
         AND created_at >= NOW() - INTERVAL '24 hours'
-    `
+    `)
 
     // Get most recent posted event for homepage notification
-    const { rows: [mostRecent] } = await sql`
+    const { rows: [mostRecent] } = await withDbRetry(() => sql`
       SELECT 
         re.created_at,
         s.name as store_name,
@@ -62,7 +64,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         AND (re.was_pasted_google = true OR re.was_pasted_yelp = true)
       ORDER BY re.created_at DESC
       LIMIT 1
-    `
+    `)
 
     // Check if this IP has been notified before (for homepage banner)
     let shouldShowNotification = false
@@ -103,6 +105,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     })
   } catch (error) {
     console.error('Global feed API error:', error)
+    // Surface the real cause + stack in the admin alert (the wrapper otherwise
+    // only sees the generic 500 body).
+    reportServerError(res, error)
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
